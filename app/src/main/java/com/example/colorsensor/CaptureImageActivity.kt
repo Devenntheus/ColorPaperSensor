@@ -3,6 +3,7 @@ package com.example.colorsensor
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
@@ -37,6 +38,7 @@ class CaptureImageActivity : AppCompatActivity() {
     lateinit var cameraCaptureSession: CameraCaptureSession
     lateinit var cameraDevice: CameraDevice
     lateinit var imageReader: ImageReader
+    lateinit var capturedImageBytes: ByteArray
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,8 @@ class CaptureImageActivity : AppCompatActivity() {
         handlerThread = HandlerThread("videoThread")
         handlerThread.start()
         handler = Handler((handlerThread as HandlerThread).looper)
+        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
+
 
         textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener{
             override fun onSurfaceTextureAvailable(
@@ -74,25 +78,18 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }
 
-        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
-        imageReader.setOnImageAvailableListener(object: ImageReader.OnImageAvailableListener{
-            override fun onImageAvailable(pO: ImageReader?) {
-                var image = pO?.acquireLatestImage()
-                var buffer = image!!.planes[0].buffer
-                var bytes = ByteArray(buffer.remaining())
-                buffer.get(bytes)
-
-                val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-                val currentDateAndTime = sdf.format(Date())
-                val fileName = "image_$currentDateAndTime.jpeg"
-                val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName)
-                var opStream = FileOutputStream(file)
-
-                opStream.write(bytes)
-                opStream.close()
+        imageReader.setOnImageAvailableListener(object : ImageReader.OnImageAvailableListener {
+            override fun onImageAvailable(reader: ImageReader?) {
+                val image = reader?.acquireLatestImage()
+                val buffer = image!!.planes[0].buffer
+                capturedImageBytes = ByteArray(buffer.remaining())
+                buffer.get(capturedImageBytes)
                 image.close()
 
-                Toast.makeText(this@CaptureImageActivity, "Image Captured", Toast.LENGTH_SHORT).show()
+                // Pass the captured image to the next activity
+                val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
+                intent.putExtra("capturedImage", capturedImageBytes)
+                startActivity(intent)
             }
         }, handler)
 
@@ -100,7 +97,7 @@ class CaptureImageActivity : AppCompatActivity() {
             setOnClickListener {
                 capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
                 capReq.addTarget(imageReader.surface)
-                cameraCaptureSession.capture(capReq.build(),null,null)
+                cameraCaptureSession.capture(capReq.build(), null, null)
             }
         }
     }
@@ -141,6 +138,7 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }, handler)
     }
+
     fun getPermissions() {
         var permissionList = mutableListOf<String>()
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) permissionList.add(
