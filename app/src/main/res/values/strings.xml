@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Color Sensor</string>
+    <string name="color_sensor">Color Sensor</string>
+    <string name="meat_selection">Select a meat type:</string>
+    <string name="pork">Pork</string>
+    <string name="beef">Beef</string>
+    <string name="mutton">Mutton</string>
+    <string name="poultry">Poultry</string>
+</resources>

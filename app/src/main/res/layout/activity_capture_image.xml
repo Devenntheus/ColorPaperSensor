@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CaptureImageActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/TopFunctionsLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/black"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/CameraFlashImageView"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/flash"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/CameraFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextureView
+                android:id="@+id/CameraTextureView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/BottomFunctionsLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@color/black"
+            android:orientation="horizontal">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:columnCount="3"
+                android:layout_margin="5dp"
+                android:rowCount="1">
+
+                <ImageView
+                    android:id="@+id/HistoryImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_rowWeight="1"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="center"
+                    android:src="@drawable/history_icon" />
+
+                <ImageView
+                    android:id="@+id/CaptureImageView"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_rowWeight="1"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="center"
+                    android:src="@drawable/capture_button" />
+
+                <ImageView
+                    android:id="@+id/FlipCameraImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_rowWeight="1"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="center"
+                    android:src="@drawable/camera_flip_icon" />
+
+            </GridLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
