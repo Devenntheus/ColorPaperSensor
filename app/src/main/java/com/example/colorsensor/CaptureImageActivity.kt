@@ -8,25 +8,21 @@ import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.media.ImageReader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Size
+import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -40,44 +36,46 @@ class CaptureImageActivity : AppCompatActivity() {
     lateinit var imageReader: ImageReader
     lateinit var capturedImageBytes: ByteArray
 
+    private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+            openCamera()
+        }
+
+        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+
+        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+            return false
+        }
+
+        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
-        getPermissions();
+        getPermissions()
 
         textureView = findViewById(R.id.CameraTextureView)
+        textureView.surfaceTextureListener = surfaceTextureListener
+
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         handlerThread = HandlerThread("videoThread")
         handlerThread.start()
         handler = Handler((handlerThread as HandlerThread).looper)
-        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
 
-
-        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener{
-            override fun onSurfaceTextureAvailable(
-                surface: SurfaceTexture,
-                width: Int,
-                height: Int
-            ) {
+        val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 openCamera()
             }
 
-            override fun onSurfaceTextureSizeChanged(
-                surface: SurfaceTexture,
-                width: Int,
-                height: Int
-            ) {
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
-            }
+            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean { return false }
 
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                return false
-            }
-
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-            }
+            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
         }
 
+        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
         imageReader.setOnImageAvailableListener(object : ImageReader.OnImageAvailableListener {
             override fun onImageAvailable(reader: ImageReader?) {
                 val image = reader?.acquireLatestImage()
@@ -95,11 +93,34 @@ class CaptureImageActivity : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.CaptureImageView).apply {
             setOnClickListener {
-                capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
-                capReq.addTarget(imageReader.surface)
+                val rotation = windowManager.defaultDisplay.rotation
+                val sensorOrientation = cameraManager.getCameraCharacteristics(cameraManager.cameraIdList[0])
+                    ?.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+
+                val jpegOrientation = (sensorOrientation + orientations.get(rotation) + 270) % 360
+
+                capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+                    addTarget(imageReader.surface)
+                    set(CaptureRequest.JPEG_ORIENTATION, jpegOrientation)
+                }
                 cameraCaptureSession.capture(capReq.build(), null, null)
             }
         }
+    }
+
+    private fun getCameraOutputSize(): Size? {
+        // Retrieve the appropriate preview size from camera characteristics
+        val characteristics = cameraManager.getCameraCharacteristics(cameraManager.cameraIdList[0])
+        val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val outputSizes = map?.getOutputSizes(SurfaceTexture::class.java)
+        return outputSizes?.maxByOrNull { it.width * it.height }
+    }
+
+    private val orientations = SparseIntArray().apply {
+        append(Surface.ROTATION_0, 90)
+        append(Surface.ROTATION_90, 0)
+        append(Surface.ROTATION_180, 270)
+        append(Surface.ROTATION_270, 180)
     }
 
     @SuppressLint("MissingPermission")

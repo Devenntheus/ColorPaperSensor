@@ -1,7 +1,10 @@
 package com.example.colorsensor
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
@@ -17,12 +20,16 @@ class ColorPickerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_color_picker)
 
         val imageBytes = intent.getByteArrayExtra("capturedImage")
+        val orientation = intent.getIntExtra("orientation", ExifInterface.ORIENTATION_UNDEFINED)
+
         val imageView: ImageView = findViewById(R.id.CapturedImageView)
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes?.size ?: 0)
-        imageView.setImageBitmap(bitmap)
+        val rotatedBitmap = rotateBitmap(bitmap, orientation)
+
+        imageView.setImageBitmap(rotatedBitmap)
+        imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
         cursorView = findViewById<View>(R.id.CursorPicker)
-
         imageView.setOnTouchListener { _, event ->
             val maxX = imageView.width - cursorView.width
             val maxY = imageView.height - cursorView.height
@@ -45,5 +52,16 @@ class ColorPickerActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, orientation: Int): Bitmap {
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90F)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180F)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270F)
+            else -> return bitmap // No rotation needed
+        }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 }
