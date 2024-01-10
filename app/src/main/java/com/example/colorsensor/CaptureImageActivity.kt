@@ -108,14 +108,6 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    private fun getCameraOutputSize(): Size? {
-        // Retrieve the appropriate preview size from camera characteristics
-        val characteristics = cameraManager.getCameraCharacteristics(cameraManager.cameraIdList[0])
-        val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val outputSizes = map?.getOutputSizes(SurfaceTexture::class.java)
-        return outputSizes?.maxByOrNull { it.width * it.height }
-    }
-
     private val orientations = SparseIntArray().apply {
         append(Surface.ROTATION_0, 90)
         append(Surface.ROTATION_90, 0)
