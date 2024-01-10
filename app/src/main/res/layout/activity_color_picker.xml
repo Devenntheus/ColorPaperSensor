@@ -27,8 +27,8 @@
                 android:id="@+id/CursorPicker"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:background="@drawable/cursor_picker"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="@drawable/cursor_picker" />
 
         </FrameLayout>
 
@@ -38,25 +38,33 @@
             android:background="@color/black"
             android:orientation="horizontal">
 
-            <GridLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:columnCount="1"
-                android:rowCount="1">
+                android:layout_margin="5dp">
 
                 <ImageView
                     android:id="@+id/ConfirmImageView"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:layout_rowWeight="1"
-                    android:layout_columnWeight="1"
                     android:layout_gravity="center"
                     android:src="@drawable/confirm_button" />
 
-            </GridLayout>
+                <ImageButton
+                    android:id="@+id/ConfirmCheckImageButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/check"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:visibility="gone"
+                    android:enabled="false" />
+
+
+            </FrameLayout>
 
         </LinearLayout>
+
 
     </LinearLayout>
 

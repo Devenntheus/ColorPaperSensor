@@ -18,6 +18,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.media.ImageReader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.SparseIntArray
@@ -27,6 +28,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -76,12 +78,18 @@ class CaptureImageActivity : AppCompatActivity() {
                 buffer.get(capturedImageBytes)
                 image.close()
 
-                // Pass the captured image to the next activity
+                // Save the captured image to a temporary file
+                val imageFile = saveImageToTempFile(capturedImageBytes)
+
+                // Pass the file path to the next activity
                 val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
-                intent.putExtra("capturedImage", capturedImageBytes)
+                intent.putExtra("capturedImagePath", imageFile.absolutePath)
                 startActivity(intent)
             }
         }, handler)
+
+
+
 
         findViewById<ImageView>(R.id.HistoryImageView).apply {
             setOnClickListener {
@@ -110,7 +118,13 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }
     }
-
+    // Function to save the image to a temporary file
+    private fun saveImageToTempFile(data: ByteArray): File {
+        val tempDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile = File.createTempFile("captured_image", ".jpg", tempDir)
+        imageFile.writeBytes(data)
+        return imageFile
+    }
     private val orientations = SparseIntArray().apply {
         append(Surface.ROTATION_0, 90)
         append(Surface.ROTATION_90, 0)
