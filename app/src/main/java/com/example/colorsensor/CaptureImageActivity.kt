@@ -7,22 +7,25 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.MeteringRectangle
 import android.media.ImageReader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Size
 import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -63,18 +66,6 @@ class CaptureImageActivity : AppCompatActivity() {
         handlerThread.start()
         handler = Handler((handlerThread as HandlerThread).looper)
 
-        val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                openCamera()
-            }
-
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
-
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean { return false }
-
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
-        }
-
         imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
         imageReader.setOnImageAvailableListener(object : ImageReader.OnImageAvailableListener {
             override fun onImageAvailable(reader: ImageReader?) {
@@ -91,6 +82,13 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }, handler)
 
+        findViewById<ImageView>(R.id.HistoryImageView).apply {
+            setOnClickListener {
+                val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
         findViewById<ImageView>(R.id.CaptureImageView).apply {
             setOnClickListener {
                 val rotation = windowManager.defaultDisplay.rotation
@@ -99,9 +97,29 @@ class CaptureImageActivity : AppCompatActivity() {
 
                 val jpegOrientation = (sensorOrientation + orientations.get(rotation) + 270) % 360
 
-                capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+                // Check if manual focus is supported
+                val availableAFModes = cameraManager.getCameraCharacteristics(cameraManager.cameraIdList[0])
+                    ?.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+
+                val supportsManualFocus = availableAFModes?.contains(CameraMetadata.CONTROL_AF_MODE_OFF)
+                    ?: false
+
+                val capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
                     addTarget(imageReader.surface)
                     set(CaptureRequest.JPEG_ORIENTATION, jpegOrientation)
+
+                    // Set focusing mode based on availability
+                    if (supportsManualFocus) {
+                        set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                        set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
+
+                        // Set manual focus distance (for example, 0.0f is the closest focus, 1.0f is infinity)
+                        val focusDistance = 0.5f // Set your desired focus distance here
+                        set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance)
+                    } else {
+                        set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                        set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_AUTO)
+                    }
                 }
                 cameraCaptureSession.capture(capReq.build(), null, null)
             }
