@@ -5,9 +5,4 @@
             <stroke android:width="3dp" android:color="@android:color/white"/>
         </shape>
     </item>
-    <item android:top="10dp" android:left="10dp" android:right="10dp" android:bottom="10dp">
-        <shape android:shape="oval">
-            <solid android:color="@android:color/white" />
-        </shape>
-    </item>
 </layer-list>

@@ -10,6 +10,7 @@
 
     <!-- Custom colors-->
     <color name="dark_gray">#413C3C</color>
+    <color name="mint_green">#58D68D</color>
 
     <!-- Rainbow colors -->
     <color name="red">#FFFF0000</color>

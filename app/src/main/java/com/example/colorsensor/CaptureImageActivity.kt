@@ -23,6 +23,7 @@ import android.os.HandlerThread
 import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -97,29 +98,13 @@ class CaptureImageActivity : AppCompatActivity() {
 
                 val jpegOrientation = (sensorOrientation + orientations.get(rotation) + 270) % 360
 
-                // Check if manual focus is supported
-                val availableAFModes = cameraManager.getCameraCharacteristics(cameraManager.cameraIdList[0])
-                    ?.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-
-                val supportsManualFocus = availableAFModes?.contains(CameraMetadata.CONTROL_AF_MODE_OFF)
-                    ?: false
-
-                val capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+                capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
                     addTarget(imageReader.surface)
                     set(CaptureRequest.JPEG_ORIENTATION, jpegOrientation)
 
-                    // Set focusing mode based on availability
-                    if (supportsManualFocus) {
-                        set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-                        set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
-
-                        // Set manual focus distance (for example, 0.0f is the closest focus, 1.0f is infinity)
-                        val focusDistance = 0.5f // Set your desired focus distance here
-                        set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance)
-                    } else {
-                        set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-                        set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_AUTO)
-                    }
+                    // Adding autofocus mode control
+                    set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                    set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
                 }
                 cameraCaptureSession.capture(capReq.build(), null, null)
             }
