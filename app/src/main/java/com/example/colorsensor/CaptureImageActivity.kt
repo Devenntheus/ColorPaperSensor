@@ -93,7 +93,7 @@ class CaptureImageActivity : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.HistoryImageView).apply {
             setOnClickListener {
-                val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
+                val intent = Intent(this@CaptureImageActivity, SampleHistoryActivity::class.java)
                 startActivity(intent)
             }
         }
