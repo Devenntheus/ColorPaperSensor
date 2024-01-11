@@ -5,12 +5,14 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <color name="black">#000000</color>
     <color name="white">#FFFFFFFF</color>
 
     <!-- Custom colors-->
     <color name="dark_gray">#413C3C</color>
     <color name="mint_green">#58D68D</color>
+    <color name="pale_red">#ff9f9f</color>
+
 
     <!-- Rainbow colors -->
     <color name="red">#FFFF0000</color>
@@ -20,4 +22,5 @@
     <color name="blue">#FF0000FF</color>
     <color name="indigo">#FF4B0082</color>
     <color name="violet">#FF9400D3</color>
+
 </resources>
