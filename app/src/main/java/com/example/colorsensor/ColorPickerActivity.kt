@@ -2,6 +2,7 @@ package com.example.colorsensor
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -10,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -26,12 +28,12 @@ class ColorPickerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_color_picker)
 
         val imagePath = intent.getStringExtra("capturedImagePath")
-        val orientation = intent.getIntExtra("orientation", ExifInterface.ORIENTATION_UNDEFINED)
+        val orientation = intent.getIntExtra("orientation", ExifInterface.ORIENTATION_NORMAL)
 
         if (imagePath != null) {
             val imageView: ImageView = findViewById(R.id.CapturedImageView)
             val bitmap = BitmapFactory.decodeFile(imagePath)
-            val rotatedBitmap = rotateBitmap(bitmap, orientation)
+            val rotatedBitmap = bitmap;
 
             imageView.setImageBitmap(rotatedBitmap)
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -43,9 +45,23 @@ class ColorPickerActivity : AppCompatActivity() {
                 val confirmCheckImageButton = findViewById<ImageView>(R.id.ConfirmCheckImageButton)
 
                 confirmCheckImageButton.setOnClickListener {
-                    // Show progress dialog
-                    showProgressDialog()
+                    /*// Show the first progress dialog
+                    showProgressDialog {
+                        // This block will be executed after the first dialog is dismissed
+                        // Add logic to display the second dialog or perform other actions
+                        showSecondDialog()
+                    }*/
+
+                    // Create an Intent to start the HistoryDetailsActivity
+                    val intent = Intent(this, HistoryDetailsActivity::class.java)
+
+                    // Optionally, you can add extra data to the intent if needed
+                    // intent.putExtra("key", "value")
+
+                    // Start the activity
+                    startActivity(intent)
                 }
+
 
                 when (event.action) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
@@ -69,19 +85,8 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    private fun rotateBitmap(bitmap: Bitmap, orientation: Int): Bitmap {
-        val matrix = Matrix()
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90F)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180F)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270F)
-            else -> return bitmap // No rotation needed
-        }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
     // Function to show progress dialog
-    private fun showProgressDialog() {
+    private fun showProgressDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.progress_dialog, null)
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
         val textViewMessage = dialogView.findViewById<TextView>(R.id.textViewMessage)
@@ -100,7 +105,37 @@ class ColorPickerActivity : AppCompatActivity() {
         // Dismiss the dialog after a certain delay or when the task is completed
         Handler().postDelayed({
             alertDialog.dismiss()
-            // Add any additional logic to handle the completion of your task
-        }, 5000) // Adjust the delay time as needed
+            // Execute the callback when the first dialog is dismissed
+            callback.invoke()
+        }, 3000) // Adjust the delay time as needed
     }
+
+    private fun showSecondDialog() {
+        // Create and show the second dialog or perform other actions
+        val secondDialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
+        // Customize second dialog as needed
+        val secondAlertDialog = AlertDialog.Builder(this)
+            .setView(secondDialogView)
+            .setCancelable(false)
+            .create()
+
+        // Show the second dialog
+        secondAlertDialog.show()
+
+        // Find the CloseImageButton in the second dialog view
+        val closeImageButton = secondDialogView.findViewById<ImageButton>(R.id.CloseImageButton)
+
+        // Set OnClickListener for the CloseImageButton
+        closeImageButton.setOnClickListener {
+            // Dismiss the second dialog when the CloseImageButton is clicked
+            secondAlertDialog.dismiss()
+        }
+
+        // Optionally, you can still use the Handler for the delay logic
+        Handler().postDelayed({
+            // Add any additional logic to handle the completion of the second task
+        }, 3000) // Adjust the delay time as needed
+    }
+
+
 }
