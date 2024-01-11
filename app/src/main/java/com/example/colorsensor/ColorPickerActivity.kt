@@ -3,10 +3,7 @@ package com.example.colorsensor
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -17,7 +14,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
-import java.io.File
 
 class ColorPickerActivity : AppCompatActivity() {
     private lateinit var cursorView: View
@@ -28,14 +24,11 @@ class ColorPickerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_color_picker)
 
         val imagePath = intent.getStringExtra("capturedImagePath")
-        val orientation = intent.getIntExtra("orientation", ExifInterface.ORIENTATION_NORMAL)
 
         if (imagePath != null) {
             val imageView: ImageView = findViewById(R.id.CapturedImageView)
             val bitmap = BitmapFactory.decodeFile(imagePath)
-            val rotatedBitmap = bitmap;
-
-            imageView.setImageBitmap(rotatedBitmap)
+            imageView.setImageBitmap(bitmap)
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
             cursorView = findViewById<View>(R.id.CursorPicker)
@@ -136,6 +129,4 @@ class ColorPickerActivity : AppCompatActivity() {
             // Add any additional logic to handle the completion of the second task
         }, 3000) // Adjust the delay time as needed
     }
-
-
 }

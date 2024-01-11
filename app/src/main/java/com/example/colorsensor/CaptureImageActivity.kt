@@ -5,7 +5,10 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
@@ -14,6 +17,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
+import android.media.ExifInterface
 import android.media.ImageReader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,6 +30,8 @@ import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class CaptureImageActivity : AppCompatActivity() {
@@ -265,15 +271,46 @@ class CaptureImageActivity : AppCompatActivity() {
             buffer.get(capturedImageBytes)
             image.close()
 
-            //save the captured image to a temporary file
-            val imageFile = saveImageToTempFile(capturedImageBytes)
+            //check the orientation of the captured image
+            val orientation = getOrientation(capturedImageBytes)
+
+            //rotate the image if needed
+            val rotatedImageBytes = rotateImageIfNeeded(capturedImageBytes, orientation)
+
+            //save the rotated image to a temporary file
+            val imageFile = saveImageToTempFile(rotatedImageBytes)
 
             //pass the file path to the next activity
             val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
-
             intent.putExtra("capturedImagePath", imageFile.absolutePath)
             startActivity(intent)
         }, handler)
+    }
+
+    private fun getOrientation(imageBytes: ByteArray): Int {
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+
+        return when {
+            options.outWidth > options.outHeight -> ExifInterface.ORIENTATION_NORMAL
+            else -> ExifInterface.ORIENTATION_ROTATE_90
+        }
+    }
+
+    private fun rotateImageIfNeeded(imageBytes: ByteArray, orientation: Int): ByteArray {
+        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        val matrix = Matrix()
+
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            matrix.setRotate(90f)
+        }
+
+        val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+        val outputStream = ByteArrayOutputStream()
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        return outputStream.toByteArray()
     }
 
     private fun saveImageToTempFile(data: ByteArray): File {
@@ -286,7 +323,7 @@ class CaptureImageActivity : AppCompatActivity() {
     private fun openHistoryActivity() {
         findViewById<ImageView>(R.id.HistoryImageView).apply {
             setOnClickListener {
-                val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
+                val intent = Intent(this@CaptureImageActivity, SampleHistoryActivity::class.java)
                 startActivity(intent)
             }
         }
