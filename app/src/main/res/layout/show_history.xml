@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:layout_margin="2dp"
+    android:layout_height="145dp"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:divider="@color/black"
@@ -14,17 +13,83 @@
     app:cardElevation="20dp"
     app:cardPreventCornerOverlap="false">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:background="@color/black">
+        android:background="@color/dark_gray"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:orientation="vertical">
+        <!-- dateTimeLayout -->
+
+        <!-- contextLayout -->
+        <LinearLayout
+            android:id="@+id/dateTimeLayout"
+            android:layout_marginTop="8dp"
+            android:layout_width="390dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/curve">
+
+            <LinearLayout
+                android:layout_width="334dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/dateCalendar"
+                    android:layout_width="53dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/date" />
+
+                <TextView
+                    android:id="@+id/dateTextView"
+                    android:layout_width="145dp"
+                    android:layout_height="26dp"
+                    android:fontFamily="@font/metrophobic_regular"
+                    android:text="January 12, 2024"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/timeClock"
+                    android:layout_width="53dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/clock" />
+
+                <TextView
+                    android:id="@+id/timeTextView"
+                    android:layout_width="80dp"
+                    android:layout_height="26dp"
+                    android:fontFamily="@font/metrophobic_regular"
+                    android:text="11:30 AM"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/contextLayout"
+            android:layout_marginTop="8dp"
+            android:layout_width="390dp"
+            android:layout_height="75dp"
             android:layout_gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@drawable/curve">
 
             <ImageView
                 android:id="@+id/ConfirmImageView"
@@ -37,6 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
+                android:layout_gravity="center"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -49,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/metrophobic_regular"
-                        android:text="Meat Type:"
+                        android:text="@string/meat_type"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
 
@@ -75,7 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/metrophobic_regular"
-                        android:text="Color:"
+                        android:text="@string/color"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
 
@@ -101,7 +167,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/metrophobic_regular"
-                        android:text="Hex Code:"
+                        android:text="@string/hex_code"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
 
@@ -120,10 +186,11 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
+                android:layout_marginLeft="25dp"
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -131,32 +198,29 @@
 
                     <TextView
                         android:id="@+id/meatStatusTextView"
-                        android:layout_gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:fontFamily="@font/metrophobic_regular"
-                        android:text="Meat Status:"
+                        android:text="@string/meat_status"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/statusTextView"
-                        android:layout_gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:fontFamily="@font/metrophobic_regular"
                         android:text="Fresh"
                         android:textColor="#ff9f9f"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
-
                 </LinearLayout>
             </LinearLayout>
-
-
         </LinearLayout>
-
     </LinearLayout>
 
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
