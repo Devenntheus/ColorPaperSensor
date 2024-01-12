@@ -30,7 +30,6 @@ import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -91,11 +90,15 @@ class CaptureImageActivity : AppCompatActivity() {
     private fun chooseOptimalSize(choices: Array<Size>, width: Int, height: Int): Size {
         val targetRatio = height.toDouble() / width
         var optimalSize = choices[0]
+        var maxPixels = 0
 
         for (size in choices) {
-            if (size.width.toDouble() / size.height == targetRatio) {
+            val ratio = size.width.toDouble() / size.height
+            val pixels = size.width * size.height
+
+            if (pixels > maxPixels && Math.abs(ratio - targetRatio) < 0.3) {
                 optimalSize = size
-                break
+                maxPixels = pixels
             }
         }
 
@@ -274,7 +277,7 @@ class CaptureImageActivity : AppCompatActivity() {
             //check the orientation of the captured image
             val orientation = getOrientation(capturedImageBytes)
 
-            //rotate the image if needed
+            //rotate the image if needed and adjust for front camera mirroring
             val rotatedImageBytes = rotateImageIfNeeded(capturedImageBytes, orientation)
 
             //save the rotated image to a temporary file
@@ -302,11 +305,18 @@ class CaptureImageActivity : AppCompatActivity() {
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         val matrix = Matrix()
 
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            matrix.setRotate(90f)
+        //check if the front camera is active and adjust for mirroring
+        if (cameraFacing == CameraCharacteristics.LENS_FACING_FRONT) {
+            matrix.setScale(-1f, 1f) // Mirror horizontally
         }
 
-        val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            matrix.postRotate(90f)
+        }
+
+        val rotatedBitmap = Bitmap.createBitmap(
+            bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+        )
 
         val outputStream = ByteArrayOutputStream()
         rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
