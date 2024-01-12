@@ -30,7 +30,6 @@ import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.app.ActivityCompat
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -323,7 +322,7 @@ class CaptureImageActivity : AppCompatActivity() {
     private fun openHistoryActivity() {
         findViewById<ImageView>(R.id.HistoryImageView).apply {
             setOnClickListener {
-                val intent = Intent(this@CaptureImageActivity, SampleHistoryActivity::class.java)
+                val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
                 startActivity(intent)
             }
         }

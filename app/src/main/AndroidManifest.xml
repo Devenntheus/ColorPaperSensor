@@ -24,9 +24,6 @@
             android:name=".HistoryDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".SampleHistoryActivity"
-            android:exported="false" />
-        <activity
             android:name=".HistoryActivity"
             android:exported="false" />
         <activity

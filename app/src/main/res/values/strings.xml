@@ -6,4 +6,9 @@
     <string name="beef">Beef</string>
     <string name="mutton">Mutton</string>
     <string name="poultry">Poultry</string>
+    <string name="meat_type">Meat Type:</string>
+    <string name="hex_code">Hex Code:</string>
+    <string name="meat_status">Meat Status:</string>
+    <string name="color">Color:</string>
+    <string name="details">Details</string>
 </resources>
