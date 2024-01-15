@@ -1,11 +1,15 @@
 package com.example.colorsensor;
 import SampleAdapter
 import SampleData
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.colorsensor.R
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -13,6 +17,8 @@ class HistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sample_history)
 
+
+        val db = Firebase.firestore
         val recyclerView: RecyclerView = findViewById(R.id.historyRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -29,5 +35,17 @@ class HistoryActivity : AppCompatActivity() {
 
         // Set the adapter for the RecyclerView
         recyclerView.adapter = adapter
+
+        val backImageView = findViewById<ImageView>(R.id.backImageView)
+        backImageView.setOnClickListener {
+            // Create an Intent to start the new activity
+            val intent = Intent(this, CaptureImageActivity::class.java)
+
+            // Optionally, you can add extra data to the intent if needed
+            // intent.putExtra("key", "value")
+
+            // Start the activity
+            startActivity(intent)
+        }
     }
 }

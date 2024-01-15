@@ -30,7 +30,7 @@
             android:layout_width="114dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/metrophobic_regular"
-            android:text="Details"
+            android:text="History"
             android:textColor="@android:color/white"
             android:textSize="27sp"
             android:layout_marginTop="10dp"
