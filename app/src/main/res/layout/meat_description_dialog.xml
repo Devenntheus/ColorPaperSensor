@@ -29,7 +29,7 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:src="@drawable/circle" />
+            android:src="@drawable/color_custom_circle" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -104,12 +104,12 @@
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/colorTextView"
+                    android:id="@+id/ColorNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Pale Red"
+                    android:text="Color Name"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -130,12 +130,12 @@
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/hexCodeTextView"
+                    android:id="@+id/HexCodeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="#f56b6f"
+                    android:text="#FFF"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
             </LinearLayout>
