@@ -15,6 +15,7 @@
             android:id="@+id/ImageFrameLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:orientation="vertical"
             android:layout_weight="1">
 
             <ImageView
@@ -22,26 +23,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-            <FrameLayout
-                android:id="@+id/CursorPicker"
+            <ImageView
+                android:id="@+id/CrosshairImageView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_gravity="center">
-
-                <View
-                    android:id="@+id/CursorOutlineView"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/cursor_picker" />
-
-                <View
-                    android:id="@+id/CursorFocusView"
-                    android:layout_width="3dp"
-                    android:layout_height="3dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/cursor_focus"/>
-            </FrameLayout>
+                android:layout_gravity="center"
+                android:src="@drawable/crosshair_icon"/>
 
         </FrameLayout>
 
