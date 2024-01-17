@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Sample"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -109,7 +109,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Black"
+                    android:text="@string/retrieve"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -135,7 +135,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="#00000"
+                    android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
             </LinearLayout>

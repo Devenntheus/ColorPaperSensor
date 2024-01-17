@@ -15,6 +15,32 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import okhttp3.*
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+data class ColorInfo(
+    val hex: Hex,
+    val name: Name
+)
+
+data class Hex(
+    val value: String
+)
+
+data class Name(
+    val value: String
+)
+
+interface ColorApiService {
+    @GET("/id")
+    suspend fun getColorInfo(@Query("hex") hex: String): ColorInfo
+}
+
 
 class ColorPickerActivity : AppCompatActivity() {
     private lateinit var crossHairImageView: ImageView
@@ -88,8 +114,6 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun getHexColorUnderCrosshair(): String {
         val bitmap = getBitmapFromImageView(capturedImageView)
         val x = crossHairImageView.x.toInt() + crossHairImageView.width / 2
@@ -110,15 +134,22 @@ class ColorPickerActivity : AppCompatActivity() {
         return String.format("#%06X", 0xFFFFFF and pixel)
     }
 
-    private fun getColorName(hexColor: String): String {
-        val colorMap = mapOf(
-            "#FF0000" to "Red",
-            "#00FF00" to "Green",
-            "#0000FF" to "Blue",
-            //add more color mappings as needed
-        )
+    private val colorApiService: ColorApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://www.thecolorapi.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ColorApiService::class.java)
+    }
 
-        return colorMap[hexColor] ?: "Unknown"
+    private suspend fun getColorName(hexColor: String): String {
+        try {
+            val response = colorApiService.getColorInfo(hexColor)
+            return response.name.value
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return "Unknown"
+        }
     }
 
     //function to show progress dialog
@@ -167,8 +198,10 @@ class ColorPickerActivity : AppCompatActivity() {
         meatTypeTextView.text = meatType.toString()
 
         //set color name (you can customize this logic based on color)
-        val colorName = getColorName(color)
-        colorNameTextView.text = colorName
+        lifecycleScope.launch {
+            val colorName = getColorName(color)
+            colorNameTextView.text = colorName
+        }
 
         //set the hex code
         hexCodeTextView.text = color
