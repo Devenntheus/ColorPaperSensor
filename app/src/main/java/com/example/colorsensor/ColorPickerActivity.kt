@@ -190,6 +190,18 @@ class ColorPickerActivity : AppCompatActivity() {
         }, 1000) //adjust the delay time as needed
     }
 
+    // Utility class to convert the captured image to a string
+    object ImageUtils {
+
+        fun convertImageToString(bitmap: Bitmap): String {
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val byteArray = byteArrayOutputStream.toByteArray()
+            return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        }
+    }
+
+
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
@@ -221,6 +233,10 @@ class ColorPickerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             colorName = getColorName(color)
 
+            // Convert the captured image to Base64 using the utility class
+            val bitmap = BitmapFactory.decodeFile(imageFilePath)
+            val capturedImageString = ImageUtils.convertImageToString(bitmap)
+
             // Generate the ID using the MeatInformationManager
             val id = MeatInformationManager.generateId()
 
@@ -242,7 +258,7 @@ class ColorPickerActivity : AppCompatActivity() {
                 hexCode = color,
                 date = currentDate,
                 time = currentTime,
-                meatImage = meatImage
+                meatImage = capturedImageString
             )
 
             // Save the meat information
