@@ -1,5 +1,4 @@
 package com.example.colorsensor
-
 import android.Manifest
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -32,6 +31,7 @@ import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import java.io.ByteArrayOutputStream
 import java.io.File
+
 
 class CaptureImageActivity : AppCompatActivity() {
 

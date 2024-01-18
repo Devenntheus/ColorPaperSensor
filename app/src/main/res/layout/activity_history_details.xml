@@ -53,7 +53,6 @@
                 android:id="@+id/meatImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/meat"
                 android:scaleType="centerCrop" />
 
         </LinearLayout>
@@ -121,7 +120,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/metrophobic_regular"
-                            android:text="Color:"
+                            android:text="@string/color"
                             android:textColor="@android:color/white"
                             android:textSize="16sp" />
 
@@ -147,7 +146,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/metrophobic_regular"
-                            android:text="Hex Code:"
+                            android:text="@string/hex_code"
                             android:textColor="@android:color/white"
                             android:textSize="16sp" />
 
@@ -181,7 +180,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/metrophobic_regular"
-                            android:text="Meat Status:"
+                            android:text="@string/meat_status"
                             android:textColor="@android:color/white"
                             android:textSize="18sp"
                             android:textStyle="bold"/>

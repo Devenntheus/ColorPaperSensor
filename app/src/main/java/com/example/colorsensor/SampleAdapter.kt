@@ -3,12 +3,14 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.colorsensor.HistoryData
 import com.example.colorsensor.HistoryDetailsActivity
 import com.example.colorsensor.R
 
-class SampleAdapter(private val context: Context, private val data: List<SampleData>) :
+class SampleAdapter(private val context: Context, private val historyList: ArrayList<HistoryData>) :
     RecyclerView.Adapter<SampleAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -16,6 +18,10 @@ class SampleAdapter(private val context: Context, private val data: List<SampleD
         val colorTextView: TextView = itemView.findViewById(R.id.colorTextView)
         val hexCodeTextView: TextView = itemView.findViewById(R.id.hexCodeTextView)
         val statusTextView: TextView = itemView.findViewById(R.id.statusTextView)
+        val dateTextView: TextView = itemView.findViewById(R.id.dateTextView)
+        val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
+        val idTextView: TextView = itemView.findViewById(R.id.idTextView)
+        val imageView: ImageView = itemView.findViewById(R.id.colorImageView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,11 +31,17 @@ class SampleAdapter(private val context: Context, private val data: List<SampleD
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // Update the TextViews with data from SampleData
-        holder.typeTextView.text = data[position].type
-        holder.colorTextView.text = data[position].color
-        holder.hexCodeTextView.text = data[position].hexCode
-        holder.statusTextView.text = data[position].status
+
+        val currentHolder = historyList[position]
+
+        holder.idTextView.visibility = View.INVISIBLE
+        holder.typeTextView.text = historyList[position].meatType
+        holder.colorTextView.text = historyList[position].color
+        holder.hexCodeTextView.text = historyList[position].hexCode
+        holder.statusTextView.text = historyList[position].meatStatus
+        holder.dateTextView.text = historyList[position].date
+        holder.timeTextView.text = historyList[position].time
+
 
         // Set an OnClickListener for the item in the RecyclerView
         holder.itemView.setOnClickListener {
@@ -37,19 +49,14 @@ class SampleAdapter(private val context: Context, private val data: List<SampleD
             val intent = Intent(context, HistoryDetailsActivity::class.java)
 
             // Optionally, you can add extra data to the intent if needed
-            // intent.putExtra("key", "value")
+            intent.putExtra("id", currentHolder.id)
 
             // Start the activity using the context passed to the adapter.
             context.startActivity(intent)
         }
     }
 
-    override fun getItemCount(): Int = data.size
+    override fun getItemCount(): Int = historyList.size
 }
 
-data class SampleData(
-    val type: String,
-    val color: String,
-    val hexCode: String,
-    val status: String
-)
+

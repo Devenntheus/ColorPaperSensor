@@ -92,7 +92,7 @@
                 android:background="@drawable/curve">
 
                 <ImageView
-                    android:id="@+id/ConfirmImageView"
+                    android:id="@+id/colorImageView"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
                     android:layout_gravity="center"
@@ -214,6 +214,17 @@
                             android:layout_gravity="center"
                             android:fontFamily="@font/metrophobic_regular"
                             android:text="Fresh"
+                            android:textColor="#ff9f9f"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/idTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/metrophobic_regular"
+                            android:text=""
                             android:textColor="#ff9f9f"
                             android:textSize="15sp"
                             android:textStyle="bold" />
