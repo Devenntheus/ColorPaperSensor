@@ -11,4 +11,6 @@
     <string name="meat_status">Meat Status:</string>
     <string name="color">Color:</string>
     <string name="details">Details</string>
+    <string name="process">Processing…</string>
+    <string name="retrieve">Retrieving…</string>
 </resources>

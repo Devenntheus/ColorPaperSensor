@@ -10,6 +10,10 @@ import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 
+object GlobalData {
+    var meatType: String? = null
+}
+
 class MainMenuActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,29 +47,34 @@ class MainMenuActivity : AppCompatActivity() {
         }
         animator.start()
 
-
         val porkCardView = findViewById<CardView>(R.id.PorkCardView)
         porkCardView.setOnClickListener {
-            val intent = Intent(this, CaptureImageActivity::class.java)
-            startActivity(intent)
+            // Set the meat type in the global data
+            GlobalData.meatType = "Pork"
+            startCaptureImageActivity()
         }
 
         val beefCardView = findViewById<CardView>(R.id.BeefCardView)
         beefCardView.setOnClickListener {
-            val intent = Intent(this, CaptureImageActivity::class.java)
-            startActivity(intent)
+            GlobalData.meatType = "Beef"
+            startCaptureImageActivity()
         }
 
         val muttonCardView = findViewById<CardView>(R.id.MuttonCardView)
         muttonCardView.setOnClickListener {
-            val intent = Intent(this, CaptureImageActivity::class.java)
-            startActivity(intent)
+            GlobalData.meatType = "Mutton"
+            startCaptureImageActivity()
         }
 
         val poultryCardView = findViewById<CardView>(R.id.PoultryCardView)
         poultryCardView.setOnClickListener {
-            val intent = Intent(this, CaptureImageActivity::class.java)
-            startActivity(intent)
+            GlobalData.meatType = "Poultry"
+            startCaptureImageActivity()
         }
+    }
+
+    private fun startCaptureImageActivity() {
+        val intent = Intent(this, CaptureImageActivity::class.java)
+        startActivity(intent)
     }
 }

@@ -52,7 +52,7 @@ class CaptureImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture_image)
         getPermissions()
         cameraFlash()
-        cameraFlip()
+        /*cameraFlip()*/
         cameraPreview()
         captureImage()
         openHistoryActivity()
@@ -252,7 +252,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    private fun cameraFlip() {
+    /*private fun cameraFlip() {
         val flipCameraImageView = findViewById<ImageView>(R.id.FlipCameraImageView)
 
         flipCameraImageView.setOnClickListener {
@@ -263,7 +263,7 @@ class CaptureImageActivity : AppCompatActivity() {
             }
             openCamera()
         }
-    }
+    }*/
 
     private fun captureImage() {
         imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)

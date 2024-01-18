@@ -19,12 +19,6 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/CameraFlashImageView"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/flash"/>
-
         </LinearLayout>
 
         <FrameLayout
@@ -81,13 +75,22 @@
                     android:src="@drawable/capture_button" />
 
                 <ImageView
+                    android:id="@+id/CameraFlashImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_rowWeight="1"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="center"
+                    android:src="@drawable/flash"/>
+
+                <!--<ImageView
                     android:id="@+id/FlipCameraImageView"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_gravity="center"
-                    android:src="@drawable/camera_flip_icon" />
+                    android:src="@drawable/camera_flip_icon" />-->
 
             </GridLayout>
 
