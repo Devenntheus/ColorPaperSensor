@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.util.Base64
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
@@ -16,12 +17,23 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.launch
 import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import com.google.firebase.firestore.DocumentReference
+import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+
 
 data class ColorInfo(
     val hex: Hex,
@@ -43,6 +55,7 @@ interface ColorApiService {
 
 
 class ColorPickerActivity : AppCompatActivity() {
+
     private lateinit var crossHairImageView: ImageView
     private lateinit var capturedImageView: ImageView
     private lateinit var confirmCheckImageButton: ImageView
@@ -73,7 +86,7 @@ class ColorPickerActivity : AppCompatActivity() {
 
             //show progress dialog and then display color dialog
             showProgressDialog {
-                showColorDialog(hexColor)
+                showColorDialog(hexColor, imageFilePath)
             }
         }
     }
@@ -177,7 +190,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }, 1000) //adjust the delay time as needed
     }
 
-    private fun showColorDialog(color: String) {
+    private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
         val colorImageView = dialogView.findViewById<ImageView>(R.id.ConfirmImageView)
@@ -185,25 +198,58 @@ class ColorPickerActivity : AppCompatActivity() {
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
 
-        //create a GradientDrawable and set its color based on the hex code
+        // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
         gradientDrawable.setColor(Color.parseColor(color))
         gradientDrawable.shape = GradientDrawable.OVAL
 
-        //apply the drawable to the ImageView
+        // Apply the drawable to the ImageView
         colorImageView.setImageDrawable(gradientDrawable)
 
-        //set meat type
+        // Set meat type
         val meatType = GlobalData.meatType
         meatTypeTextView.text = meatType.toString()
 
-        //set color name (you can customize this logic based on color)
+        // Convert meatTypeTextView.text to String
+        val meatTypeString: String = meatTypeTextView.text.toString()
+
+
+        // Declare a variable to store the colorName
+        var colorName: String? = null
+
+        // Launch the coroutine to get the colorName
         lifecycleScope.launch {
-            val colorName = getColorName(color)
+            colorName = getColorName(color)
+
+            // Generate the ID using the MeatInformationManager
+            val id = MeatInformationManager.generateId()
+
+            // Get the current date and time in separate formats
+            val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
+            val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
+
+            // Convert the captured image to Base64
+            val meatImage = imageFilePath
+            // Set color name to TextView
             colorNameTextView.text = colorName
+
+            // Create an instance of MeatInformation with the generated ID
+            val meatInformation = MeatInformation(
+                id = id,
+                meatStatus = "Fresh",  // Replace "YourMeatStatus" with the actual meat status
+                meatType = meatTypeString,
+                color = colorName ?: "", // Use the colorName if not null, or an empty string if null
+                hexCode = color,
+                date = currentDate,
+                time = currentTime,
+                meatImage = meatImage
+            )
+
+            // Save the meat information
+            saveMeatInformation(meatInformation)
         }
 
-        //set the hex code
+        // Set the hex code
         hexCodeTextView.text = color
 
         val alertDialogBuilder = AlertDialog.Builder(this)
@@ -212,11 +258,106 @@ class ColorPickerActivity : AppCompatActivity() {
 
         val alertDialog = alertDialogBuilder.create()
 
-        //set close button click listener
+        // Set close button click listener
         closeButtonImageView.setOnClickListener {
             alertDialog.dismiss()
         }
 
         alertDialog.show()
+
+    }
+
+
+    private fun saveMeatInformation(meatInformation: MeatInformation) {
+        // Initialize Firestore
+        val db = FirebaseFirestore.getInstance()
+
+        // Get a reference to the "History" collection
+        val historyCollection = db.collection("History")
+
+        // Use the id field from meatInformation as the document ID
+        val documentId = meatInformation.id
+
+        // Create a reference to the document with the generated ID
+        val historyDocument = historyCollection.document(documentId)
+
+        // Set the meat information in the Firestore document
+        historyDocument.set(meatInformation)
+            .addOnSuccessListener {
+                // Document set successfully
+                // Optionally, you can handle success here
+                // For example, you can log the documentId or show a success message
+                // Log.d(TAG, "DocumentSnapshot added with ID: $documentId")
+            }
+            .addOnFailureListener { e ->
+                // Handle failures
+                // For example, you can log the error or show an error message
+                // Log.e(TAG, "Error adding document", e)
+            }
+    }
+
+
+    // Create a data class to hold the meat information
+    data class MeatInformation(
+        val id: String,
+        val meatStatus: String,
+        val meatType: String,
+        val color: String,
+        val hexCode: String,
+        val date: String,
+        val time: String,
+        val meatImage: String
+    )
+
+    class MeatInformationManager {
+        companion object {
+            suspend fun generateId(): String {
+                val lastId = getLastIdFromDatabase()
+                var newId = lastId + 1
+                while (isIdExists("HIST$newId")) { // Convert newId to String
+                    newId++
+                }
+                return "HIST$newId"
+            }
+
+            private suspend fun getLastIdFromDatabase(): Int {
+                val firestore = FirebaseFirestore.getInstance()
+                val historyCollectionRef: CollectionReference = firestore.collection("History")
+
+                return try {
+                    val querySnapshot: QuerySnapshot = historyCollectionRef.get().await()
+
+                    if (!querySnapshot.isEmpty) {
+                        val sortedDocuments = querySnapshot.documents.sortedByDescending { it["timestamp"] as? Long }
+
+                        val lastDocumentId = sortedDocuments[0].id
+                        val lastNumber = lastDocumentId.substring(4).toInt()
+                        lastNumber
+                    } else {
+                        0
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    0
+                }
+            }
+
+            private suspend fun isIdExists(id: String): Boolean {
+                return try {
+                    val firestore = FirebaseFirestore.getInstance()
+                    val querySnapshot = withContext(Dispatchers.IO) {
+                        firestore.collection("History")
+                            .whereEqualTo("id", id)
+                            .get()
+                            .await()
+                    }
+
+                    querySnapshot.documents.size > 0
+                } catch (e: Exception) {
+                    // Handle exceptions (e.g., Firebase network issues)
+                    false
+                }
+            }
+        }
     }
 }
