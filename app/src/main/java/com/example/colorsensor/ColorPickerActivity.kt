@@ -197,9 +197,23 @@ class ColorPickerActivity : AppCompatActivity() {
             val byteArrayOutputStream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
             val byteArray = byteArrayOutputStream.toByteArray()
-            return Base64.encodeToString(byteArray, Base64.DEFAULT)
+
+            // Use Base64.NO_WRAP to remove any newline characters
+            val base64String = Base64.encodeToString(byteArray, Base64.NO_WRAP)
+
+            // Ensure that the length is a multiple of 4 by adding '=' padding
+            val paddedBase64String = addPaddingToBase64(base64String)
+
+            return paddedBase64String
+        }
+
+        private fun addPaddingToBase64(base64String: String): String {
+            val padding = "="
+            val paddingLength = (4 - base64String.length % 4) % 4
+            return base64String + padding.repeat(paddingLength)
         }
     }
+
 
 
     private fun showColorDialog(color: String, imageFilePath: String) {
