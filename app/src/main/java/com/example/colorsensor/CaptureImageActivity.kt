@@ -59,6 +59,12 @@ class CaptureImageActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         openCameraPreview()
+        updateFlashIcon()
+    }
+
+    private fun updateFlashIcon() {
+        val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
+        flashImageView.setImageResource(if (isFlashOn) R.drawable.flash else R.drawable.flash_off)
     }
 
     private fun openCameraPreview() {
