@@ -1,5 +1,7 @@
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,17 +33,21 @@ class SampleAdapter(private val context: Context, private val historyList: Array
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         val currentHolder = historyList[position]
 
+        // Set other TextView values
         holder.idTextView.visibility = View.INVISIBLE
-        holder.typeTextView.text = historyList[position].meatType
-        holder.colorTextView.text = historyList[position].color
-        holder.hexCodeTextView.text = historyList[position].hexCode
-        holder.statusTextView.text = historyList[position].meatStatus
-        holder.dateTextView.text = historyList[position].date
-        holder.timeTextView.text = historyList[position].time
+        holder.typeTextView.text = currentHolder.meatType
+        holder.colorTextView.text = currentHolder.color
+        holder.hexCodeTextView.text = currentHolder.hexCode
+        holder.dateTextView.text = currentHolder.date
+        holder.timeTextView.text = currentHolder.time
 
+        // Set the text color of statusTextView based on the hex code
+        currentHolder.hexCode?.let { setTextColorBasedOnHexCode(holder.statusTextView, it) }
+
+        // Set the color of the ImageView based on the hex code
+        currentHolder.hexCode?.let { setColorBasedOnHexCode(holder.imageView, it) }
 
         // Set an OnClickListener for the item in the RecyclerView
         holder.itemView.setOnClickListener {
@@ -56,7 +62,19 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         }
     }
 
+    private fun setTextColorBasedOnHexCode(textView: TextView, hexCode: String) {
+        // Set the text color of the TextView based on the hex code
+        textView.setTextColor(Color.parseColor(hexCode))
+    }
+
+    private fun setColorBasedOnHexCode(imageView: ImageView, hexCode: String) {
+        // Create a GradientDrawable and set its color based on the hex code
+        val gradientDrawable = GradientDrawable()
+        gradientDrawable.setColor(Color.parseColor(hexCode))
+        gradientDrawable.shape = GradientDrawable.OVAL
+
+        // Apply the drawable to the ImageView
+        imageView.setImageDrawable(gradientDrawable)
+    }
     override fun getItemCount(): Int = historyList.size
 }
-
-

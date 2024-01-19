@@ -3,6 +3,8 @@ package com.example.colorsensor
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Base64
 import android.widget.ImageView
@@ -53,17 +55,43 @@ class HistoryDetailsActivity : AppCompatActivity() {
                     val colorTextView = findViewById<TextView>(R.id.colorTextView)
                     val hexCodeTextView = findViewById<TextView>(R.id.hexCodeTextView)
                     val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
+                    val colorImageView = findViewById<ImageView>(R.id.colorImageView)
+                    val meatImageView = findViewById<ImageView>(R.id.meatImageView)
 
                     meatTypeTextView.text = meatType
                     colorTextView.text = color
                     hexCodeTextView.text = hexCode
                     meatStatusTextView.text = meatStatus
 
+                    // Set the background color of colorImageView based on the hex code
+                    setBackgroundColorBasedOnHexCode(colorImageView, hexCode)
+
+                    // Set text color of meatStatusTextView based on the hex code
+                    setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
+
                     // Decode and display the image
-                    val meatImageView = findViewById<ImageView>(R.id.meatImageView)
                     meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
                 }
             }
+    }
+
+    private fun setBackgroundColorBasedOnHexCode(imageView: ImageView, hexCode: String?) {
+        if (hexCode != null) {
+            // Create a GradientDrawable and set its color based on the hex code
+            val gradientDrawable = GradientDrawable()
+            gradientDrawable.setColor(Color.parseColor(hexCode))
+            gradientDrawable.shape = GradientDrawable.OVAL
+
+            // Apply the drawable to the ImageView
+            imageView.setImageDrawable(gradientDrawable)
+        }
+    }
+
+    private fun setTextColorBasedOnHexCode(textView: TextView, hexCode: String?) {
+        if (hexCode != null) {
+            // Set the text color of the TextView based on the hex code
+            textView.setTextColor(Color.parseColor(hexCode))
+        }
     }
 
     private fun decodeBase64ToBitmap(base64String: String?): Bitmap? {
@@ -78,4 +106,3 @@ class HistoryDetailsActivity : AppCompatActivity() {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 }
-
