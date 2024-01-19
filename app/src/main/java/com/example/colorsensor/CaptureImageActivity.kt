@@ -32,7 +32,6 @@ import androidx.core.app.ActivityCompat
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-
 class CaptureImageActivity : AppCompatActivity() {
 
     private lateinit var handlerThread: HandlerThread
@@ -52,10 +51,35 @@ class CaptureImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture_image)
         getPermissions()
         cameraFlash()
-        /*cameraFlip()*/
         cameraPreview()
         captureImage()
         openHistoryActivity()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        openCameraPreview()
+        updateFlashIcon()
+    }
+
+    private fun updateFlashIcon() {
+        val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
+        flashImageView.setImageResource(if (isFlashOn) R.drawable.flash else R.drawable.flash_off)
+    }
+
+    private fun openCameraPreview() {
+        if (textureView.isAvailable) {
+            closeCamera()
+            openCamera()
+        } else {
+            textureView.surfaceTextureListener = surfaceTextureListener
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        turnOffFlash()
+        closeCamera()
     }
 
     private fun getPermissions() {
@@ -252,18 +276,18 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    /*private fun cameraFlip() {
-        val flipCameraImageView = findViewById<ImageView>(R.id.FlipCameraImageView)
-
-        flipCameraImageView.setOnClickListener {
-            cameraFacing = if (cameraFacing == CameraCharacteristics.LENS_FACING_BACK) {
-                CameraCharacteristics.LENS_FACING_FRONT
-            } else {
-                CameraCharacteristics.LENS_FACING_BACK
+    private fun turnOffFlash() {
+        if (isFlashOn) {
+            isFlashOn = false
+            try {
+                // Set flash mode to OFF
+                capReq.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_OFF)
+                cameraCaptureSession.setRepeatingRequest(capReq.build(), null, null)
+            } catch (e: CameraAccessException) {
+                e.printStackTrace()
             }
-            openCamera()
         }
-    }*/
+    }
 
     private fun captureImage() {
         imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
