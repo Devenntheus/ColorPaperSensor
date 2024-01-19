@@ -214,8 +214,6 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
@@ -238,7 +236,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
-
 
         // Declare a variable to store the colorName
         var colorName: String? = null
@@ -297,7 +294,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
     }
 
-
     private fun saveMeatInformation(meatInformation: MeatInformation) {
         // Initialize Firestore
         val db = FirebaseFirestore.getInstance()
@@ -325,7 +321,6 @@ class ColorPickerActivity : AppCompatActivity() {
                 // Log.e(TAG, "Error adding document", e)
             }
     }
-
 
     // Create a data class to hold the meat information
     data class MeatInformation(
