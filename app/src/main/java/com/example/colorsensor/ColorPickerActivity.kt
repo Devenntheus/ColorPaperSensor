@@ -28,6 +28,7 @@ import retrofit2.http.GET
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
+import android.content.Intent
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
@@ -61,8 +62,6 @@ class ColorPickerActivity : AppCompatActivity() {
     private lateinit var confirmCheckImageButton: ImageView
     private lateinit var confirmImageView: ImageView
     private lateinit var imageFilePath: String
-    private lateinit var hsvCodeTextView: TextView
-    private var hsvValues: FloatArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -257,12 +256,16 @@ class ColorPickerActivity : AppCompatActivity() {
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
 
+        closeButtonImageView.isEnabled = false
+
         // Declare a variable to store the colorName
         var colorName: String? = null
 
         // Launch the coroutine to get the colorName
         lifecycleScope.launch {
             colorName = getColorName(color)
+            // Set color name to TextView
+            colorNameTextView.text = colorName
 
             // Convert the captured image to Base64 using the utility class
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
@@ -275,11 +278,8 @@ class ColorPickerActivity : AppCompatActivity() {
             val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
             val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
 
-            // Convert the captured image to Base64
-            val meatImage = imageFilePath
-
-            // Set color name to TextView
-            colorNameTextView.text = colorName
+            // Enable the close button now that the colorName is retrieved
+            closeButtonImageView.isEnabled = true
 
             // Create an instance of MeatInformation with the generated ID
             val meatInformation = MeatInformation(
@@ -313,6 +313,10 @@ class ColorPickerActivity : AppCompatActivity() {
         // Set close button click listener
         closeButtonImageView.setOnClickListener {
             alertDialog.dismiss()
+
+            // Start MainMenuActivity or use an intent to navigate back
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
         }
 
         alertDialog.show()
