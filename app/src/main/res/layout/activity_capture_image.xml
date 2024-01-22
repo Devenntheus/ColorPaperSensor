@@ -83,15 +83,6 @@
                     android:layout_gravity="center"
                     android:src="@drawable/flash"/>
 
-                <!--<ImageView
-                    android:id="@+id/FlipCameraImageView"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_rowWeight="1"
-                    android:layout_columnWeight="1"
-                    android:layout_gravity="center"
-                    android:src="@drawable/camera_flip_icon" />-->
-
             </GridLayout>
 
         </LinearLayout>
