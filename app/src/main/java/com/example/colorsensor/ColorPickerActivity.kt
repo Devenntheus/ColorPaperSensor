@@ -2,6 +2,7 @@ package com.example.colorsensor
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -28,7 +29,6 @@ import retrofit2.http.GET
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-import android.content.Intent
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
@@ -135,6 +135,19 @@ class ColorPickerActivity : AppCompatActivity() {
         return getHexColorFromBitmap(bitmap, x, y)
     }
 
+    private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
+        imageView.isDrawingCacheEnabled = true
+        imageView.buildDrawingCache(true)
+        val bitmap = Bitmap.createBitmap(imageView.drawingCache)
+        imageView.isDrawingCacheEnabled = false
+        return bitmap
+    }
+
+    private fun getHexColorFromBitmap(bitmap: Bitmap, x: Int, y: Int): String {
+        val pixel = bitmap.getPixel(x, y)
+        return String.format("#%06X", 0xFFFFFF and pixel)
+    }
+
     private fun getHSVFromHexColor(hexColor: String): FloatArray {
         return try {
             val colorInt = Color.parseColor(hexColor)
@@ -150,19 +163,6 @@ class ColorPickerActivity : AppCompatActivity() {
             // Handle the case where parsing fails (invalid hex color)
             FloatArray(3) // or any default HSV values
         }
-    }
-
-    private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
-        imageView.isDrawingCacheEnabled = true
-        imageView.buildDrawingCache(true)
-        val bitmap = Bitmap.createBitmap(imageView.drawingCache)
-        imageView.isDrawingCacheEnabled = false
-        return bitmap
-    }
-
-    private fun getHexColorFromBitmap(bitmap: Bitmap, x: Int, y: Int): String {
-        val pixel = bitmap.getPixel(x, y)
-        return String.format("#%06X", 0xFFFFFF and pixel)
     }
 
     private val colorApiService: ColorApiService by lazy {
@@ -264,6 +264,7 @@ class ColorPickerActivity : AppCompatActivity() {
         // Launch the coroutine to get the colorName
         lifecycleScope.launch {
             colorName = getColorName(color)
+
             // Set color name to TextView
             colorNameTextView.text = colorName
 
@@ -318,6 +319,7 @@ class ColorPickerActivity : AppCompatActivity() {
             val intent = Intent(this, MainMenuActivity::class.java)
             startActivity(intent)
         }
+
 
         alertDialog.show()
 
