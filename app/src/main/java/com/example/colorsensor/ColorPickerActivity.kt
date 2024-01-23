@@ -2,6 +2,7 @@ package com.example.colorsensor
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,6 +11,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Base64
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
@@ -193,21 +195,21 @@ class ColorPickerActivity : AppCompatActivity() {
         }, 1000) //adjust the delay time as needed
     }
 
-    // Utility class to convert the captured image to a string
     object ImageUtils {
 
         fun convertImageToString(bitmap: Bitmap): String {
+            // Resize the image before converting to Base64
+            val resizedBitmap = resizeBitmap(bitmap, 800, 800)
+
             val byteArrayOutputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-            val byteArray = byteArrayOutputStream.toByteArray()
+            // Change compression format to JPEG and adjust quality (e.g., 80)
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
 
             // Use Base64.NO_WRAP to remove any newline characters
-            val base64String = Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            val base64String = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.NO_WRAP)
 
             // Ensure that the length is a multiple of 4 by adding '=' padding
-            val paddedBase64String = addPaddingToBase64(base64String)
-
-            return paddedBase64String
+            return addPaddingToBase64(base64String)
         }
 
         private fun addPaddingToBase64(base64String: String): String {
@@ -215,7 +217,12 @@ class ColorPickerActivity : AppCompatActivity() {
             val paddingLength = (4 - base64String.length % 4) % 4
             return base64String + padding.repeat(paddingLength)
         }
+
+        private fun resizeBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+            return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        }
     }
+
 
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
@@ -252,6 +259,9 @@ class ColorPickerActivity : AppCompatActivity() {
             // Set color name to TextView
             colorNameTextView.text = colorName
 
+            // Enable the close button now that the colorName is retrieved
+            closeButtonImageView.isEnabled = true
+
             // Convert the captured image to Base64 using the utility class
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
             val capturedImageString = ImageUtils.convertImageToString(bitmap)
@@ -262,9 +272,6 @@ class ColorPickerActivity : AppCompatActivity() {
             // Get the current date and time in separate formats
             val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
             val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
-
-            // Enable the close button now that the colorName is retrieved
-            closeButtonImageView.isEnabled = true
 
             // Create an instance of MeatInformation with the generated ID
             val meatInformation = MeatInformation(
@@ -278,8 +285,15 @@ class ColorPickerActivity : AppCompatActivity() {
                 meatImage = capturedImageString
             )
 
+            // Log message before saving meat information
+            Log.d(TAG, "Saving meat information: $meatInformation")
+
             // Save the meat information
             saveMeatInformation(meatInformation)
+
+            // Log message after saving meat information
+            Log.d(TAG, "Meat information saved successfully.")
+
         }
 
         // Set the hex code
@@ -329,15 +343,10 @@ class ColorPickerActivity : AppCompatActivity() {
         // Commit the batch
         batch.commit()
             .addOnSuccessListener {
-                // Document set successfully
-                // Optionally, you can handle success here
-                // For example, you can log the documentId or show a success message
-                // Log.d(TAG, "DocumentSnapshot added with ID: $documentId")
+                Log.d(TAG, "Meat information saved SUCCESSFULLY.")
             }
             .addOnFailureListener { e ->
-                // Handle failures
-                // For example, you can log the error or show an error message
-                // Log.e(TAG, "Error adding document", e)
+                Log.e(TAG, "ERROR! Failed saving the meat information.", e)
             }
     }
 
