@@ -148,23 +148,6 @@ class ColorPickerActivity : AppCompatActivity() {
         return String.format("#%06X", 0xFFFFFF and pixel)
     }
 
-    private fun getHSVFromHexColor(hexColor: String): FloatArray {
-        return try {
-            val colorInt = Color.parseColor(hexColor)
-            val hsv = FloatArray(3)
-            Color.colorToHSV(colorInt, hsv)
-
-            // Convert saturation and value to percentages
-            hsv[1] *= 100.0f
-            hsv[2] *= 100.0f
-
-            hsv
-        } catch (e: IllegalArgumentException) {
-            // Handle the case where parsing fails (invalid hex color)
-            FloatArray(3) // or any default HSV values
-        }
-    }
-
     private val colorApiService: ColorApiService by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.thecolorapi.com")
@@ -174,12 +157,14 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     private suspend fun getColorName(hexColor: String): String {
-        try {
-            val response = colorApiService.getColorInfo(hexColor)
-            return response.name.value
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return "Unknown"
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = colorApiService.getColorInfo(hexColor)
+                response.name.value
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "Unknown"
+            }
         }
     }
 
@@ -239,7 +224,6 @@ class ColorPickerActivity : AppCompatActivity() {
         val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
-        val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
 
         // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
@@ -262,7 +246,7 @@ class ColorPickerActivity : AppCompatActivity() {
         var colorName: String? = null
 
         // Launch the coroutine to get the colorName
-        lifecycleScope.launch {
+        val job = lifecycleScope.launch {
             colorName = getColorName(color)
 
             // Set color name to TextView
@@ -301,10 +285,6 @@ class ColorPickerActivity : AppCompatActivity() {
         // Set the hex code
         hexCodeTextView.text = color
 
-        // Set the hsv code
-        val hsvValues = getHSVFromHexColor(color)
-        hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
-
         val alertDialogBuilder = AlertDialog.Builder(this)
         alertDialogBuilder.setView(dialogView)
         alertDialogBuilder.setCancelable(false)
@@ -313,6 +293,8 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set close button click listener
         closeButtonImageView.setOnClickListener {
+            // Cancel the coroutine when the dialog is dismissed
+            job.cancel()
             alertDialog.dismiss()
 
             // Start MainMenuActivity or use an intent to navigate back
@@ -335,11 +317,17 @@ class ColorPickerActivity : AppCompatActivity() {
         // Use the id field from meatInformation as the document ID
         val documentId = meatInformation.id
 
+        // Create a batch write
+        val batch = db.batch()
+
         // Create a reference to the document with the generated ID
         val historyDocument = historyCollection.document(documentId)
 
         // Set the meat information in the Firestore document
-        historyDocument.set(meatInformation)
+        batch.set(historyDocument, meatInformation)
+
+        // Commit the batch
+        batch.commit()
             .addOnSuccessListener {
                 // Document set successfully
                 // Optionally, you can handle success here
@@ -352,6 +340,7 @@ class ColorPickerActivity : AppCompatActivity() {
                 // Log.e(TAG, "Error adding document", e)
             }
     }
+
 
     // Create a data class to hold the meat information
     data class MeatInformation(
