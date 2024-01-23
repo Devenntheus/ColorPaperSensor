@@ -17,6 +17,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class HistoryDetailsActivity : AppCompatActivity() {
 
+    private var alertDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history_details)
@@ -46,6 +48,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
         documentReference.get()
             .addOnSuccessListener { documentSnapshot ->
+                hideProgressDialog() // Dismiss the loading dialog
                 if (documentSnapshot.exists()) {
                     // Retrieve data from the documentSnapshot
                     val meatType = documentSnapshot.getString("meatType")
@@ -75,6 +78,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
                     // Decode and display the image
                     meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
+                    hideProgressDialog()
                 }
             }
     }
@@ -119,18 +123,22 @@ class HistoryDetailsActivity : AppCompatActivity() {
         alertDialogBuilder.setView(dialogView)
         alertDialogBuilder.setCancelable(false)
 
-        val alertDialog = alertDialogBuilder.create()
+        alertDialog = alertDialogBuilder.create()
 
-        alertDialog.show()
+        alertDialog?.show()
 
         //you can customize the message here
         textViewMessage.text = getString(R.string.loading)
 
         //dismiss the dialog after a certain delay or when the task is completed
         Handler().postDelayed({
-            alertDialog.dismiss()
+            alertDialog?.dismiss()
             //execute the callback when the first dialog is dismissed
             callback.invoke()
         }, 5000) //adjust the delay time as needed
+    }
+    private fun hideProgressDialog() {
+
+        alertDialog?.dismiss()
     }
 }
