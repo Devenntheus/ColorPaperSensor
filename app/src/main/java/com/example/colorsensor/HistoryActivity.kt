@@ -1,4 +1,5 @@
 package com.example.colorsensor
+
 import SampleAdapter
 import android.app.AlertDialog
 import android.content.Intent
@@ -15,15 +16,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class HistoryActivity : AppCompatActivity() {
 
-
+    private var alertDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sample_history)
 
-        showProgressDialog {  }
+        showProgressDialog {
+            // This block will be executed after the progress dialog is shown
+        }
+
         val db = FirebaseFirestore.getInstance()
-        val historyList = arrayListOf<HistoryData>() // Specify the type for the ArrayList
+        val historyList = arrayListOf<HistoryData>()
 
         val recyclerView: RecyclerView = findViewById(R.id.historyRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -42,10 +46,15 @@ class HistoryActivity : AppCompatActivity() {
                     historyList.sortByDescending { it.date }
 
                     recyclerView.adapter = SampleAdapter(this, historyList)
+
+                    // Dismiss the progress dialog here
+                    dismissProgressDialog()
                 }
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, exception.toString(), Toast.LENGTH_SHORT).show()
+                // Dismiss the progress dialog in case of failure as well
+                dismissProgressDialog()
             }
 
         val backImageView = findViewById<ImageView>(R.id.backImageView)
@@ -57,7 +66,8 @@ class HistoryActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    //function to show progress dialog
+
+    // Function to show progress dialog
     private fun showProgressDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.progress_dialog, null)
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
@@ -67,18 +77,24 @@ class HistoryActivity : AppCompatActivity() {
         alertDialogBuilder.setView(dialogView)
         alertDialogBuilder.setCancelable(false)
 
-        val alertDialog = alertDialogBuilder.create()
+        alertDialog = alertDialogBuilder.create()
 
-        alertDialog.show()
+        alertDialog?.show()
 
-        //you can customize the message here
+        // You can customize the message here
         textViewMessage.text = getString(R.string.loading)
 
-        //dismiss the dialog after a certain delay or when the task is completed
+        // Dismiss the dialog after a certain delay or when the task is completed
         Handler().postDelayed({
-            alertDialog.dismiss()
-            //execute the callback when the first dialog is dismissed
+            alertDialog?.dismiss()
+            // Execute the callback when the first dialog is dismissed
             callback.invoke()
-        }, 5000) //adjust the delay time as needed
+        }, 100000) // Adjust the delay time as needed
+    }
+
+    // Function to dismiss progress dialog
+    private fun dismissProgressDialog() {
+        // Dismiss the progress dialog if it is currently showing
+        alertDialog?.dismiss()
     }
 }
