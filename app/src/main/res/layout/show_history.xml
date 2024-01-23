@@ -40,18 +40,20 @@
 
                 <LinearLayout
                     android:layout_width="334dp"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
 
                     <ImageView
                         android:id="@+id/dateCalendar"
                         android:layout_width="29dp"
                         android:layout_height="23dp"
                         android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
                         android:src="@drawable/date" />
 
                     <TextView
                         android:id="@+id/dateTextView"
-                        android:layout_width="114dp"
+                        android:layout_width="135dp"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/metrophobic_regular"
                         android:text="January 12, 2024"
@@ -62,9 +64,10 @@
 
                     <ImageView
                         android:id="@+id/timeClock"
-                        android:layout_width="32dp"
+                        android:layout_width="47dp"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
                         android:src="@drawable/clock" />
 
                     <TextView
@@ -93,10 +96,11 @@
 
                 <ImageView
                     android:id="@+id/colorImageView"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
                     android:layout_gravity="center"
-                   android:background="@drawable/circle_background" />
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/circle_background" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
