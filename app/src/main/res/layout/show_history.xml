@@ -44,15 +44,15 @@
 
                     <ImageView
                         android:id="@+id/dateCalendar"
-                        android:layout_width="53dp"
-                        android:layout_height="match_parent"
+                        android:layout_width="29dp"
+                        android:layout_height="23dp"
                         android:layout_gravity="center"
                         android:src="@drawable/date" />
 
                     <TextView
                         android:id="@+id/dateTextView"
-                        android:layout_width="145dp"
-                        android:layout_height="26dp"
+                        android:layout_width="114dp"
+                        android:layout_height="match_parent"
                         android:fontFamily="@font/metrophobic_regular"
                         android:text="January 12, 2024"
                         android:textAlignment="center"
@@ -62,15 +62,15 @@
 
                     <ImageView
                         android:id="@+id/timeClock"
-                        android:layout_width="53dp"
+                        android:layout_width="32dp"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:src="@drawable/clock" />
 
                     <TextView
                         android:id="@+id/timeTextView"
-                        android:layout_width="80dp"
-                        android:layout_height="26dp"
+                        android:layout_width="71dp"
+                        android:layout_height="23dp"
                         android:fontFamily="@font/metrophobic_regular"
                         android:text="11:30 AM"
                         android:textAlignment="center"
