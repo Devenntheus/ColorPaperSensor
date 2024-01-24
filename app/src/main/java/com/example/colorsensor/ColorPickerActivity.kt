@@ -137,6 +137,23 @@ class ColorPickerActivity : AppCompatActivity() {
         return getHexColorFromBitmap(bitmap, x, y)
     }
 
+    private fun getHSVFromHexColor(hexColor: String): FloatArray {
+        return try {
+            val colorInt = Color.parseColor(hexColor)
+            val hsv = FloatArray(3)
+            Color.colorToHSV(colorInt, hsv)
+
+            // Convert saturation and value to percentages
+            hsv[1] *= 100.0f
+            hsv[2] *= 100.0f
+
+            hsv
+        } catch (e: IllegalArgumentException) {
+            // Handle the case where parsing fails (invalid hex color)
+            FloatArray(3) // or any default HSV values
+        }
+    }
+
     private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
         imageView.isDrawingCacheEnabled = true
         imageView.buildDrawingCache(true)
@@ -231,6 +248,7 @@ class ColorPickerActivity : AppCompatActivity() {
         val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
+        val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
 
         // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
@@ -251,6 +269,10 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Declare a variable to store the colorName
         var colorName: String? = null
+
+        // Set the hsv code to textview
+        val hsvValues = getHSVFromHexColor(color)
+        hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
 
         // Launch the coroutine to get the colorName
         val job = lifecycleScope.launch {

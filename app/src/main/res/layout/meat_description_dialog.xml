@@ -140,7 +140,7 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-m            <!--<LinearLayout
+m            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -150,7 +150,7 @@ m            <!--<LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="HSV Code:"
+                    android:text="HSV:"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -163,7 +163,7 @@ m            <!--<LinearLayout
                     android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
-            </LinearLayout>-->
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
