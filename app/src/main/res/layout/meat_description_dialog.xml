@@ -57,8 +57,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Status"
-                    android:textColor="#ff9f9f"
+                    android:text=""
+                    android:textColor="@color/white"
                     android:textSize="18sp" />
 
             </LinearLayout>
