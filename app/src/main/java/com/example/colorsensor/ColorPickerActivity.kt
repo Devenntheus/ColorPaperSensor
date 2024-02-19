@@ -240,11 +240,11 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
         val colorImageView = dialogView.findViewById<ImageView>(R.id.ConfirmImageView)
+        val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
         val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
@@ -261,6 +261,15 @@ class ColorPickerActivity : AppCompatActivity() {
         // Set meat type
         val meatType = GlobalData.meatType
         meatTypeTextView.text = meatType.toString()
+
+        // Get HSV values based on the color
+        val hsvValuesForDialog = getHSVFromHexColor(color)
+
+        // Get meat status based on meat type and HSV values
+        val meatStatus = MeatStatus.getMeatStatus(meatType.toString(), hsvValuesForDialog)
+
+        // Set meat status
+        meatStatusTextView.text = meatStatus
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
@@ -298,7 +307,7 @@ class ColorPickerActivity : AppCompatActivity() {
             // Create an instance of MeatInformation with the generated ID
             val meatInformation = MeatInformation(
                 id = id,
-                meatStatus = "Fresh",  // Replace "YourMeatStatus" with the actual meat status
+                meatStatus = meatStatus,  // Replace "YourMeatStatus" with the actual meat status
                 meatType = meatTypeString,
                 color = colorName ?: "", // Use the colorName if not null, or an empty string if null
                 hexCode = color,
