@@ -60,12 +60,6 @@ class MainMenuActivity : AppCompatActivity() {
             startCaptureImageActivity()
         }
 
-        val muttonCardView = findViewById<CardView>(R.id.MuttonCardView)
-        muttonCardView.setOnClickListener {
-            GlobalData.meatType = "Mutton"
-            startCaptureImageActivity()
-        }
-
         val poultryCardView = findViewById<CardView>(R.id.PoultryCardView)
         poultryCardView.setOnClickListener {
             GlobalData.meatType = "Poultry"
