@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -84,7 +85,7 @@ class ColorPickerActivity : AppCompatActivity() {
         setCrosshairTouchListener()
 
         confirmCheckImageButton.setOnClickListener {
-            //get the hex color under the crosshair
+            //get the hex color under the cursor
             val hexColor = getHexColorUnderCrosshair()
 
             //show progress dialog and then display color dialog
@@ -109,11 +110,11 @@ class ColorPickerActivity : AppCompatActivity() {
         frameLayout.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                    //update the position of crosshair
+                    //update the position of cursor
                     val newX = event.rawX - crossHairImageView.width / 2
                     val newY = event.rawY - crossHairImageView.height - 150f
 
-                    //ensure the crosshair stays within the frame layout
+                    //ensure the cursor stays within the frame layout
                     if (newX >= 0 && newX <= frameLayout.width - crossHairImageView.width &&
                         newY >= 0 && newY <= frameLayout.height - crossHairImageView.height
                     ) {
@@ -132,9 +133,60 @@ class ColorPickerActivity : AppCompatActivity() {
 
     private fun getHexColorUnderCrosshair(): String {
         val bitmap = getBitmapFromImageView(capturedImageView)
-        val x = crossHairImageView.x.toInt() + crossHairImageView.width / 2
-        val y = crossHairImageView.y.toInt() + crossHairImageView.height / 2
-        return getHexColorFromBitmap(bitmap, x, y)
+        val crosshairX = crossHairImageView.x.toInt()
+        val crosshairY = crossHairImageView.y.toInt()
+        val crosshairWidth = crossHairImageView.width
+        val crosshairHeight = crossHairImageView.height
+
+        // Define the rectangle around the cursor
+        val rectLeft = crosshairX
+        val rectTop = crosshairY
+        val rectRight = crosshairX + crosshairWidth
+        val rectBottom = crosshairY + crosshairHeight
+
+        // Ensure the rectangle is within the bounds of the bitmap
+        val rect = Rect(rectLeft.coerceAtLeast(0), rectTop.coerceAtLeast(0), rectRight.coerceAtMost(bitmap.width), rectBottom.coerceAtMost(bitmap.height))
+
+        // Get the hex color from the bitmap for the defined rectangle
+        return getHexColorFromBitmap(bitmap, rect)
+    }
+
+    private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
+        imageView.isDrawingCacheEnabled = true
+        imageView.buildDrawingCache(true)
+        val bitmap = Bitmap.createBitmap(imageView.drawingCache)
+        imageView.isDrawingCacheEnabled = false
+        return bitmap
+    }
+
+    private fun getHexColorFromBitmap(bitmap: Bitmap, rect: Rect): String {
+        val croppedBitmap = Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height())
+        // Calculate the average color of the cropped area
+        val averageColor = getAverageColor(croppedBitmap)
+        return String.format("#%06X", averageColor and 0xFFFFFF) // Ensure only 6 least significant hex digits are considered
+    }
+
+    private fun getAverageColor(bitmap: Bitmap): Int {
+        var red = 0
+        var green = 0
+        var blue = 0
+        var count = 0
+
+        for (y in 0 until bitmap.height) {
+            for (x in 0 until bitmap.width) {
+                val pixel = bitmap.getPixel(x, y)
+                red += Color.red(pixel)
+                green += Color.green(pixel)
+                blue += Color.blue(pixel)
+                count++
+            }
+        }
+
+        red /= count
+        green /= count
+        blue /= count
+
+        return Color.rgb(red, green, blue)
     }
 
     private fun getHSVFromHexColor(hexColor: String): FloatArray {
@@ -152,19 +204,6 @@ class ColorPickerActivity : AppCompatActivity() {
             // Handle the case where parsing fails (invalid hex color)
             FloatArray(3) // or any default HSV values
         }
-    }
-
-    private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
-        imageView.isDrawingCacheEnabled = true
-        imageView.buildDrawingCache(true)
-        val bitmap = Bitmap.createBitmap(imageView.drawingCache)
-        imageView.isDrawingCacheEnabled = false
-        return bitmap
-    }
-
-    private fun getHexColorFromBitmap(bitmap: Bitmap, x: Int, y: Int): String {
-        val pixel = bitmap.getPixel(x, y)
-        return String.format("#%06X", 0xFFFFFF and pixel)
     }
 
     private val colorApiService: ColorApiService by lazy {

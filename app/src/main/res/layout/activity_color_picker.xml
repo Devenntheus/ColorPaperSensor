@@ -25,10 +25,10 @@
 
             <ImageView
                 android:id="@+id/CrosshairImageView"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:src="@drawable/crosshair_icon"/>
+                android:src="@drawable/cursor_picker"/>
 
         </FrameLayout>
 
