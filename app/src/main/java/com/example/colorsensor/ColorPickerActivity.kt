@@ -305,7 +305,7 @@ class ColorPickerActivity : AppCompatActivity() {
         val hsvValuesForDialog = getHSVFromHexColor(color)
 
         // Get meat status based on meat type and HSV values
-        val meatStatus = MeatStatus.getMeatStatus(meatType.toString(), hsvValuesForDialog)
+        val meatStatus = PoultryMeatStatus.getMeatStatus(meatType.toString(), hsvValuesForDialog)
 
         // Set meat status
         meatStatusTextView.text = meatStatus
