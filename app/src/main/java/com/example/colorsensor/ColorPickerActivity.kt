@@ -304,11 +304,17 @@ class ColorPickerActivity : AppCompatActivity() {
         // Get HSV values based on the color
         val hsvValuesForDialog = getHSVFromHexColor(color)
 
-        // Get meat status based on meat type and HSV values
-        val meatStatus = PoultryMeatStatus.getMeatStatus(meatType.toString(), hsvValuesForDialog)
+        // Color Picker Activity code
+        val planBPoultryMeatStatus = PlanBPoultryMeatStatus()
+
+        // Assuming hsvValues is the array containing HSV values
+        val hsvValues = getHSVFromHexColor(color)
+
+        val meatStatus = planBPoultryMeatStatus.getMeatStatusString(hsvValues)
 
         // Set meat status
         meatStatusTextView.text = meatStatus
+
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
@@ -319,7 +325,6 @@ class ColorPickerActivity : AppCompatActivity() {
         var colorName: String? = null
 
         // Set the hsv code to textview
-        val hsvValues = getHSVFromHexColor(color)
         hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
 
         // Launch the coroutine to get the colorName
