@@ -206,6 +206,18 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
+    private fun hexToRgb(hexColor: String): Triple<Int, Int, Int>? {
+        return try {
+            val colorInt = Color.parseColor(hexColor)
+            val red = Color.red(colorInt)
+            val green = Color.green(colorInt)
+            val blue = Color.blue(colorInt)
+            Triple(red, green, blue)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
     private val colorApiService: ColorApiService by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.thecolorapi.com")
@@ -288,6 +300,9 @@ class ColorPickerActivity : AppCompatActivity() {
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
         val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
+        val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
+        val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)
+        val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)
 
         // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
@@ -304,8 +319,19 @@ class ColorPickerActivity : AppCompatActivity() {
         // Get HSV values based on the color
         val hsvValuesForDialog = getHSVFromHexColor(color)
 
-        // Get meat status based on meat type and HSV values
-        val meatStatus = PoultryMeatStatus.getMeatStatus(meatType.toString(), hsvValuesForDialog)
+        // Convert hex color to RGB
+        val rgbValues = hexToRgb(color)
+
+        // Set the RGB values to the TextView
+        if (rgbValues != null) {
+            val (red, green, blue) = rgbValues
+            rgbTextView.text = "$red, $green, $blue"
+        } else {
+            rgbTextView.text = "N/A"
+        }
+
+        // Get meat status based on meat type and RGB values
+        val (meatStatus, labValues, xyzValues) = PoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
         // Set meat status
         meatStatusTextView.text = meatStatus
@@ -321,6 +347,14 @@ class ColorPickerActivity : AppCompatActivity() {
         // Set the hsv code to textview
         val hsvValues = getHSVFromHexColor(color)
         hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
+
+        // Set the xyz values to the textview
+        val xyzValuesText = "X: ${xyzValues[0]}, Y: ${xyzValues[1]}, Z: ${xyzValues[2]}"
+        xyzValuesTextView.text = xyzValuesText
+
+        // Set the lab values to the textview
+        val labValuesText = "L: ${labValues[0]}, a: ${labValues[1]}, b: ${labValues[2]}"
+        labValuesTextView.text = labValuesText
 
         // Launch the coroutine to get the colorName
         val job = lifecycleScope.launch {

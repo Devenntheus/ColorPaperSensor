@@ -4,107 +4,110 @@ import kotlin.math.*
 
 class PoultryMeatStatus {
     companion object {
-        private val REF = floatArrayOf(73.6f, 9.59f, 3.23f)
-        private val ONE_HOUR = floatArrayOf(78.36f, 2.8f, 1.03f)
-        private val TWO_HOUR = floatArrayOf(75.57f, 6.76f, 2.23f)
-        private val THREE_HOUR = floatArrayOf(74.91f, 7.44f, 2.4f)
-        private val FOUR_HOUR = floatArrayOf(76.57f, 5.38f, 1.75f)
-        private val FIVE_HOUR = floatArrayOf(77.28f, 4.68f, 1.64f)
-        private val SIX_HOUR = floatArrayOf(76.6f, 4.85f, 1.52f)
-        private val SEVEN_HOUR = floatArrayOf(77.43f, -0.22f, -1.17f)
+        private val CLASS_A_T1 = floatArrayOf(72.39f, 5.14f, -1.41f)
+        private val CLASS_A_T2 = floatArrayOf(70.69f, 6.92f, -1.3f)
+        private val CLASS_A_T3 = floatArrayOf(70.28f, 7.71f, -1.07f)
+        private val CLASS_B_T1 = floatArrayOf(68.19f, 1.04f, -4.34f)
+        private val CLASS_B_T2 = floatArrayOf(66.7f, 1.5f, -4.49f)
+        private val CLASS_B_T3 = floatArrayOf(68.38f, 1.36f, -4.15f)
+        private val CLASS_C_T1 = floatArrayOf(68.76f, 1.21f, -4.25f)
+        private val CLASS_C_T2 = floatArrayOf(68.26f, 1.49f, -4.19f)
+        private val CLASS_C_T3 = floatArrayOf(67.78f, 1.86f, -4.09f)
+        private val CLASS_D_T1 = floatArrayOf(67.93f, 1.29f, -4.13f)
+        private val CLASS_D_T2 = floatArrayOf(67.13f, 1.48f, -4.21f)
+        private val CLASS_D_T3 = floatArrayOf(66.63f, 1.98f, -4.33f)
 
-        // Convert HSV to RGB
-        private fun hsvToRgb(h: Float, s: Float, v: Float): FloatArray {
-            val c = v * s
-            val x = c * (1 - kotlin.math.abs((h / 60) % 2 - 1))
-            val m = v - c
-
-            return when {
-                h < 60 -> floatArrayOf(c + m, x + m, m)
-                h < 120 -> floatArrayOf(x + m, c + m, m)
-                h < 180 -> floatArrayOf(m, c + m, x + m)
-                h < 240 -> floatArrayOf(m, x + m, c + m)
-                h < 300 -> floatArrayOf(x + m, m, c + m)
-                else -> floatArrayOf(c + m, m, x + m)
-            }
-        }
-
-        // Convert RGB to XYZ
+        // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {
             // Normalize RGB values
-            val varR = r / 255
-            val varG = g / 255
-            val varB = b / 255
+            val varR = r / 255f
+            val varG = g / 255f
+            val varB = b / 255f
 
             // Linearize sRGB values
-            val finalR = if (varR > 0.04045) ((varR + 0.055) / 1.055).pow(2.4) else varR / 12.92
-            val finalG = if (varG > 0.04045) ((varG + 0.055) / 1.055).pow(2.4) else varG / 12.92
-            val finalB = if (varB > 0.04045) ((varB + 0.055) / 1.055).pow(2.4) else varB / 12.92
+            val finalR = if (varR > 0.04045f) ((varR + 0.055f) / 1.055f).pow(2.4f) else varR / 12.92f
+            val finalG = if (varG > 0.04045f) ((varG + 0.055f) / 1.055f).pow(2.4f) else varG / 12.92f
+            val finalB = if (varB > 0.04045f) ((varB + 0.055f) / 1.055f).pow(2.4f) else varB / 12.92f
 
             // Convert sRGB to XYZ
             val X = finalR * 0.4124564f + finalG * 0.3575761f + finalB * 0.1804375f
             val Y = finalR * 0.2126729f + finalG * 0.7151522f + finalB * 0.0721750f
             val Z = finalR * 0.0193339f + finalG * 0.1191920f + finalB * 0.9503041f
 
-            return floatArrayOf((X * 100).toFloat(), (Y * 100).toFloat(), (Z * 100).toFloat())
+            return floatArrayOf(X * 100f, Y * 100f, Z * 100f)
         }
 
-        // Convert XYZ to LAB
+        // Convert XYZ to LAB color space.
         private fun xyzToLab(x: Float, y: Float, z: Float): FloatArray {
-            val varX = x / 95.047
-            val varY = y / 100.0
-            val varZ = z / 108.883
+            val varX = x / 95.047f
+            val varY = y / 100f
+            val varZ = z / 108.883f
 
-            val finalX = if (varX > 0.008856) varX.pow(1 / 3.0) else (7.787 * varX) + (16 / 116.0)
-            val finalY = if (varY > 0.008856) varY.pow(1 / 3.0) else (7.787 * varY) + (16 / 116.0)
-            val finalZ = if (varZ > 0.008856) varZ.pow(1 / 3.0) else (7.787 * varZ) + (16 / 116.0)
+            val finalX = if (varX > 0.008856f) varX.pow(1 / 3f) else (7.787f * varX) + (16 / 116f)
+            val finalY = if (varY > 0.008856f) varY.pow(1 / 3f) else (7.787f * varY) + (16 / 116f)
+            val finalZ = if (varZ > 0.008856f) varZ.pow(1 / 3f) else (7.787f * varZ) + (16 / 116f)
 
-            val L = (116 * finalY) - 16
-            val a = 500 * (finalX - finalY)
-            val b = 200 * (finalY - finalZ)
+            val L = (116f * finalY) - 16
+            val a = 500f * (finalX - finalY)
+            val b = 200f * (finalY - finalZ)
 
-            return floatArrayOf(L.toFloat(), a.toFloat(), b.toFloat())
+            return floatArrayOf(L, a, b)
         }
 
-        // Get meat status based on LAB values
+        // Get meat status from LAB values.
         private fun getMeatStatusFromLab(labValues: FloatArray): String {
             val distances = mapOf(
-                "Fresh" to deltaE(labValues, REF),
-                "Fresh 1Hr" to deltaE(labValues, ONE_HOUR),
-                "Fresh 2Hrs" to deltaE(labValues, TWO_HOUR),
-                "Fresh 3Hrs" to deltaE(labValues, THREE_HOUR),
-                "Fresh 4Hrs" to deltaE(labValues, FOUR_HOUR),
-                "Fresh 5Hrs" to deltaE(labValues, FIVE_HOUR),
-                "Fresh 6Hrs" to deltaE(labValues, SIX_HOUR),
-                "Not Fresh" to deltaE(labValues, SEVEN_HOUR)
+                "A" to minOf(
+                    deltaE(labValues, CLASS_A_T1),
+                    deltaE(labValues, CLASS_A_T2),
+                    deltaE(labValues, CLASS_A_T3)
+                ),
+                "B" to minOf(
+                    deltaE(labValues, CLASS_B_T1),
+                    deltaE(labValues, CLASS_B_T2),
+                    deltaE(labValues, CLASS_B_T3)
+                ),
+                "C" to minOf(
+                    deltaE(labValues, CLASS_C_T1),
+                    deltaE(labValues, CLASS_C_T2),
+                    deltaE(labValues, CLASS_C_T3)
+                ),
+                "D" to minOf(
+                    deltaE(labValues, CLASS_D_T1),
+                    deltaE(labValues, CLASS_D_T2),
+                    deltaE(labValues, CLASS_D_T3)
+                )
             )
 
-            val minDistanceEntry = distances.minByOrNull { it.value }
-            return minDistanceEntry?.key ?: "Unknown"
+            val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
+
+            return if (closestClass in listOf("A", "B", "C")) "$closestClass-Fresh" else "$closestClass-Not Fresh"
         }
 
-        // Convert HSV to LAB and get meat status
-        fun getMeatStatus(meatType: String, hsvValues: FloatArray): String {
-            // Convert HSV to RGB
-            val rgbValues = hsvToRgb(hsvValues[0], hsvValues[1], hsvValues[2])
+        // Get meat status from RGB values.
+        fun getMeatStatus(meatType: String, rgbValues: Triple<Int, Int, Int>?): Triple<String, FloatArray, FloatArray> {
+            if (rgbValues == null) {
+                throw IllegalArgumentException("RGB values cannot be null.")
+            }
 
             // Convert RGB to XYZ
-            val xyzValues = rgbToXyz(rgbValues[0], rgbValues[1], rgbValues[2])
+            val xyzValues = rgbToXyz(rgbValues.first.toFloat(), rgbValues.second.toFloat(), rgbValues.third.toFloat())
 
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
             // Get meat status from LAB values
-            return getMeatStatusFromLab(labValues)
+            val meatStatus = getMeatStatusFromLab(labValues)
+
+            return Triple(meatStatus, labValues, xyzValues)
         }
 
-        // Calculate the Euclidean distance between two LAB colors
+        // Calculate the Euclidean distance between two LAB colors.
         private fun deltaE(lab1: FloatArray, lab2: FloatArray): Float {
             val dL = lab1[0] - lab2[0]
             val da = lab1[1] - lab2[1]
             val db = lab1[2] - lab2[2]
-
-            return sqrt(dL.pow(2) + da.pow(2) + db.pow(2))
+            return sqrt(dL * dL + da * da + db * db)
         }
     }
 }
