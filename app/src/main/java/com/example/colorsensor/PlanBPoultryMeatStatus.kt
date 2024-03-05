@@ -1,85 +1,142 @@
 package com.example.colorsensor
 
-import android.util.Log
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class PlanBPoultryMeatStatus {
 
-    private val REF = floatArrayOf(73.6f, 9.59f, 3.23f)
-    private val ONE_HOUR = floatArrayOf(78.36f, 2.8f, 1.03f)
-    private val TWO_HOUR = floatArrayOf(75.57f, 6.76f, 2.23f)
-    private val THREE_HOUR = floatArrayOf(74.91f, 7.44f, 2.4f)
-    private val FOUR_HOUR = floatArrayOf(76.57f, 5.38f, 1.75f)
-    private val FIVE_HOUR = floatArrayOf(77.28f, 4.68f, 1.64f)
-    private val SIX_HOUR = floatArrayOf(76.6f, 4.85f, 1.52f)
-    private val SEVEN_HOUR = floatArrayOf(77.43f, -0.22f, -1.17f)
+    companion object {
+        private val CLASS_A = floatArrayOf(185.43f, 170.24f, 176.54f)
+        private val CLASS_B = floatArrayOf(163.77f, 164.61f, 172.78f)
+        private val CLASS_C = floatArrayOf(165.69f, 165.83f, 173.89f)
+        private val CLASS_D = floatArrayOf(163f, 163.03f, 171.19f)
 
-    // Member variable to store meat status
-    var meatStatus: String = ""
+        data class Lab(val L: Float, val a: Float, val b: Float)
 
-    private fun rgbToHsv(rgb: FloatArray): FloatArray {
-        val max = rgb.maxOrNull()!!
-        val min = rgb.minOrNull()!!
-        val delta = max - min
+        data class Xyz(val X: Float, val Y: Float, val Z: Float)
 
-        // Calculate Hue
-        var h = when {
-            delta == 0f -> 0f
-            max == rgb[0] -> 60 * (((rgb[1] - rgb[2]) / delta) % 6)
-            max == rgb[1] -> 60 * ((rgb[2] - rgb[0]) / delta + 2)
-            else -> 60 * ((rgb[0] - rgb[1]) / delta + 4)
+        data class Rgb(val R: Int, val G: Int, val B: Int)
+
+        enum class MeatStatus {
+            CLASS_A, CLASS_B, CLASS_C, CLASS_D
         }
 
-        if (h < 0) h += 360f
+        fun Lab.toXyz(): Xyz {
+            val fy = (L + 16) / 116.0
+            val fx = a / 500.0 + fy
+            val fz = fy - b / 200.0
 
-        // Calculate Saturation
-        val s = if (max != 0f) delta / max else 0f
+            val epsilon = 0.008856
+            val kappa = 903.3
 
-        // Calculate Value
-        val v = max
+            val xr = if (fx > epsilon) fx.pow(3) else (fx - 16 / 116.0) / 7.787
+            val yr = if (fy > epsilon) ((L + 16) / 116.0).pow(3) else (fy - 16 / 116.0) / 7.787
+            val zr = if (fz > epsilon) fz.pow(3) else (fz - 16 / 116.0) / 7.787
 
-        return floatArrayOf(h, s * 100, v * 100)
-    }
+            val X = xr * 95.047
+            val Y = yr * 100.0
+            val Z = zr * 108.883
 
-    fun classifyMeatStatus(hsvValues: FloatArray): String {
-        val capturedHue = hsvValues[0]
-
-        // Calculate absolute differences between the captured hue and reference hues
-        val differences = mapOf(
-            "ONE_HOUR" to Math.abs(capturedHue - ONE_HOUR[0]),
-            "TWO_HOUR" to Math.abs(capturedHue - TWO_HOUR[0]),
-            "THREE_HOUR" to Math.abs(capturedHue - THREE_HOUR[0]),
-            "FOUR_HOUR" to Math.abs(capturedHue - FOUR_HOUR[0]),
-            "FIVE_HOUR" to Math.abs(capturedHue - FIVE_HOUR[0]),
-            "SIX_HOUR" to capturedHue - SIX_HOUR[0], // Use range check instead of absolute value
-            "SEVEN_HOUR" to capturedHue - SEVEN_HOUR[0] // Use range check instead of absolute value
-        )
-
-        // Log intermediate values for debugging
-        Log.d("Captured Hue", capturedHue.toString())
-        differences.forEach { (hour, difference) ->
-            Log.d("Difference $hour", difference.toString())
+            return Xyz(X.toFloat(), Y.toFloat(), Z.toFloat())
         }
 
-        // Find the key with the minimum difference
-        val closestHour = differences.minByOrNull { it.value }?.key ?: ""
+        fun Xyz.toRgb(): Rgb {
+            val x = X / 100.0
+            val y = Y / 100.0
+            val z = Z / 100.0
 
-        return when (closestHour) {
-            "ONE_HOUR" -> "Fresh for ONE_HOUR"
-            "TWO_HOUR" -> "Fresh for TWO_HOUR"
-            "THREE_HOUR" -> "Fresh for THREE_HOUR"
-            "FOUR_HOUR" -> "Fresh for FOUR_HOUR"
-            "FIVE_HOUR" -> "Fresh for FIVE_HOUR"
-            "SIX_HOUR" -> if (capturedHue in SIX_HOUR[0]..SEVEN_HOUR[0]) "Not fresh for SIX_HOUR" else "Not fresh for SIX_HOUR"
-            "SEVEN_HOUR" -> if (capturedHue in SIX_HOUR[0]..SEVEN_HOUR[0]) "Not fresh for SEVEN_HOUR" else "Not fresh for SEVEN_HOUR"
-            else -> "Not fresh"
+            val r = (x * 3.2406 + y * -1.5372 + z * -0.4986) * 255.0
+            val g = (x * -0.9689 + y * 1.8758 + z * 0.0415) * 255.0
+            val b = (x * 0.0557 + y * -0.2040 + z * 1.0570) * 255.0
+
+            return Rgb(r.toInt(), g.toInt(), b.toInt())
+        }
+
+        fun getMeatStatusFromLab(lab: Lab): MeatStatus {
+            val xyz = lab.toXyz()
+
+            // Define your thresholds for each class
+            val thresholds = mapOf(
+                MeatStatus.CLASS_A to CLASS_A,
+                MeatStatus.CLASS_B to CLASS_B,
+                MeatStatus.CLASS_C to CLASS_C,
+                MeatStatus.CLASS_D to CLASS_D
+            )
+
+            // Calculate the Euclidean distance between the input LAB values and each threshold
+            val distances = thresholds.mapValues { (_, threshold) ->
+                calculateEuclideanDistance(lab, Lab(threshold[0], threshold[1], threshold[2]))
+            }
+
+            // Find the minimum distance and return the corresponding MeatStatus
+            val minDistanceEntry = distances.minByOrNull { it.value }!!
+            return minDistanceEntry.key
+        }
+
+        fun Xyz.toXyzFloatArray(): FloatArray {
+            return floatArrayOf(X, Y, Z)
+        }
+
+        fun Rgb.toRgbFloatArray(): FloatArray {
+            return floatArrayOf(R.toFloat(), G.toFloat(), B.toFloat())
+        }
+        fun getMeatStatus(meatType: String, rgbValues: Triple<Int, Int, Int>?): Triple<String, FloatArray, FloatArray> {
+            if (rgbValues == null) {
+                throw IllegalArgumentException("RGB values cannot be null.")
+            }
+
+            val xyz = Xyz(
+                (rgbValues.first.toFloat() / 255.0 * 100.0).toFloat(),
+                (rgbValues.second.toFloat() / 255.0 * 100.0).toFloat(),
+                (rgbValues.third.toFloat() / 255.0 * 100.0).toFloat()
+            )
+
+            val lab = Lab(0f, 0f, 0f) // You might want to calculate LAB from XYZ, but for simplicity, using a placeholder
+
+            // Define your thresholds for each class
+            val thresholds = mapOf(
+                MeatStatus.CLASS_A to CLASS_A,
+                MeatStatus.CLASS_B to CLASS_B,
+                MeatStatus.CLASS_C to CLASS_C,
+                MeatStatus.CLASS_D to CLASS_D
+            )
+
+            // Calculate the Euclidean distance between the input RGB values and each threshold
+            val distances = thresholds.mapValues { (_, threshold) ->
+                calculateEuclideanDistance(
+                    Rgb(rgbValues.first, rgbValues.second, rgbValues.third),
+                    Rgb(threshold[0].toInt(), threshold[1].toInt(), threshold[2].toInt())
+                )
+            }
+
+            // Find the minimum distance and return the corresponding MeatStatus
+            val minDistanceEntry = distances.minByOrNull { it.value }!!
+
+            // Assign string representation based on MeatStatus
+            val meatStatusString = when (minDistanceEntry.key) {
+                MeatStatus.CLASS_A -> "Fresh"
+                MeatStatus.CLASS_B, MeatStatus.CLASS_C -> "Moderately Fresh"
+                MeatStatus.CLASS_D -> "Borderline Spoilage"
+            }
+
+            // Correct the conversion from xyz to rgb
+            val rgbFromXyz = xyz.toRgb()
+
+            return Triple(meatStatusString, rgbFromXyz.toRgbFloatArray(), xyz.toXyzFloatArray())
+        }
+
+        private fun calculateEuclideanDistance(lab1: Lab, lab2: Lab): Float {
+            val dL = lab1.L - lab2.L
+            val da = lab1.a - lab2.a
+            val db = lab1.b - lab2.b
+            return sqrt(dL.pow(2) + da.pow(2) + db.pow(2)).toFloat()
+        }
+
+        private fun calculateEuclideanDistance(rgb1: Rgb, rgb2: Rgb): Float {
+            val dR = rgb1.R - rgb2.R
+            val dG = rgb1.G - rgb2.G
+            val dB = rgb1.B - rgb2.B
+            return sqrt((dR * dR + dG * dG + dB * dB).toFloat())
         }
     }
-
-    // PlanBPultryMeatStatus code
-    fun getMeatStatusString(hsvValues: FloatArray): String {
-        meatStatus = classifyMeatStatus(hsvValues)
-        Log.d("Meat Status", meatStatus) // Use Log to print the status
-        return meatStatus
-    }
-
 }

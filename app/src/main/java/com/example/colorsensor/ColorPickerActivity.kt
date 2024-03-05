@@ -32,7 +32,6 @@ import retrofit2.http.GET
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
 import kotlinx.coroutines.tasks.await
@@ -301,8 +300,8 @@ class ColorPickerActivity : AppCompatActivity() {
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
         val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
         val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
-        val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)
-        val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)
+       /* val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)
+        val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)*/
 
         // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
@@ -331,10 +330,9 @@ class ColorPickerActivity : AppCompatActivity() {
         }
 
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
-
+        val (meatStatus) = PlanBPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
         // Set meat status
-        meatStatusTextView.text = meatStatus
+        meatStatusTextView.text = meatStatus.toString()
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
@@ -348,13 +346,13 @@ class ColorPickerActivity : AppCompatActivity() {
         val hsvValues = getHSVFromHexColor(color)
         hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
 
-        // Set the xyz values to the textview
+       /* // Set the xyz values to the textview
         val xyzValuesText = "X: ${xyzValues[0]}, Y: ${xyzValues[1]}, Z: ${xyzValues[2]}"
         xyzValuesTextView.text = xyzValuesText
 
         // Set the lab values to the textview
         val labValuesText = "L: ${labValues[0]}, a: ${labValues[1]}, b: ${labValues[2]}"
-        labValuesTextView.text = labValuesText
+        labValuesTextView.text = labValuesText*/
 
         // Launch the coroutine to get the colorName
         val job = lifecycleScope.launch {
