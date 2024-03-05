@@ -125,7 +125,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Hex Code:"
+                    android:text="HEX:"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -225,7 +225,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/metrophobic_regular"
-                    android:text="Lab:"
+                    android:text="LAB:"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 

@@ -1,21 +1,22 @@
-package com.example.colorsensor
-
 import kotlin.math.*
 
-class PoultryMeatStatus {
+class PlanAPoultryMeatStatus {
     companion object {
-        private val CLASS_A_T1 = floatArrayOf(72.39f, 5.14f, -1.41f)
-        private val CLASS_A_T2 = floatArrayOf(70.69f, 6.92f, -1.3f)
-        private val CLASS_A_T3 = floatArrayOf(70.28f, 7.71f, -1.07f)
-        private val CLASS_B_T1 = floatArrayOf(68.19f, 1.04f, -4.34f)
-        private val CLASS_B_T2 = floatArrayOf(66.7f, 1.5f, -4.49f)
-        private val CLASS_B_T3 = floatArrayOf(68.38f, 1.36f, -4.15f)
-        private val CLASS_C_T1 = floatArrayOf(68.76f, 1.21f, -4.25f)
-        private val CLASS_C_T2 = floatArrayOf(68.26f, 1.49f, -4.19f)
-        private val CLASS_C_T3 = floatArrayOf(67.78f, 1.86f, -4.09f)
-        private val CLASS_D_T1 = floatArrayOf(67.93f, 1.29f, -4.13f)
-        private val CLASS_D_T2 = floatArrayOf(67.13f, 1.48f, -4.21f)
-        private val CLASS_D_T3 = floatArrayOf(66.63f, 1.98f, -4.33f)
+        // Average Class Lab values with ranges for accuracy
+        private val CLASS_A = Pair(
+            floatArrayOf(73.62f, 9.09f, 1.24f),
+            floatArrayOf(69.5658f, 4.0f, -2.7558f)
+        )
+
+        private val CLASS_B = Pair(
+            floatArrayOf(69.5657f, 3.9999f, -2.7559f),
+            floatArrayOf(67.6208f, 1.4967f, -4.2375f)
+        )
+
+        private val CLASS_C = Pair(
+            floatArrayOf(67.6207f, 1.4966f, -4.2376f),
+            floatArrayOf(64.73f, -0.9167f, -6.7233f)
+        )
 
         // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {
@@ -57,31 +58,14 @@ class PoultryMeatStatus {
         // Get meat status from LAB values.
         private fun getMeatStatusFromLab(labValues: FloatArray): String {
             val distances = mapOf(
-                "A" to minOf(
-                    deltaE(labValues, CLASS_A_T1),
-                    deltaE(labValues, CLASS_A_T2),
-                    deltaE(labValues, CLASS_A_T3)
-                ),
-                "B" to minOf(
-                    deltaE(labValues, CLASS_B_T1),
-                    deltaE(labValues, CLASS_B_T2),
-                    deltaE(labValues, CLASS_B_T3)
-                ),
-                "C" to minOf(
-                    deltaE(labValues, CLASS_C_T1),
-                    deltaE(labValues, CLASS_C_T2),
-                    deltaE(labValues, CLASS_C_T3)
-                ),
-                "D" to minOf(
-                    deltaE(labValues, CLASS_D_T1),
-                    deltaE(labValues, CLASS_D_T2),
-                    deltaE(labValues, CLASS_D_T3)
-                )
+                "Fresh" to deltaE(labValues, CLASS_A.first, CLASS_A.second),
+                "Moderately Fresh" to deltaE(labValues, CLASS_B.first, CLASS_B.second),
+                "Borderline Spoilage" to deltaE(labValues, CLASS_C.first, CLASS_C.second)
             )
 
             val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
 
-            return if (closestClass in listOf("A", "B", "C")) "$closestClass-Fresh" else "$closestClass-Not Fresh"
+            return closestClass
         }
 
         // Get meat status from RGB values.
@@ -103,10 +87,10 @@ class PoultryMeatStatus {
         }
 
         // Calculate the Euclidean distance between two LAB colors.
-        private fun deltaE(lab1: FloatArray, lab2: FloatArray): Float {
-            val dL = lab1[0] - lab2[0]
-            val da = lab1[1] - lab2[1]
-            val db = lab1[2] - lab2[2]
+        private fun deltaE(lab1: FloatArray, lab2From: FloatArray, lab2To: FloatArray): Float {
+            val dL = lab1[0] - (lab2From[0] + lab2To[0]) / 2
+            val da = lab1[1] - (lab2From[1] + lab2To[1]) / 2
+            val db = lab1[2] - (lab2From[2] + lab2To[2]) / 2
             return sqrt(dL * dL + da * da + db * db)
         }
     }

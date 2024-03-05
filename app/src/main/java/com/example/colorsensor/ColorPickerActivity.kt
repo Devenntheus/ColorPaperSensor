@@ -32,7 +32,6 @@ import retrofit2.http.GET
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
 import kotlinx.coroutines.tasks.await
@@ -190,20 +189,18 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     private fun getHSVFromHexColor(hexColor: String): FloatArray {
-        return try {
-            val colorInt = Color.parseColor(hexColor)
-            val hsv = FloatArray(3)
-            Color.colorToHSV(colorInt, hsv)
+        // Parse the hexadecimal color string to an integer
+        val colorInt = Color.parseColor(hexColor)
 
-            // Convert saturation and value to percentages
-            hsv[1] *= 100.0f
-            hsv[2] *= 100.0f
+        // Convert the color integer to HSV
+        val hsv = FloatArray(3)
+        Color.RGBToHSV(Color.red(colorInt), Color.green(colorInt), Color.blue(colorInt), hsv)
 
-            hsv
-        } catch (e: IllegalArgumentException) {
-            // Handle the case where parsing fails (invalid hex color)
-            FloatArray(3) // or any default HSV values
-        }
+        // Adjust saturation and value to two decimal places
+        hsv[1] = (hsv[1] * 100).toFloat()
+        hsv[2] = (hsv[2] * 100).toFloat()
+
+        return hsv
     }
 
     private fun hexToRgb(hexColor: String): Triple<Int, Int, Int>? {
@@ -316,22 +313,20 @@ class ColorPickerActivity : AppCompatActivity() {
         val meatType = GlobalData.meatType
         meatTypeTextView.text = meatType.toString()
 
-        // Get HSV values based on the color
-        val hsvValuesForDialog = getHSVFromHexColor(color)
-
         // Convert hex color to RGB
         val rgbValues = hexToRgb(color)
 
         // Set the RGB values to the TextView
         if (rgbValues != null) {
             val (red, green, blue) = rgbValues
-            rgbTextView.text = "$red, $green, $blue"
+            val rgbValuesText = "($red, $green, $blue)"
+            rgbTextView.text = rgbValuesText
         } else {
             rgbTextView.text = "N/A"
         }
 
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanDPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
         // Set meat status
         meatStatusTextView.text = meatStatus
@@ -346,14 +341,15 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set the hsv code to textview
         val hsvValues = getHSVFromHexColor(color)
-        hsvCodeTextView.text = "(${hsvValues[0].toInt()}, ${hsvValues[1].toInt()}%, ${hsvValues[2].toInt()}%)"
+        val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
+        hsvCodeTextView.text = formattedHSV
 
-        // Set the xyz values to the textview
-        val xyzValuesText = "X: ${xyzValues[0]}, Y: ${xyzValues[1]}, Z: ${xyzValues[2]}"
+        // Set the xyz values to the textview with two decimal places
+        val xyzValuesText = "(${"%.2f".format(xyzValues[0])}, ${"%.4f".format(xyzValues[1])}, ${"%.4f".format(xyzValues[2])})"
         xyzValuesTextView.text = xyzValuesText
 
-        // Set the lab values to the textview
-        val labValuesText = "L: ${labValues[0]}, a: ${labValues[1]}, b: ${labValues[2]}"
+        // Set the lab values to the textview with two decimal places
+        val labValuesText = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
         labValuesTextView.text = labValuesText
 
         // Launch the coroutine to get the colorName
