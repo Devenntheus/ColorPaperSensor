@@ -1,19 +1,20 @@
 import kotlin.math.*
 
 class PlanDPoultryMeatStatus {
+    data class XYZRange(val from: FloatArray, val to: FloatArray)
     companion object {
         // Average Class XYZ values with ranges for accuracy
-        private val CLASS_A = Pair(
+        private val CLASS_A = XYZRange(
             floatArrayOf(44.92f, 44.86f, 49.8f),
             floatArrayOf(39.4775f, 40.1775f, 46.205f)
         )
 
-        private val CLASS_B = Pair(
+        private val CLASS_B = XYZRange(
             floatArrayOf(39.4774f, 40.1774f, 46.2049f),
             floatArrayOf(36.535f, 37.4675f, 44.495f)
         )
 
-        private val CLASS_C = Pair(
+        private val CLASS_C = XYZRange(
             floatArrayOf(36.5349f, 37.4674f, 44.4949f),
             floatArrayOf(33.58f, 34.44f, 41.38f)
         )
@@ -58,9 +59,9 @@ class PlanDPoultryMeatStatus {
         // Get meat status from XYZ values.
         private fun getMeatStatusFromXYZ(xyzValues: FloatArray): String {
             val distances = mapOf(
-                "Fresh" to deltaE(xyzValues, CLASS_A.first, CLASS_A.second),
-                "Moderately Fresh" to deltaE(xyzValues, CLASS_B.first, CLASS_B.second),
-                "Borderline Spoilage" to deltaE(xyzValues, CLASS_C.first, CLASS_C.second)
+                "Fresh" to deltaE(xyzValues, CLASS_A.from, CLASS_A.to),
+                "Moderately Fresh" to deltaE(xyzValues, CLASS_B.from, CLASS_B.to),
+                "Borderline Spoilage" to deltaE(xyzValues, CLASS_C.from, CLASS_C.to)
             )
 
             val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
