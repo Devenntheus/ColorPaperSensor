@@ -46,7 +46,7 @@ class CaptureImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture_image)
         openBackgroundThread()
         setupCamera()
-        showLightingConditionDialog(){ }
+        /*showLightingConditionDialog(){ }*/
     }
 
     override fun onResume() {

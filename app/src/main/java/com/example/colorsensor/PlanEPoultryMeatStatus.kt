@@ -5,19 +5,21 @@ import kotlin.math.sqrt
 
 class PlanEPoultryMeatStatus {
 
+    data class LabRange(val from: FloatArray, val to: FloatArray)
+
     companion object {
         // Average Class LAB values with ranges for accuracy
-        private val CLASS_A = Pair(
+        private val CLASS_A = LabRange(
             floatArrayOf(73.6200f, 9.0900f, 1.2400f),
             floatArrayOf(69.5658f, 4.0000f, -2.7558f)
         )
 
-        private val CLASS_B = Pair(
+        private val CLASS_B = LabRange(
             floatArrayOf(69.5657f, 3.9999f, -2.7559f),
             floatArrayOf(67.6208f, 1.4967f, -4.2375f)
         )
 
-        private val CLASS_C = Pair(
+        private val CLASS_C = LabRange(
             floatArrayOf(67.6207f, 1.4966f, -4.2376f),
             floatArrayOf(64.7300f, -0.9167f, -6.7233f)
         )
@@ -59,12 +61,12 @@ class PlanEPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
-        // Get meat status from XYZ values.
-        private fun getMeatStatusFromXYZ(xyzValues: FloatArray): String {
+        // Get meat status from LAB values.
+        private fun getMeatStatusFromLAB(labValues: FloatArray): String {
             val distances = mapOf(
-                "Fresh" to deltaE(xyzValues, CLASS_A.first, CLASS_A.second),
-                "Moderately Fresh" to deltaE(xyzValues, CLASS_B.first, CLASS_B.second),
-                "Borderline Spoilage" to deltaE(xyzValues, CLASS_C.first, CLASS_C.second)
+                "Fresh" to deltaE(labValues, CLASS_A.from, CLASS_A.to),
+                "Moderately Fresh" to deltaE(labValues, CLASS_B.from, CLASS_B.to),
+                "Borderline Spoilage" to deltaE(labValues, CLASS_C.from, CLASS_C.to)
             )
 
             val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
@@ -85,16 +87,16 @@ class PlanEPoultryMeatStatus {
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
             // Get meat status from XYZ values
-            val meatStatus = getMeatStatusFromXYZ(xyzValues)
+            val meatStatus = getMeatStatusFromLAB(labValues)
 
             return Triple(meatStatus, labValues, xyzValues)
         }
 
-        // Calculate the Euclidean distance between two XYZ colors.
-        private fun deltaE(xyz1: FloatArray, xyz2From: FloatArray, xyz2To: FloatArray): Float {
-            val dX = xyz1[0] - (xyz2From[0] + xyz2To[0]) / 2
-            val dY = xyz1[1] - (xyz2From[1] + xyz2To[1]) / 2
-            val dZ = xyz1[2] - (xyz2From[2] + xyz2To[2]) / 2
+        // Calculate the Euclidean distance between two LAB colors.
+        private fun deltaE(lab1: FloatArray, lab2From: FloatArray, lab2To: FloatArray): Float {
+            val dX = lab1[0] - (lab2From[0] + lab2To[0]) / 2
+            val dY = lab1[1] - (lab2From[1] + lab2To[1]) / 2
+            val dZ = lab1[2] - (lab2From[2] + lab2To[2]) / 2
             return sqrt(dX * dX + dY * dY + dZ * dZ)
         }
     }
