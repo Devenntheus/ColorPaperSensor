@@ -1,0 +1,225 @@
+<!-- res/layout/custom_progress_dialog.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="#000000"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center" >
+
+            <TextView
+                android:id="@+id/considerLightingConditionsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Consider Lighting Conditions"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/capturingImagesForScanningTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="2dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="When capturing images for scanning, it's crucial to pay attention to the lighting conditions as they significantly impact the accuracy of the results. Here are some key considerations: "
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/naturalLightPreferenceBulletTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="• \u200B"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/naturalLightPreferenceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Natural Light Preference"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/naturalLightPreferenceDescriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="2dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Whenever possible, use natural light for capturing images. Natural light provides optimal clarity and color representation, contributing to more accurate results.  "
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/imageClarityBulletTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="• \u200B"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/imageClarityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Image Clarity"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/imageClarityDescriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="2dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="The clarity of the image is paramount. Ensure that the lighting conditions allow for a clear and well-defined capture of the meat samples. Poor lighting can lead to inaccuracies in classification. "
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/avoidHarshShadowsBulletTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="• \u200B"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/avoidHarshShadowsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Avoid Harsh Shadows"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/avoidHarshShadowsDescriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="2dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Harsh shadows can obscure details and impact the algorithm's ability to accurately classify meat freshness. Position the lighting sources to minimize shadows and highlight essential features. "
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <CheckBox
+                android:id="@+id/understandCheckBox"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:buttonTint="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/iUndestandTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Yes, I understand the lighting conditions."
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</RelativeLayout>

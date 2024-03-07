@@ -326,7 +326,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
 
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanDPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanEPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
         // Set meat status
         meatStatusTextView.text = meatStatus

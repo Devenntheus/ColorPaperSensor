@@ -1,6 +1,7 @@
 package com.example.colorsensor
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,7 +13,10 @@ import android.os.*
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -42,6 +46,7 @@ class CaptureImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture_image)
         openBackgroundThread()
         setupCamera()
+        /*showLightingConditionDialog(){ }*/
     }
 
     override fun onResume() {
@@ -378,5 +383,30 @@ class CaptureImageActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 101
+    }
+
+    // function to show lighting condition dialog
+    private fun showLightingConditionDialog(callback: () -> Unit) {
+        val dialogView = layoutInflater.inflate(R.layout.lighting_conditions_dialog, null)
+
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setView(dialogView)
+        alertDialogBuilder.setCancelable(false)
+
+        val alertDialog = alertDialogBuilder.create()
+
+        val understandCheckBox = dialogView.findViewById<CheckBox>(R.id.understandCheckBox)
+
+        // Set a listener for the checkbox
+        understandCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // If the checkbox is checked, dismiss the dialog
+                alertDialog.dismiss()
+                // Call the callback function (if provided)
+                callback.invoke()
+            }
+        }
+
+        alertDialog.show()
     }
 }
