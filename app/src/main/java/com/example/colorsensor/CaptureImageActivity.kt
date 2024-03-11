@@ -264,13 +264,6 @@ class CaptureImageActivity : AppCompatActivity() {
                         CaptureRequest.CONTROL_MODE,
                         CameraMetadata.CONTROL_MODE_AUTO
                     )
-
-                    // Set auto-exposure mode
-                    capReq.set(
-                        CaptureRequest.CONTROL_AE_MODE,
-                        CameraMetadata.CONTROL_AE_MODE_ON
-                    )
-
                     cameraCaptureSession.setRepeatingRequest(capReq.build(), null, backgroundHandler)
                 }
 
