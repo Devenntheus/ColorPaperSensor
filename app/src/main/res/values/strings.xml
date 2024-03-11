@@ -8,10 +8,15 @@
     <string name="poultry">Poultry</string>
     <string name="meat_type">Meat Type:</string>
     <string name="hex_code">Hex Code:</string>
+    <string name="rgb">RGB:</string>
+    <string name="hsv">HSV:</string>
+    <string name="xyz">XYZ:</string>
+    <string name="cielab">LAB:</string>
     <string name="meat_status">Meat Status:</string>
     <string name="color">Color:</string>
     <string name="details">Details</string>
     <string name="process">Processing…</string>
+    <string name="color_name">Color Name:</string>
     <string name="retrieve">Retrieving…</string>
     <string name="loading">Loading</string>
 </resources>

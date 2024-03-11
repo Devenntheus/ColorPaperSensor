@@ -264,6 +264,13 @@ class CaptureImageActivity : AppCompatActivity() {
                         CaptureRequest.CONTROL_MODE,
                         CameraMetadata.CONTROL_MODE_AUTO
                     )
+
+                    // Set auto-exposure mode
+                    capReq.set(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CameraMetadata.CONTROL_AE_MODE_ON
+                    )
+
                     cameraCaptureSession.setRepeatingRequest(capReq.build(), null, backgroundHandler)
                 }
 
@@ -321,8 +328,7 @@ class CaptureImageActivity : AppCompatActivity() {
     }
 
     private fun saveImageToTempFile(data: ByteArray): File {
-        val tempDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val imageFile = File.createTempFile("captured_image", ".jpg", tempDir)
+        val imageFile = File.createTempFile("capturedImage", ".jpg")
         FileOutputStream(imageFile).use { it.write(data) }
         return imageFile
     }

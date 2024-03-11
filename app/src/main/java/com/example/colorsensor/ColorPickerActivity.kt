@@ -291,23 +291,26 @@ class ColorPickerActivity : AppCompatActivity() {
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
-        val colorImageView = dialogView.findViewById<ImageView>(R.id.ConfirmImageView)
         val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
         val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
-        val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
         val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
+        val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
         val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)
         val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)
+        val colorShapeView = dialogView.findViewById<ImageView>(R.id.ShowColorImage)
 
         // Create a GradientDrawable and set its color based on the hex code
         val gradientDrawable = GradientDrawable()
         gradientDrawable.setColor(Color.parseColor(color))
-        gradientDrawable.shape = GradientDrawable.OVAL
+        gradientDrawable.shape = GradientDrawable.RECTANGLE
+
+        // Set corner radius (adjust the value as needed)
+        gradientDrawable.cornerRadius = 20f
 
         // Apply the drawable to the ImageView
-        colorImageView.setImageDrawable(gradientDrawable)
+        colorShapeView.setImageDrawable(gradientDrawable)
 
         // Set meat type
         val meatType = GlobalData.meatType
