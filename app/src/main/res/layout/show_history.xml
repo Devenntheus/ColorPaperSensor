@@ -85,153 +85,194 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/contextLayout"
-                android:layout_marginTop="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:background="@drawable/curve">
-
-                <ImageView
-                    android:id="@+id/colorImageView"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="5dp"
-                    android:background="@drawable/circle_background" />
-
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:id="@+id/context1Layout"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
                     android:layout_gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:background="@drawable/curve">
 
+                    <!-- First Column -->
                     <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/meatTypeTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="@string/meat_type"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/typeTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="Pork"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/meatColorTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="@string/color"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/colorTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="Pale Red"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/meatHexCodeTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="@string/hex_code"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/hexCodeTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="#f56b6f"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="25dp"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_marginTop="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/meatStatusTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        <LinearLayout
+                            android:id="@+id/contextLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="75dp"
                             android:layout_gravity="center"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="@string/meat_status"
-                            android:textColor="@android:color/white"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:orientation="horizontal"
+                            android:background="@drawable/curve">
 
-                        <TextView
-                            android:id="@+id/statusTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text="Fresh"
-                            android:textColor="#ff9f9f"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            <ImageView
+                                android:id="@+id/colorImageView"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="5dp"
+                                android:background="@drawable/circle_background" />
 
-                        <TextView
-                            android:id="@+id/idTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:layout_gravity="center"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/meatTypeTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="@string/meat_type"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+
+                                    <TextView
+                                        android:id="@+id/typeTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="Pork"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/meatColorTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="@string/color"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+
+                                    <TextView
+                                        android:id="@+id/colorTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="Pale Red"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/meatHexCodeTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="@string/hex_code"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+
+                                    <TextView
+                                        android:id="@+id/hexCodeTextView"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:fontFamily="@font/metrophobic_regular"
+                                        android:text="#f56b6f"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Second Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/context2Layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="75dp"
                             android:layout_gravity="center"
-                            android:fontFamily="@font/metrophobic_regular"
-                            android:text=""
-                            android:textColor="#ff9f9f"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:orientation="horizontal"
+                            android:background="@drawable/curve">
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:layout_marginLeft="25dp"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_marginTop="10dp"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:id="@+id/meatStatusTextView"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:fontFamily="@font/metrophobic_regular"
+                                            android:text="@string/meat_status"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="13sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:id="@+id/statusTextView"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:fontFamily="@font/metrophobic_regular"
+                                            android:text="Fresh"
+                                            android:textColor="#ff9f9f"
+                                            android:textSize="13sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:id="@+id/idTextView"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:fontFamily="@font/metrophobic_regular"
+                                            android:text=""
+                                            android:textColor="#ff9f9f"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </RelativeLayout>
+
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

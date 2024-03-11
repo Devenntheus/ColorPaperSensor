@@ -42,6 +42,7 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         holder.hexCodeTextView.text = currentHolder.hexCode
         holder.dateTextView.text = currentHolder.date
         holder.timeTextView.text = currentHolder.time
+        holder.statusTextView.text = currentHolder.meatStatus
 
         // Set the text color of statusTextView based on the hex code
         currentHolder.hexCode?.let { setTextColorBasedOnHexCode(holder.statusTextView, it) }
