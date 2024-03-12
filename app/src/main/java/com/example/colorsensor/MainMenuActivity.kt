@@ -2,11 +2,17 @@ package com.example.colorsensor
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.view.animation.LinearInterpolator
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 
@@ -20,6 +26,7 @@ class MainMenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_menu)
 
+        val closeImageButton = findViewById<ImageButton>(R.id.CloseImageButton)
         val textView = findViewById<TextView>(R.id.AppTitleTextView)
 
         val colors = intArrayOf(
@@ -51,13 +58,13 @@ class MainMenuActivity : AppCompatActivity() {
         porkCardView.setOnClickListener {
             // Set the meat type in the global data
             GlobalData.meatType = "Pork"
-            startCaptureImageActivity()
+            showUnderMaintenanceDialog(){}
         }
 
         val beefCardView = findViewById<CardView>(R.id.BeefCardView)
         beefCardView.setOnClickListener {
             GlobalData.meatType = "Beef"
-            startCaptureImageActivity()
+            showUnderMaintenanceDialog(){}
         }
 
         val poultryCardView = findViewById<CardView>(R.id.PoultryCardView)
@@ -70,5 +77,25 @@ class MainMenuActivity : AppCompatActivity() {
     private fun startCaptureImageActivity() {
         val intent = Intent(this, CaptureImageActivity::class.java)
         startActivity(intent)
+    }
+
+    //function to show progress dialog
+    private fun showUnderMaintenanceDialog(callback: () -> Unit) {
+        val dialogView = layoutInflater.inflate(R.layout.under_development_dialog, null)
+        val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setView(dialogView)
+        alertDialogBuilder.setCancelable(false)
+
+        val alertDialog = alertDialogBuilder.create()
+
+        closeButtonImageView.isEnabled = true
+
+        closeButtonImageView.setOnClickListener {
+
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
     }
 }
