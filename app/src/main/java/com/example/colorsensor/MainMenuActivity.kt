@@ -26,7 +26,6 @@ class MainMenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_menu)
 
-        val closeImageButton = findViewById<ImageButton>(R.id.CloseImageButton)
         val textView = findViewById<TextView>(R.id.AppTitleTextView)
 
         val colors = intArrayOf(
