@@ -15,8 +15,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.widget.CheckBox
 import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -24,8 +23,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
-import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CaptureRequest
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -48,7 +45,7 @@ class CaptureImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture_image)
         openBackgroundThread()
         setupCamera()
-        showLightingConditionDialog(){}
+        showLightingConditionDialog {}
     }
 
     override fun onResume() {
@@ -108,6 +105,7 @@ class CaptureImageActivity : AppCompatActivity() {
                 setupCamera()
             } else {
                 // Handle denied permissions
+                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -121,29 +119,21 @@ class CaptureImageActivity : AppCompatActivity() {
         textureView.surfaceTextureListener = surfaceTextureListener
 
         findViewById<ImageView>(R.id.CaptureImageView).setOnClickListener {
-            capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
-                addTarget(imageReader.surface)
-                //autofocus mode control
-                set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-                set(
-                    CaptureRequest.CONTROL_AF_MODE,
-                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                )
-            }
-            cameraCaptureSession.capture(capReq.build(), null, null)
+            captureImage()
         }
     }
 
-    // This method is used to set auto exposure parameters
-    private fun setAutoExposureParameters(requestBuilder: CaptureRequest.Builder) {
-        requestBuilder.set(
-            CaptureRequest.CONTROL_MODE,
-            CameraMetadata.CONTROL_MODE_AUTO
-        )
-        requestBuilder.set(
-            CaptureRequest.CONTROL_AE_MODE,
-            CameraMetadata.CONTROL_AE_MODE_ON
-        )
+    private fun captureImage() {
+        capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+            addTarget(imageReader.surface)
+            //autofocus mode control
+            set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+            set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+            )
+        }
+        cameraCaptureSession.capture(capReq.build(), null, null)
     }
 
     private fun setupCaptureImage() {
@@ -191,7 +181,7 @@ class CaptureImageActivity : AppCompatActivity() {
             )
             cameraCaptureSession.setRepeatingRequest(capReq.build(), null, backgroundHandler)
         } catch (e: CameraAccessException) {
-            e.printStackTrace()
+            handleCameraAccessException(e)
         }
     }
 
@@ -286,6 +276,17 @@ class CaptureImageActivity : AppCompatActivity() {
         } catch (e: CameraAccessException) {
             handleCameraAccessException(e)
         }
+    }
+
+    private fun setAutoExposureParameters(requestBuilder: CaptureRequest.Builder) {
+        requestBuilder.set(
+            CaptureRequest.CONTROL_MODE,
+            CameraMetadata.CONTROL_MODE_AUTO
+        )
+        requestBuilder.set(
+            CaptureRequest.CONTROL_AE_MODE,
+            CameraMetadata.CONTROL_AE_MODE_ON
+        )
     }
 
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
