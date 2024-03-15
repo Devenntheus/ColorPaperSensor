@@ -88,8 +88,8 @@ class ColorPickerActivity : AppCompatActivity() {
             val hexColor = getHexColorUnderCrosshair()
 
             //show progress dialog and then display color dialog
-            showProgressDialog {
-                showColorDialog(hexColor, imageFilePath)
+            showProgressDialog { colorName ->
+                showColorDialog(hexColor, imageFilePath, colorName)
             }
         }
     }
@@ -236,7 +236,7 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     //function to show progress dialog
-    private fun showProgressDialog(callback: () -> Unit) {
+    private fun showProgressDialog(callback: (colorName: String) -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.progress_dialog, null)
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
         val textViewMessage = dialogView.findViewById<TextView>(R.id.textViewMessage)
@@ -249,16 +249,24 @@ class ColorPickerActivity : AppCompatActivity() {
 
         alertDialog.show()
 
-        //you can customize the message here
+        // You can customize the message here
         textViewMessage.text = getString(R.string.process)
 
-        //dismiss the dialog after a certain delay or when the task is completed
-        Handler().postDelayed({
+        // Get the hex color under the cursor
+        val hexColor = getHexColorUnderCrosshair()
+
+        // Launch the coroutine to get the colorName
+        lifecycleScope.launch {
+            val colorName = getColorName(hexColor)
+
+            // Dismiss the dialog after the color name is retrieved
             alertDialog.dismiss()
-            //execute the callback when the first dialog is dismissed
-            callback.invoke()
-        }, 1000) //adjust the delay time as needed
+
+            // Execute the callback with the colorName
+            callback.invoke(colorName)
+        }
     }
+
 
     object ImageUtils {
 
@@ -288,7 +296,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    private fun showColorDialog(color: String, imageFilePath: String) {
+    private fun showColorDialog(color: String, imageFilePath: String, colorName: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
         val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
@@ -337,11 +345,6 @@ class ColorPickerActivity : AppCompatActivity() {
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
 
-        closeButtonImageView.isEnabled = false
-
-        // Declare a variable to store the colorName
-        var colorName: String? = null
-
         // Set the hsv code to textview
         val hsvValues = getHSVFromHexColor(color)
         val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
@@ -355,49 +358,8 @@ class ColorPickerActivity : AppCompatActivity() {
         val labValuesText = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
         labValuesTextView.text = labValuesText
 
-        // Launch the coroutine to get the colorName
-        val job = lifecycleScope.launch {
-            colorName = getColorName(color)
-
-            // Set color name to TextView
-            colorNameTextView.text = colorName
-
-            // Enable the close button now that the colorName is retrieved
-            closeButtonImageView.isEnabled = true
-
-            // Convert the captured image to Base64 using the utility class
-            val bitmap = BitmapFactory.decodeFile(imageFilePath)
-            val capturedImageString = ImageUtils.convertImageToString(bitmap)
-
-            // Generate the ID using the MeatInformationManager
-            val id = MeatInformationManager.generateId()
-
-            // Get the current date and time in separate formats
-            val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
-            val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
-
-            // Create an instance of MeatInformation with the generated ID
-            val meatInformation = MeatInformation(
-                id = id,
-                meatStatus = meatStatus,  // Replace "YourMeatStatus" with the actual meat status
-                meatType = meatTypeString,
-                color = colorName ?: "", // Use the colorName if not null, or an empty string if null
-                hexCode = color,
-                date = currentDate,
-                time = currentTime,
-                meatImage = capturedImageString
-            )
-
-            // Log message before saving meat information
-            Log.d(TAG, "Saving meat information: $meatInformation")
-
-            // Save the meat information
-            saveMeatInformation(meatInformation)
-
-            // Log message after saving meat information
-            Log.d(TAG, "Meat information saved successfully.")
-
-        }
+        // Set the color name
+        colorNameTextView.text = colorName
 
         // Set the hex code
         hexCodeTextView.text = color
@@ -410,8 +372,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set close button click listener
         closeButtonImageView.setOnClickListener {
-            // Cancel the coroutine when the dialog is dismissed
-            job.cancel()
             alertDialog.dismiss()
 
             // Start MainMenuActivity or use an intent to navigate back
@@ -419,10 +379,9 @@ class ColorPickerActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         alertDialog.show()
-
     }
+
 
     private fun saveMeatInformation(meatInformation: MeatInformation) {
         // Initialize Firestore
