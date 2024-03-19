@@ -45,7 +45,7 @@ class PlanCPoultryMeatStatus {
                     throw IllegalStateException("Invalid meat status string.")
 
                 }
-        }
+            }
 
             return Triple(meatStatusString, intRgbValues, meatStatusTriple.third)
         }
