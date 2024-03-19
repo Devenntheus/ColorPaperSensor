@@ -26,6 +26,7 @@ import java.util.concurrent.Semaphore
 
 class CaptureImageActivity : AppCompatActivity() {
 
+    // Camera variables
     private lateinit var cameraManager: CameraManager
     private lateinit var capturedImageBytes: ByteArray
     private var cameraFacing = CameraCharacteristics.LENS_FACING_BACK
@@ -61,6 +62,7 @@ class CaptureImageActivity : AppCompatActivity() {
         closeBackgroundThread()
     }
 
+    // Function to close the camera session and device
     private fun closeCamera() {
         try {
             cameraOpenCloseLock.acquire()
@@ -73,6 +75,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to setup camera components if permissions are granted
     private fun setupCamera() {
         if (allPermissionsGranted()) {
             setupCameraManager()
@@ -89,6 +92,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to check if all necessary permissions are granted
     private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
         applicationContext,
         Manifest.permission.CAMERA
@@ -110,10 +114,12 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to setup camera manager
     private fun setupCameraManager() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
+    // Function to setup camera preview
     private fun setupCameraPreview() {
         textureView = findViewById(R.id.CameraTextureView)
         textureView.surfaceTextureListener = surfaceTextureListener
@@ -123,6 +129,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to capture an image
     private fun captureImage() {
         capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
             addTarget(imageReader.surface)
@@ -136,6 +143,7 @@ class CaptureImageActivity : AppCompatActivity() {
         cameraCaptureSession.capture(capReq.build(), null, null)
     }
 
+    // Function to setup image capture
     private fun setupCaptureImage() {
         imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
         imageReader.setOnImageAvailableListener({ reader ->
@@ -159,11 +167,13 @@ class CaptureImageActivity : AppCompatActivity() {
         }, backgroundHandler)
     }
 
+    // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {
         val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
         flashImageView.setImageResource(if (isFlashOn) R.drawable.flash else R.drawable.flash_off)
     }
 
+    // Function to setup flash toggle button
     private fun setupFlashToggle() {
         val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
         flashImageView.setOnClickListener {
@@ -173,6 +183,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to update flash mode based on current state
     private fun updateFlashMode() {
         try {
             capReq.set(
@@ -185,6 +196,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to setup history button
     private fun setupHistoryButton() {
         findViewById<ImageView>(R.id.HistoryImageView).setOnClickListener {
             val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
@@ -192,6 +204,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function open camera preview
     private fun openCameraPreview() {
         if (textureView.isAvailable) {
             openCamera()
@@ -200,6 +213,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to open camera
     private fun openCamera() {
         try {
             val cameraId = getCameraId(cameraFacing)
@@ -234,6 +248,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function for camera state callback
     private val stateCallback = object : CameraDevice.StateCallback() {
         override fun onOpened(camera: CameraDevice) {
             cameraOpenCloseLock.release()
@@ -253,6 +268,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to start camera preview
     private fun startPreview() {
         try {
             val surface = Surface(textureView.surfaceTexture)
@@ -278,6 +294,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to set auto exposure parameters
     private fun setAutoExposureParameters(requestBuilder: CaptureRequest.Builder) {
         requestBuilder.set(
             CaptureRequest.CONTROL_MODE,
@@ -289,6 +306,7 @@ class CaptureImageActivity : AppCompatActivity() {
         )
     }
 
+    // Texture view surface texture listener
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
             openCamera()
@@ -301,6 +319,7 @@ class CaptureImageActivity : AppCompatActivity() {
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
     }
 
+    // Function to get image orientation
     private fun getOrientation(imageBytes: ByteArray): Int {
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
@@ -312,6 +331,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to rotate image if needed based on orientation
     private fun rotateImageIfNeeded(imageBytes: ByteArray, orientation: Int): ByteArray {
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         val matrix = Matrix()
@@ -333,12 +353,14 @@ class CaptureImageActivity : AppCompatActivity() {
         return outputStream.toByteArray()
     }
 
+    // Function to save image to raw file
     private fun saveImageToTempFile(data: ByteArray): File {
         val imageFile = File.createTempFile("capturedImage", ".jpg")
         FileOutputStream(imageFile).use { it.write(data) }
         return imageFile
     }
 
+    // Function to get camera ID based on facing
     private fun getCameraId(facing: Int): String? {
         val cameraIds = cameraManager.cameraIdList
         for (cameraId in cameraIds) {
@@ -351,6 +373,7 @@ class CaptureImageActivity : AppCompatActivity() {
         return cameraIds.firstOrNull()
     }
 
+    // Function to choose optimal preview size
     private fun chooseOptimalSize(choices: Array<Size>, width: Int, height: Int): Size {
         val targetRatio = height.toDouble() / width
         var optimalSize = choices[0]
@@ -369,11 +392,13 @@ class CaptureImageActivity : AppCompatActivity() {
         return optimalSize
     }
 
+    // Function to open background thread for camera operations
     private fun openBackgroundThread() {
         backgroundThread = HandlerThread("backgroundThread").apply { start() }
         backgroundHandler = Handler(backgroundThread.looper)
     }
 
+    // Function to close background thread
     private fun closeBackgroundThread() {
         backgroundThread.quitSafely()
         try {
@@ -383,11 +408,13 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to handle camera access exception
     private fun handleCameraAccessException(e: CameraAccessException) {
         e.printStackTrace()
         // Handle camera access exception
     }
 
+    // Function to handle illegal state exception
     private fun handleIllegalStateException(e: IllegalStateException) {
         e.printStackTrace()
         // Handle illegal state exception
@@ -397,7 +424,7 @@ class CaptureImageActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_CODE = 101
     }
 
-    // function to show lighting condition dialog
+    // Function to show lighting condition dialog
     private fun showLightingConditionDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.lighting_conditions_dialog, null)
 

@@ -59,6 +59,7 @@ interface ColorApiService {
 
 class ColorPickerActivity : AppCompatActivity() {
 
+    // Declaring image views and file path for the captured image
     private lateinit var crossHairImageView: ImageView
     private lateinit var capturedImageView: ImageView
     private lateinit var confirmCheckImageButton: ImageView
@@ -74,26 +75,27 @@ class ColorPickerActivity : AppCompatActivity() {
         confirmCheckImageButton = findViewById(R.id.ConfirmCheckImageButton)
         confirmImageView = findViewById(R.id.ConfirmImageView)
 
-        //get the image path from the intent
+        // Get the image path from the intent
         imageFilePath = intent.getStringExtra("capturedImagePath") ?: ""
 
-        //load the image into CapturedImageView
+        // Load the image into CapturedImageView
         displayCapturedImage()
 
-        //set onTouchListener to move CrosshairImageView
+        // Set onTouchListener to move CrosshairImageView
         setCrosshairTouchListener()
 
         confirmCheckImageButton.setOnClickListener {
-            //get the hex color under the cursor
+            // Get the hex color under the cursor
             val hexColor = getHexColorUnderCrosshair()
 
-            //show progress dialog and then display color dialog
+            // Show progress dialog and then display color dialog
             showProgressDialog {
                 showColorDialog(hexColor, imageFilePath)
             }
         }
     }
 
+    // Function to load captured image into CapturedImageView
     private fun displayCapturedImage() {
         if (imageFilePath.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
@@ -103,24 +105,25 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
+    // Function to set onTouchListener for moving CrosshairImageView
     private fun setCrosshairTouchListener() {
         val frameLayout = findViewById<FrameLayout>(R.id.ImageFrameLayout)
 
         frameLayout.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                    //update the position of cursor
+                    // Update the position of cursor
                     val newX = event.rawX - crossHairImageView.width / 2
                     val newY = event.rawY - crossHairImageView.height - 150f
 
-                    //ensure the cursor stays within the frame layout
+                    // Ensure the cursor stays within the frame layout
                     if (newX >= 0 && newX <= frameLayout.width - crossHairImageView.width &&
                         newY >= 0 && newY <= frameLayout.height - crossHairImageView.height
                     ) {
                         crossHairImageView.x = newX
                         crossHairImageView.y = newY
 
-                        //update ConfirmCheckImageButton visibility and enable state
+                        // Update ConfirmCheckImageButton visibility and enable state
                         confirmCheckImageButton.visibility = View.VISIBLE
                         confirmCheckImageButton.isEnabled = true
                     }
@@ -130,6 +133,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
+    // Function to get hex color under the cursor
     private fun getHexColorUnderCrosshair(): String {
         val bitmap = getBitmapFromImageView(capturedImageView)
         val crosshairX = crossHairImageView.x.toInt()
@@ -150,6 +154,7 @@ class ColorPickerActivity : AppCompatActivity() {
         return getHexColorFromBitmap(bitmap, rect)
     }
 
+    // Function to convert ImageView to Bitmap
     private fun getBitmapFromImageView(imageView: ImageView): Bitmap {
         imageView.isDrawingCacheEnabled = true
         imageView.buildDrawingCache(true)
@@ -158,6 +163,7 @@ class ColorPickerActivity : AppCompatActivity() {
         return bitmap
     }
 
+    // Function to get hex color from Bitmap
     private fun getHexColorFromBitmap(bitmap: Bitmap, rect: Rect): String {
         val croppedBitmap = Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height())
         // Calculate the average color of the cropped area
@@ -165,6 +171,7 @@ class ColorPickerActivity : AppCompatActivity() {
         return String.format("#%06X", averageColor and 0xFFFFFF) // Ensure only 6 least significant hex digits are considered
     }
 
+    // Function to get average color from Bitmap
     private fun getAverageColor(bitmap: Bitmap): Int {
         var red = 0
         var green = 0
@@ -188,6 +195,7 @@ class ColorPickerActivity : AppCompatActivity() {
         return Color.rgb(red, green, blue)
     }
 
+    // Function to get HSV values from hex color
     private fun getHSVFromHexColor(hexColor: String): FloatArray {
         // Parse the hexadecimal color string to an integer
         val colorInt = Color.parseColor(hexColor)
@@ -203,6 +211,7 @@ class ColorPickerActivity : AppCompatActivity() {
         return hsv
     }
 
+    // Function to convert hex color to RGB
     private fun hexToRgb(hexColor: String): Triple<Int, Int, Int>? {
         return try {
             val colorInt = Color.parseColor(hexColor)
@@ -215,6 +224,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
+    // Function to use API for data scraping the color name
     private val colorApiService: ColorApiService by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.thecolorapi.com")
@@ -223,6 +233,7 @@ class ColorPickerActivity : AppCompatActivity() {
             .create(ColorApiService::class.java)
     }
 
+    // Function to get the color name from the API
     private suspend fun getColorName(hexColor: String): String {
         return withContext(Dispatchers.IO) {
             try {
@@ -235,7 +246,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    //function to show progress dialog
+    // Function to show progress dialog
     private fun showProgressDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.progress_dialog, null)
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
@@ -249,10 +260,9 @@ class ColorPickerActivity : AppCompatActivity() {
 
         alertDialog.show()
 
-        //you can customize the message here
         textViewMessage.text = getString(R.string.process)
 
-        //dismiss the dialog after a certain delay or when the task is completed
+        // Dismiss the dialog after a certain delay or when the task is completed
         Handler().postDelayed({
             alertDialog.dismiss()
             //execute the callback when the first dialog is dismissed
@@ -260,6 +270,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }, 1000) //adjust the delay time as needed
     }
 
+    // Converts a Bitmap image to a Base64-encoded string with resizing and compression.
     object ImageUtils {
 
         fun convertImageToString(bitmap: Bitmap): String {
@@ -288,6 +299,7 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
+    // Function to display meat information in a dialog box
     private fun showColorDialog(color: String, imageFilePath: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
@@ -424,6 +436,7 @@ class ColorPickerActivity : AppCompatActivity() {
 
     }
 
+    // Function to save meat information to the cloud
     private fun saveMeatInformation(meatInformation: MeatInformation) {
         // Initialize Firestore
         val db = FirebaseFirestore.getInstance()

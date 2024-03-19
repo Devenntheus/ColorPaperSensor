@@ -28,11 +28,13 @@ class MainMenuActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.AppTitleTextView)
 
+        // Array of colors to be used for title text color transition
         val colors = intArrayOf(
             Color.RED, Color.parseColor("#FFA500"), Color.YELLOW,
             Color.GREEN, Color.BLUE, Color.parseColor("#4B0082"), Color.parseColor("#8A2BE2")
         )
 
+        // Create a value animator for smooth color transition of the title text
         val animator = ValueAnimator.ofFloat(0f, (colors.size).toFloat()).apply {
             repeatMode = ValueAnimator.RESTART
             repeatCount = ValueAnimator.INFINITE
@@ -47,6 +49,7 @@ class MainMenuActivity : AppCompatActivity() {
                 val startColor = colors[startIndex]
                 val endColor = colors[endIndex]
 
+                // Interpolate between start and end color based on fraction
                 val currentColor = ArgbEvaluator().evaluate(fraction, startColor, endColor) as Int
                 textView.setTextColor(currentColor)
             }
@@ -73,12 +76,13 @@ class MainMenuActivity : AppCompatActivity() {
         }
     }
 
+    // Function to open CaptureImageActivity
     private fun startCaptureImageActivity() {
         val intent = Intent(this, CaptureImageActivity::class.java)
         startActivity(intent)
     }
 
-    //function to show progress dialog
+    // Function to show a dialog indicating under maintenance
     private fun showUnderMaintenanceDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.under_development_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)

@@ -36,6 +36,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Function to fetch data from Firebase based on item ID
     private fun fetchDataFromFirebase(itemId: String?) {
         if (itemId == null) {
             // Handle the case where the item ID is null
@@ -83,6 +84,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
             }
     }
 
+    // Function to set the drawable color based on hex code
     private fun setBackgroundColorBasedOnHexCode(imageView: ImageView, hexCode: String?) {
         if (hexCode != null) {
             // Create a GradientDrawable and set its color based on the hex code
@@ -95,6 +97,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Function to set text color based on hex code
     private fun setTextColorBasedOnHexCode(textView: TextView, hexCode: String?) {
         if (hexCode != null) {
             // Set the text color of the TextView based on the hex code
@@ -102,6 +105,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Function to decode base64 string to Bitmap
     private fun decodeBase64ToBitmap(base64String: String?): Bitmap? {
         if (base64String == null) {
             return null
@@ -113,7 +117,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
         // Decode byte array to Bitmap
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
-    //function to show progress dialog
+
+    // Function to show progress dialog
     private fun showProgressDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.progress_dialog, null)
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.progressBar)
@@ -137,6 +142,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
             callback.invoke()
         }, 5000) //adjust the delay time as needed
     }
+
+    // Function to hide progress dialog
     private fun hideProgressDialog() {
 
         alertDialog?.dismiss()
