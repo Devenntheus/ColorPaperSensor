@@ -65,7 +65,6 @@ class PlanDPoultryMeatStatus {
             )
 
             val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
-
             return closestClass
         }
 
