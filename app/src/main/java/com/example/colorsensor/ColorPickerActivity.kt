@@ -341,17 +341,24 @@ class ColorPickerActivity : AppCompatActivity() {
             rgbTextView.text = "N/A"
         }
 
+        // Get the hex color under the cursor
+        val hexColor = getHexColorUnderCrosshair();
+
+        // Log message before saving meat information
+        Log.d(TAG, "Hex Code Value: $hexColor")
+
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanFPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
         // Check if the meat status is unknown
         if (meatStatus == "Unknown") {
             // Show the recapture dialog for unknown meat status
             showRecaptureDialog()
-        } else {
-            // Set meat status
-            meatStatusTextView.text = meatStatus
+            return // Exit the function after showing the recapture dialog
         }
+
+        // Set meat status
+        meatStatusTextView.text = meatStatus
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
