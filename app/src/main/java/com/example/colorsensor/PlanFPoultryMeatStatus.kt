@@ -1,9 +1,15 @@
-package com.example.colorsensor
-
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.view.LayoutInflater
+import android.widget.ImageView
+import com.example.colorsensor.MainMenuActivity
+import com.example.colorsensor.R
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PlanEPoultryMeatStatus {
+class PlanFPoultryMeatStatus {
 
     data class LabRange(val from: FloatArray, val to: FloatArray)
 
@@ -61,17 +67,29 @@ class PlanEPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
-        // Get meat status from LAB values.
+        // Get meat status from LAB values using if-else conditions.
         private fun getMeatStatusFromLAB(labValues: FloatArray): String {
-            val distances = mapOf(
-                "Fresh" to deltaE(labValues, CLASS_A.from, CLASS_A.to),
-                "Moderately Fresh" to deltaE(labValues, CLASS_B.from, CLASS_B.to),
-                "Borderline Spoilage" to deltaE(labValues, CLASS_C.from, CLASS_C.to)
-            )
+            val l = labValues[0]
+            val a = labValues[1]
+            val b = labValues[2]
 
-            val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
+            if (isCloseToClass(l, a, b, CLASS_A))
+                return "Fresh"
+            else if (isCloseToClass(l, a, b, CLASS_B))
+                return "Moderately Fresh"
+            else if (isCloseToClass(l, a, b, CLASS_C))
+                return "Borderline Spoilage"
+            else
+                return "Unknown"
+        }
 
-            return closestClass
+        // Check if LAB values are close to a specific class.
+        private fun isCloseToClass(l: Float, a: Float, b: Float, labRange: LabRange): Boolean {
+            val lDiff = abs(l - labRange.from[0])
+            val aDiff = abs(a - labRange.from[1])
+            val bDiff = abs(b - labRange.from[2])
+
+            return lDiff <= 2f && aDiff <= 2f && bDiff <= 2f
         }
 
         // Get meat status from RGB values.
@@ -90,14 +108,6 @@ class PlanEPoultryMeatStatus {
             val meatStatus = getMeatStatusFromLAB(labValues)
 
             return Triple(meatStatus, labValues, xyzValues)
-        }
-
-        // Calculate the Euclidean distance between two LAB colors.
-        private fun deltaE(lab1: FloatArray, lab2From: FloatArray, lab2To: FloatArray): Float {
-            val dL = lab1[0] - (lab2From[0] + lab2To[0]) / 2
-            val da = lab1[1] - (lab2From[1] + lab2To[1]) / 2
-            val db = lab1[2] - (lab2From[2] + lab2To[2]) / 2
-            return sqrt(dL * dL + da * da + db * db)
         }
     }
 }

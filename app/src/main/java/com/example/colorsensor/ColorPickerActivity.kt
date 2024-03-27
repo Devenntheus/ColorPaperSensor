@@ -15,6 +15,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -341,10 +342,16 @@ class ColorPickerActivity : AppCompatActivity() {
         }
 
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanEPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanFPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
-        // Set meat status
-        meatStatusTextView.text = meatStatus
+        // Check if the meat status is unknown
+        if (meatStatus == "Unknown") {
+            // Show the recapture dialog for unknown meat status
+            showRecaptureDialog()
+        } else {
+            // Set meat status
+            meatStatusTextView.text = meatStatus
+        }
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
@@ -434,6 +441,30 @@ class ColorPickerActivity : AppCompatActivity() {
 
         alertDialog.show()
 
+    }
+
+    // Function to display recapture dialog for unknown meat status
+    private fun showRecaptureDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.recapture_dialog, null)
+        val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.closeImageButton)
+
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setView(dialogView)
+        alertDialogBuilder.setCancelable(false)
+
+        val alertDialog = alertDialogBuilder.create()
+
+        // Set close button click listener
+        closeButtonImageView.setOnClickListener {
+            // Dismiss the dialog
+            alertDialog.dismiss()
+
+            // Start MainMenuActivity or use an intent to navigate back
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+        }
+
+        alertDialog.show()
     }
 
     // Function to save meat information to the cloud
