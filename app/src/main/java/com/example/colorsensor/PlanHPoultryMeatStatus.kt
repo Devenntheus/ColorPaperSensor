@@ -1,28 +1,19 @@
 package com.example.colorsensor
 
+import android.content.ContentValues
+import android.util.Log
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PlanEPoultryMeatStatus {
+class PlanHPoultryMeatStatus {
 
-    data class LabRange(val from: FloatArray, val to: FloatArray)
+    data class LabValue(val L: Float, val a: Float, val b: Float)
 
     companion object {
         // Average Class LAB values with ranges for accuracy
-        private val CLASS_A = LabRange(
-            floatArrayOf(73.6200f, 9.0900f, 1.2400f),
-            floatArrayOf(69.5658f, 4.0000f, -2.7558f)
-        )
-
-        private val CLASS_B = LabRange(
-            floatArrayOf(69.5657f, 3.9999f, -2.7559f),
-            floatArrayOf(67.6208f, 1.4967f, -4.2375f)
-        )
-
-        private val CLASS_C = LabRange(
-            floatArrayOf(67.6207f, 1.4966f, -4.2376f),
-            floatArrayOf(64.7300f, -0.9167f, -6.7233f)
-        )
+        private val CLASS_A = LabValue(71.12f, 6.59f, -1.26f)
+        private val CLASS_B = LabValue(68.01f, 1.41f, -4.25f)
+        private val CLASS_C = LabValue(67.23f, 1.58f, -4.22f)
 
         // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {
@@ -61,17 +52,41 @@ class PlanEPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
+        // Corrected deltaE function to calculate Euclidean distance between two LAB color values
+        private fun deltaE(lab1: LabValue, lab2: LabValue): Float {
+            val dL = lab1.L - lab2.L
+            val da = lab1.a - lab2.a
+            val db = lab1.b - lab2.b
+            return sqrt(dL * dL + da * da + db * db)
+        }
+
         // Get meat status from LAB values.
-        private fun getMeatStatusFromLAB(labValues: FloatArray): String {
-            val distances = mapOf(
-                "Fresh" to deltaE(labValues, CLASS_A.from, CLASS_A.to),
-                "Moderately Fresh" to deltaE(labValues, CLASS_B.from, CLASS_B.to),
-                "Borderline Spoilage" to deltaE(labValues, CLASS_C.from, CLASS_C.to)
-            )
+        private fun getMeatStatusFromLAB(labValues: LabValue): String {
+            val classADistance = deltaE(labValues, CLASS_A)
+            val classBDistance = deltaE(labValues, CLASS_B)
+            val classCDistance = deltaE(labValues, CLASS_C)
 
-            val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
+            // Log message before saving meat information
+            Log.d(ContentValues.TAG, "Class A Distance: $classADistance")
+            Log.d(ContentValues.TAG, "Class B Distance: $classBDistance")
+            Log.d(ContentValues.TAG, "Class C Distance: $classCDistance")
 
-            return closestClass
+            val minDistance = minOf(classADistance, classBDistance, classCDistance)
+
+            // Define your threshold here
+            val threshold = 6.0f // Adjust as needed
+
+            return when {
+                minDistance <= threshold -> {
+                    when {
+                        minDistance == classADistance -> "Fresh"
+                        minDistance == classBDistance -> "Moderately Fresh"
+                        minDistance == classCDistance -> "Borderline Spoilage"
+                        else -> "Unknown"
+                    }
+                }
+                else -> "Unknown"
+            }
         }
 
         // Get meat status from RGB values.
@@ -86,18 +101,13 @@ class PlanEPoultryMeatStatus {
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
-            // Get meat status from XYZ values
-            val meatStatus = getMeatStatusFromLAB(labValues)
+            // Create a LabValue instance
+            val labValue = LabValue(labValues[0], labValues[1], labValues[2])
+
+            // Get meat status from LAB values
+            val meatStatus = getMeatStatusFromLAB(labValue)
 
             return Triple(meatStatus, labValues, xyzValues)
-        }
-
-        // Calculate the Euclidean distance between two LAB colors.
-        private fun deltaE(lab1: FloatArray, lab2From: FloatArray, lab2To: FloatArray): Float {
-            val dX = lab1[0] - (lab2From[0] + lab2To[0]) / 2
-            val dY = lab1[1] - (lab2From[1] + lab2To[1]) / 2
-            val dZ = lab1[2] - (lab2From[2] + lab2To[2]) / 2
-            return sqrt(dX * dX + dY * dY + dZ * dZ)
         }
     }
 }

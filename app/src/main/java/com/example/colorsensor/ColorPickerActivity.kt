@@ -24,18 +24,18 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlinx.coroutines.Dispatchers
-import retrofit2.http.Query
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 
 data class ColorInfo(
@@ -340,8 +340,14 @@ class ColorPickerActivity : AppCompatActivity() {
             rgbTextView.text = "N/A"
         }
 
+        // Get the hex color under the cursor
+        val hexColor = getHexColorUnderCrosshair();
+
+        // Log message before saving meat information
+        Log.d(TAG, "Hex Code Value: $hexColor")
+
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanEPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues);
 
         // Set meat status
         meatStatusTextView.text = meatStatus
