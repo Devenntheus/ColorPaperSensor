@@ -348,7 +348,7 @@ class ColorPickerActivity : AppCompatActivity() {
         Log.d(TAG, "Hex Code Value: $hexColor")
 
         // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
+        val (meatStatus, labValues, xyzValues) = PlanIPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
         /*// Check if the meat status is unknown
         if (meatStatus == "Unknown") {
