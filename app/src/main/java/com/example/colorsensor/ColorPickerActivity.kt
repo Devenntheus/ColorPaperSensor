@@ -350,12 +350,12 @@ class ColorPickerActivity : AppCompatActivity() {
         // Get meat status based on meat type and RGB values
         val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
-        // Check if the meat status is unknown
+        /*// Check if the meat status is unknown
         if (meatStatus == "Unknown") {
             // Show the recapture dialog for unknown meat status
             showRecaptureDialog()
             return // Exit the function after showing the recapture dialog
-        }
+        }*/
 
         // Set meat status
         meatStatusTextView.text = meatStatus

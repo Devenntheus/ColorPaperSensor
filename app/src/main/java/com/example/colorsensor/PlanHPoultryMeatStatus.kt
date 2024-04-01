@@ -57,7 +57,7 @@ class PlanHPoultryMeatStatus {
             val dL = lab1.L - lab2.L
             val da = lab1.a - lab2.a
             val db = lab1.b - lab2.b
-            return sqrt(dL * dL + da * da + db * db)
+            return sqrt((dL * dL) + (da * da) + (db * db))
         }
 
         // Get meat status from LAB values.
@@ -74,7 +74,7 @@ class PlanHPoultryMeatStatus {
             val minDistance = minOf(classADistance, classBDistance, classCDistance)
 
             // Define your threshold here
-            val threshold = 6.0f // Adjust as needed
+            val threshold = 6.5f // Adjust as needed
 
             return when {
                 minDistance <= threshold -> {
@@ -101,8 +101,11 @@ class PlanHPoultryMeatStatus {
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
+            /*// Create a LabValue instance
+            val labValue = LabValue(labValues[0], labValues[1], labValues[2])*/
+
             // Create a LabValue instance
-            val labValue = LabValue(labValues[0], labValues[1], labValues[2])
+            val labValue = LabValue(68.19f, 1.04f, -4.34f)
 
             // Get meat status from LAB values
             val meatStatus = getMeatStatusFromLAB(labValue)
