@@ -1,19 +1,26 @@
-package com.example.colorsensor
-
-import android.content.ContentValues
-import android.util.Log
+import com.example.colorsensor.PlanHPoultryMeatStatus
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PlanHPoultryMeatStatus {
-
-    data class LabValue(val L: Float, val a: Float, val b: Float)
+class PlanIPoultryMeatStatus {
+    data class LabRange(val from: FloatArray, val to: FloatArray)
 
     companion object {
         // Average Class LAB values with ranges for accuracy
-        private val CLASS_A = LabValue(71.12f, 6.59f, -1.26f)
-        private val CLASS_B = LabValue(68.01f, 1.41f, -4.25f)
-        private val CLASS_C = LabValue(67.23f, 1.58f, -4.22f)
+        private val DISTANCE_A = LabRange(
+            floatArrayOf(6.36f),
+            floatArrayOf(6.42f)
+        )
+
+        private val DISTANCE_B = LabRange(
+            floatArrayOf(12.23f),
+            floatArrayOf(12.68f)
+        )
+
+        private val DISTANCE_C = LabRange(
+            floatArrayOf(12.95f),
+            floatArrayOf(13.06f)
+        )
 
         // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {
@@ -52,41 +59,17 @@ class PlanHPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
-        // Corrected deltaE function to calculate Euclidean distance between two LAB color values
-        private fun deltaE(lab1: LabValue, lab2: LabValue): Float {
-            val dL = lab1.L - lab2.L
-            val da = lab1.a - lab2.a
-            val db = lab1.b - lab2.b
-            return sqrt(dL * dL + da * da + db * db)
-        }
-
         // Get meat status from LAB values.
-        private fun getMeatStatusFromLAB(labValues: LabValue): String {
-            val classADistance = deltaE(labValues, CLASS_A)
-            val classBDistance = deltaE(labValues, CLASS_B)
-            val classCDistance = deltaE(labValues, CLASS_C)
+        private fun getMeatStatusFromLAB(labValues: FloatArray): String {
+            val distances = mapOf(
+                "Fresh" to deltaE(labValues, DISTANCE_A.from, DISTANCE_A.to),
+                "Moderately Fresh" to deltaE(labValues, DISTANCE_B.from, DISTANCE_B.to),
+                "Borderline Spoilage" to deltaE(labValues, DISTANCE_C.from, DISTANCE_C.to)
+            )
 
-            // Log message before saving meat information
-            Log.d(ContentValues.TAG, "Class A Distance: $classADistance")
-            Log.d(ContentValues.TAG, "Class B Distance: $classBDistance")
-            Log.d(ContentValues.TAG, "Class C Distance: $classCDistance")
+            val closestClass = distances.minByOrNull { it.value }?.key ?: "Unknown"
 
-            val minDistance = minOf(classADistance, classBDistance, classCDistance)
-
-            // Define your threshold here
-            val threshold = 6.5f // Adjust as needed
-
-            return when {
-                minDistance <= threshold -> {
-                    when {
-                        minDistance == classADistance -> "Fresh"
-                        minDistance == classBDistance -> "Moderately Fresh"
-                        minDistance == classCDistance -> "Borderline Spoilage"
-                        else -> "Unknown"
-                    }
-                }
-                else -> "Unknown"
-            }
+            return closestClass
         }
 
         // Get meat status from RGB values.
@@ -101,13 +84,18 @@ class PlanHPoultryMeatStatus {
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
-            // Create a LabValue instance
-            val labValue = LabValue(labValues[0], labValues[1], labValues[2])
-
-            // Get meat status from LAB values
-            val meatStatus = getMeatStatusFromLAB(labValue)
+            // Get meat status from XYZ values
+            val meatStatus = getMeatStatusFromLAB(labValues)
 
             return Triple(meatStatus, labValues, xyzValues)
+        }
+
+        // Calculate the Euclidean distance between two LAB colors.
+        private fun deltaE(lab1: PlanHPoultryMeatStatus.LabValue, lab2: PlanHPoultryMeatStatus.LabValue): Float {
+            val dL = lab1.L - lab2.L
+            val da = lab1.a - lab2.a
+            val db = lab1.b - lab2.b
+            return sqrt(dL * dL + da * da + db * db)
         }
     }
 }

@@ -22,5 +22,5 @@
     <string name="under_development">Under Development</string>
     <string name="development_desc">The page you\'re looking for is currently under development and will be back soon.</string>
     <string name="unknown">Unknown - Invalid Meat Data</string>
-    <string name="unknown_desc">Oops! It seems there was an issue with the captured image. The meat color either does not exist in our database or the color information is invalid. Please recapture again. If you believe this is an error, kindly contact our customer support team for assistance. We apologize for any inconvenience this may have caused. Thank you for your understanding.</string>
+    <string name="unknown_desc">Oops! It seems there was an issue with the captured image. The meat color either does not exist in our database or the color information is invalid. Please recapture again.</string>
 </resources>
