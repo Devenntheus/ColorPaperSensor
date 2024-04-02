@@ -7,6 +7,7 @@ class PlanEPoultryMeatStatus {
 
     data class LabRange(val from: FloatArray, val to: FloatArray)
 
+
     companion object {
         // Average Class LAB values with ranges for accuracy
         private val CLASS_A = LabRange(
