@@ -3,7 +3,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class PlanIPoultryMeatStatus {
-    data class LabRange(val from: FloatArray, val to: FloatArray)
+    /*data class LabRange(val from: FloatArray, val to: FloatArray)
 
     companion object {
         // Average Class LAB values with ranges for accuracy
@@ -95,7 +95,7 @@ class PlanIPoultryMeatStatus {
             val dL = lab1.L - lab2.L
             val da = lab1.a - lab2.a
             val db = lab1.b - lab2.b
-            return sqrt(dL * dL + da * da + db * db)
+            return sqrt((dL * dL) + (da * da) + (db * db))
         }
-    }
+    }*/
 }

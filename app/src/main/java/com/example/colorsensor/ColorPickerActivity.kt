@@ -308,22 +308,18 @@ class ColorPickerActivity : AppCompatActivity() {
         val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
         val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
         val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
-        val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
+        /*val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
         val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
-        val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)
+        val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)*/
         val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)
         val colorShapeView = dialogView.findViewById<ImageView>(R.id.ShowColorImage)
+        val colorShapeReferenceView = dialogView.findViewById<ImageView>(R.id.ShowReferenceColorImage)
 
-        // Create a GradientDrawable and set its color based on the hex code
-        val gradientDrawable = GradientDrawable()
-        gradientDrawable.setColor(Color.parseColor(color))
-        gradientDrawable.shape = GradientDrawable.RECTANGLE
+        // Convert hex color string to color value
+        val colorValue = Color.parseColor(color)
 
-        // Set corner radius (adjust the value as needed)
-        gradientDrawable.cornerRadius = 20f
-
-        // Apply the drawable to the ImageView
-        colorShapeView.setImageDrawable(gradientDrawable)
+        // Set background color of the colorShapeView
+        colorShapeView.setBackgroundColor(colorValue)
 
         // Set meat type
         val meatType = GlobalData.meatType
@@ -332,14 +328,14 @@ class ColorPickerActivity : AppCompatActivity() {
         // Convert hex color to RGB
         val rgbValues = hexToRgb(color)
 
-        // Set the RGB values to the TextView
+        /*// Set the RGB values to the TextView
         if (rgbValues != null) {
             val (red, green, blue) = rgbValues
             val rgbValuesText = "($red, $green, $blue)"
             rgbTextView.text = rgbValuesText
         } else {
             rgbTextView.text = "N/A"
-        }
+        }*/
 
         // Get the hex color under the cursor
         val hexColor = getHexColorUnderCrosshair();
@@ -350,15 +346,24 @@ class ColorPickerActivity : AppCompatActivity() {
         // Get meat status based on meat type and RGB values
         val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
 
-        // Check if the meat status is unknown
+        /*// Check if the meat status is unknown
         if (meatStatus == "Unknown") {
             // Show the recapture dialog for unknown meat status
             showRecaptureDialog()
-            return // Exit the function after showing the recapture dialog
-        }
+            return // Exit the function after showing the recapture dialog=[
+        }*/
 
         // Set meat status
         meatStatusTextView.text = meatStatus
+
+        // Set background color of the ImageView based on meat status
+        if (meatStatus == "Fresh") {
+            colorShapeReferenceView.setBackgroundColor(Color.rgb(185, 170, 177))
+        } else if (meatStatus == "Moderately Fresh") {
+            colorShapeReferenceView.setBackgroundColor(Color.rgb(165, 165, 173))
+        } else if (meatStatus == "Borderline Spoilage") {
+            colorShapeReferenceView.setBackgroundColor(Color.rgb(163, 163, 171))
+        }
 
         // Convert meatTypeTextView.text to String
         val meatTypeString: String = meatTypeTextView.text.toString()
@@ -368,14 +373,14 @@ class ColorPickerActivity : AppCompatActivity() {
         // Declare a variable to store the colorName
         var colorName: String? = null
 
-        // Set the hsv code to textview
+       /* // Set the hsv code to textview
         val hsvValues = getHSVFromHexColor(color)
         val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
         hsvCodeTextView.text = formattedHSV
 
         // Set the xyz values to the textview with two decimal places
         val xyzValuesText = "(${"%.2f".format(xyzValues[0])}, ${"%.4f".format(xyzValues[1])}, ${"%.4f".format(xyzValues[2])})"
-        xyzValuesTextView.text = xyzValuesText
+        xyzValuesTextView.text = xyzValuesText*/
 
         // Set the lab values to the textview with two decimal places
         val labValuesText = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"

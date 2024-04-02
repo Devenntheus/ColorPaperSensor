@@ -42,7 +42,7 @@
                     android:text="Meat Status:"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/statusTextView"
@@ -69,7 +69,7 @@
                     android:text="Meat Type:"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/MeatTypeTextView"
@@ -97,7 +97,7 @@
                     android:text="@string/color_name"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/ColorNameTextView"
@@ -124,7 +124,7 @@
                     android:text="@string/hex_code"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/HexCodeTextView"
@@ -137,7 +137,7 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -150,7 +150,7 @@
                     android:text="@string/rgb"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/RGBTextView"
@@ -176,7 +176,7 @@
                     android:text="@string/hsv"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/HsvCodeTextView"
@@ -202,7 +202,7 @@
                     android:text="@string/xyz"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/XYZValuesTextView"
@@ -213,7 +213,8 @@
                     android:text=""
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
-            </LinearLayout>
+
+            </LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -228,7 +229,7 @@
                     android:text="@string/cielab"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/LabValuesTextView"
@@ -241,13 +242,60 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/ShowColorImage"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:src="@drawable/color_custom_rectangle" />
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/metrophobic_regular"
+                        android:text="Captured"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/ShowColorImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:src="@drawable/color_custom_rectangle" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/metrophobic_regular"
+                        android:text="Reference"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/ShowReferenceColorImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:src="@drawable/meat_color_reference_rectangle" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
