@@ -49,6 +49,10 @@ class PlanHPoultryMeatStatus {
             val a = 500f * (finalX - finalY)
             val b = 200f * (finalY - finalZ)
 
+            /*val L = 66.63f;
+            val a = 1.98f;
+            val b = -4.33f;*/
+
             return floatArrayOf(L, a, b)
         }
 
@@ -57,7 +61,7 @@ class PlanHPoultryMeatStatus {
             val dL = lab1.L - lab2.L
             val da = lab1.a - lab2.a
             val db = lab1.b - lab2.b
-            return sqrt((dL * dL) + (da * da) + (db * db))
+            return sqrt(dL * dL + da * da + db * db)
         }
 
         // Get meat status from LAB values.
@@ -101,11 +105,8 @@ class PlanHPoultryMeatStatus {
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
-            /*// Create a LabValue instance
-            val labValue = LabValue(labValues[0], labValues[1], labValues[2])*/
-
             // Create a LabValue instance
-            val labValue = LabValue(68.19f, 1.04f, -4.34f)
+            val labValue = LabValue(labValues[0], labValues[1], labValues[2])
 
             // Get meat status from LAB values
             val meatStatus = getMeatStatusFromLAB(labValue)
