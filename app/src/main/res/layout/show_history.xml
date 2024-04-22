@@ -13,12 +13,12 @@
     app:cardElevation="20dp"
     app:cardPreventCornerOverlap="false">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dark_gray"
         android:orientation="vertical">
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -261,6 +261,17 @@
 
                                         <TextView
                                             android:id="@+id/idTextView"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:fontFamily="@font/metrophobic_regular"
+                                            android:text=""
+                                            android:textColor="#ff9f9f"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:id="@+id/phoneIdTextView"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:layout_gravity="center"

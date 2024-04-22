@@ -23,6 +23,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
+import android.provider.Settings
+import android.util.Log
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -40,10 +42,16 @@ class CaptureImageActivity : AppCompatActivity() {
     private lateinit var backgroundThread: HandlerThread
     private var isFlashOn: Boolean = false
     private var cameraOpenCloseLock = Semaphore(1)
+    private lateinit var deviceId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
+
+        // Get the device ID or token during activity creation
+        deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        Log.d("PhoneID", "Phone ID: $deviceId")
+
         openBackgroundThread()
         setupCamera()
         showLightingConditionDialog {}
@@ -164,9 +172,11 @@ class CaptureImageActivity : AppCompatActivity() {
 
             val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
             intent.putExtra("capturedImagePath", imageFile.absolutePath)
+            intent.putExtra("phoneId", deviceId)  // Pass the deviceId here
             startActivity(intent)
         }, backgroundHandler)
     }
+
 
     // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {

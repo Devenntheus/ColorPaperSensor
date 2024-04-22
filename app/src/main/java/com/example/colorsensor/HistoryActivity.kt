@@ -13,14 +13,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import android.provider.Settings
+import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
 
 class HistoryActivity : AppCompatActivity() {
 
     private var alertDialog: AlertDialog? = null
+    private lateinit var deviceId: String // Device ID variable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sample_history)
+
+        // Get the device ID or token during activity creation
+        deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        Log.d("PhoneID", "Phone ID: $deviceId")
 
         showProgressDialog {
             // This block will be executed after the progress dialog is shown
@@ -32,7 +42,11 @@ class HistoryActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.historyRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        db.collection("History").get()
+        // Query to fetch only history items with the matching phone ID
+        val query: Query = db.collection("History")
+            .whereEqualTo("phoneId", deviceId) // Assuming "phoneId" is the field in your Firestore documents
+
+        query.get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     for (document in querySnapshot.documents) {
@@ -49,6 +63,13 @@ class HistoryActivity : AppCompatActivity() {
 
                     // Dismiss the progress dialog here
                     dismissProgressDialog()
+                } else {
+                    // Make the noRecordLayout visible
+                    findViewById<LinearLayout>(R.id.noRecordLayout).visibility = View.VISIBLE
+                    Log.d("No Record", "Phone ID: $deviceId")
+
+                    // Dismiss the progress dialog
+                    dismissProgressDialog()
                 }
             }
             .addOnFailureListener { exception ->
@@ -56,6 +77,7 @@ class HistoryActivity : AppCompatActivity() {
                 // Dismiss the progress dialog in case of failure as well
                 dismissProgressDialog()
             }
+
 
         val backImageView = findViewById<ImageView>(R.id.backImageView)
         backImageView.setOnClickListener {

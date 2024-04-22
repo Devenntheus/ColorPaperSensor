@@ -27,6 +27,7 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
         val idTextView: TextView = itemView.findViewById(R.id.idTextView)
         val imageView: ImageView = itemView.findViewById(R.id.colorImageView)
+        val phoneIdTextView: TextView = itemView.findViewById(R.id.phoneIdTextView)
     }
 
     // Called when RecyclerView needs a new ViewHolder to represent an item
@@ -49,6 +50,7 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         holder.dateTextView.text = currentHolder.date
         holder.timeTextView.text = currentHolder.time
         holder.statusTextView.text = currentHolder.meatStatus
+        holder.phoneIdTextView.visibility = View.INVISIBLE
 
         // Set text color of statusTextView based on hex code
         currentHolder.hexCode?.let { setTextColorBasedOnHexCode(holder.statusTextView, it) }
