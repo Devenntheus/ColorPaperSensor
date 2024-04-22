@@ -27,7 +27,7 @@ class PlanGPoultryMeatStatus {
 
 
 
-    // Get meat status from LAB values.
+        // Get meat status from LAB values.
         private fun getMeatStatusFromHexCode(hexCodeDecimal: Long): String {
             return when {
                 hexCodeDecimal <= CLASS_A.from && hexCodeDecimal >= CLASS_A.to -> "Fresh"

@@ -116,6 +116,7 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to setup camera manager
     private fun setupCameraManager() {
+
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
@@ -145,7 +146,7 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to setup image capture
     private fun setupCaptureImage() {
-        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
+        imageReader = ImageReader.newInstance(720, 1280, ImageFormat.JPEG, 1)
         imageReader.setOnImageAvailableListener({ reader ->
             val image = reader?.acquireLatestImage()
             val buffer = image!!.planes[0].buffer

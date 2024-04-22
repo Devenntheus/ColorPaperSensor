@@ -10,7 +10,7 @@ class PlanHPoultryMeatStatus {
     data class LabValue(val L: Float, val a: Float, val b: Float)
 
     companion object {
-        // Average Class LAB values with ranges for accuracy
+        // Average Class LAB values
         private val CLASS_A = LabValue(71.12f, 6.59f, -1.26f)
         private val CLASS_B = LabValue(68.01f, 1.41f, -4.25f)
         private val CLASS_C = LabValue(67.23f, 1.58f, -4.22f)
@@ -52,7 +52,7 @@ class PlanHPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
-        // Corrected deltaE function to calculate Euclidean distance between two LAB color values
+        // Calculate euclidean distance between two LAB color values
         private fun deltaE(lab1: LabValue, lab2: LabValue): Float {
             val dL = lab1.L - lab2.L
             val da = lab1.a - lab2.a
@@ -60,20 +60,20 @@ class PlanHPoultryMeatStatus {
             return sqrt((dL * dL) + (da * da) + (db * db))
         }
 
-        // Get meat status from LAB values.
+        // Get meat status from the compared distance
         private fun getMeatStatusFromLAB(labValues: LabValue): String {
             val classADistance = deltaE(labValues, CLASS_A)
             val classBDistance = deltaE(labValues, CLASS_B)
             val classCDistance = deltaE(labValues, CLASS_C)
 
-            // Log message before saving meat information
+            // Log message to display the class A through C distance
             Log.d(ContentValues.TAG, "Class A Distance: $classADistance")
             Log.d(ContentValues.TAG, "Class B Distance: $classBDistance")
             Log.d(ContentValues.TAG, "Class C Distance: $classCDistance")
 
             val minDistance = minOf(classADistance, classBDistance, classCDistance)
 
-            // Define your threshold here
+            // Threshold
             val threshold = 6.5f // Adjust as needed
 
             return when {
@@ -89,7 +89,7 @@ class PlanHPoultryMeatStatus {
             }
         }
 
-        // Get meat status from RGB values.
+        // Get meat information and return the data to the color picker activity
         fun getMeatStatus(meatType: String, rgbValues: Triple<Int, Int, Int>?): Triple<String, FloatArray, FloatArray> {
             if (rgbValues == null) {
                 throw IllegalArgumentException("RGB values cannot be null.")
@@ -101,11 +101,11 @@ class PlanHPoultryMeatStatus {
             // Convert XYZ to LAB
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
 
-            /*// Create a LabValue instance
-            val labValue = LabValue(labValues[0], labValues[1], labValues[2])*/
-
             // Create a LabValue instance
-            val labValue = LabValue(68.19f, 1.04f, -4.34f)
+            val labValue = LabValue(labValues[0], labValues[1], labValues[2])
+
+            /*// Create a LabValue instance
+            val labValue = LabValue(68.19f, 1.04f, -4.34f)*/
 
             // Get meat status from LAB values
             val meatStatus = getMeatStatusFromLAB(labValue)

@@ -355,6 +355,7 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set meat status
         meatStatusTextView.text = meatStatus
+        meatStatusTextView.setTextColor(Color.parseColor(hexColor))
 
         // Set background color of the ImageView based on meat status
         if (meatStatus == "Fresh") {
