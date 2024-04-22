@@ -10,6 +10,8 @@ class PlanIPoultryMeatStatus {
     data class LabValue(val L: Float, val a: Float, val b: Float)
 
     companion object {
+
+        // distance range for different classes
         private val DISTANCE_A = DistanceRange(
             floatArrayOf(6.36f),
             floatArrayOf(6.42f)
@@ -62,7 +64,7 @@ class PlanIPoultryMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
-        private fun getMeatStatusFromLAB(labValues: LabValue): String {
+        private fun getMeatStatusFromDistanceRange(labValues: LabValue): String {
             val distance = deltaE(labValues, REFERENCE)
 
             /*val distance = 6.41f*/
@@ -88,7 +90,7 @@ class PlanIPoultryMeatStatus {
 
             val xyzValues = rgbToXyz(rgbValues.first.toFloat(), rgbValues.second.toFloat(), rgbValues.third.toFloat())
             val labValues = xyzToLab(xyzValues[0], xyzValues[1], xyzValues[2])
-            val meatStatus = getMeatStatusFromLAB(LabValue(labValues[0], labValues[1], labValues[2]))
+            val meatStatus = getMeatStatusFromDistanceRange(LabValue(labValues[0], labValues[1], labValues[2]))
 
             return Triple(meatStatus, labValues, xyzValues)
         }

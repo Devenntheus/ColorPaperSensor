@@ -8,14 +8,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -66,6 +64,7 @@ class ColorPickerActivity : AppCompatActivity() {
     private lateinit var confirmCheckImageButton: ImageView
     private lateinit var confirmImageView: ImageView
     private lateinit var imageFilePath: String
+    private lateinit var phoneId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +77,7 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Get the image path from the intent
         imageFilePath = intent.getStringExtra("capturedImagePath") ?: ""
+        phoneId = intent.getStringExtra("phoneId") ?: ""
 
         // Load the image into CapturedImageView
         displayCapturedImage()
@@ -91,7 +91,7 @@ class ColorPickerActivity : AppCompatActivity() {
 
             // Show progress dialog and then display color dialog
             showProgressDialog {
-                showColorDialog(hexColor, imageFilePath)
+                showColorDialog(hexColor, imageFilePath, phoneId)
             }
         }
     }
@@ -301,7 +301,7 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     // Function to display meat information in a dialog box
-    private fun showColorDialog(color: String, imageFilePath: String) {
+    private fun showColorDialog(color: String, imageFilePath: String, phoneId: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
         val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
@@ -416,7 +416,8 @@ class ColorPickerActivity : AppCompatActivity() {
                 hexCode = color,
                 date = currentDate,
                 time = currentTime,
-                meatImage = capturedImageString
+                meatImage = capturedImageString,
+                phoneId = phoneId
             )
 
             // Log message before saving meat information
@@ -452,6 +453,19 @@ class ColorPickerActivity : AppCompatActivity() {
 
 
         alertDialog.show()
+
+    }
+
+    private fun String.MeatInformation(
+        id: String,
+        meatStatus: String,
+        meatType: String,
+        hexCode: String,
+        date: String,
+        time: String,
+        meatImage: String,
+        phoneId: String
+    ) {
 
     }
 
@@ -519,7 +533,8 @@ class ColorPickerActivity : AppCompatActivity() {
         val hexCode: String,
         val date: String,
         val time: String,
-        val meatImage: String
+        val meatImage: String,
+        val phoneId: String
     )
 
     class MeatInformationManager {

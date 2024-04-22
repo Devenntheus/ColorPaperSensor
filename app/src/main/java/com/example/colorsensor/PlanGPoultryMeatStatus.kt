@@ -6,28 +6,28 @@ import kotlin.math.pow
 
 class PlanGPoultryMeatStatus {
 
-    data class HexRange(val from: Long, val to: Long)
+    data class DecimalRange(val from: Long, val to: Long)
 
     companion object {
-        // Hex code with ranges for accuracy
-        private val CLASS_A = HexRange(
+        // Decimal range with ranges for accuracy
+        private val CLASS_A = DecimalRange(
             12234676,
             12167086
         )
 
-        private val CLASS_B = HexRange(
+        private val CLASS_B = DecimalRange(
             10921903,
             10790574
         )
 
-        private val CLASS_C = HexRange(
+        private val CLASS_C = DecimalRange(
             10790317,
             10658218
         )
 
 
 
-    // Get meat status from LAB values.
+    // Get meat status from Decimal value.
         private fun getMeatStatusFromHexCode(hexCodeDecimal: Long): String {
             return when {
                 hexCodeDecimal <= CLASS_A.from && hexCodeDecimal >= CLASS_A.to -> "Fresh"

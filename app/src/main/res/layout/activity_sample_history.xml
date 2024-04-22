@@ -46,6 +46,30 @@
         android:background="@color/black"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/noRecordLayout"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@color/black">
+
+            <TextView
+                android:id="@+id/noRecordTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="NO RECORD"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:textStyle="normal"
+                android:layout_marginBottom="100dp"/>
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/historyRecyclerView"
             android:layout_width="match_parent"
@@ -55,4 +79,6 @@
             android:layout_marginRight="10dp"/>
 
     </LinearLayout>
+
+
 </LinearLayout>
