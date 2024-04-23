@@ -15,14 +15,12 @@
             android:id="@+id/ImageFrameLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
             android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/CapturedImageView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
-
 
             <ImageView
                 android:id="@+id/CrosshairImageView"
@@ -43,6 +41,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp">
+
+                <SeekBar
+                    android:id="@+id/sizeSeekBar"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:max="200"
+                    android:progress="100"
+                    android:thumbTint="@color/white"
+                    android:progressTint="@color/light_gray"
+                    android:progressBackgroundTint="@color/light_gray"/>
 
                 <ImageView
                     android:id="@+id/ConfirmImageView"

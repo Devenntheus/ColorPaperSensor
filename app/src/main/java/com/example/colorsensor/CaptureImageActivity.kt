@@ -26,6 +26,7 @@ import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
 import android.provider.Settings
 import android.util.Log
+import kotlin.math.abs
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -45,6 +46,8 @@ class CaptureImageActivity : AppCompatActivity() {
     private var cameraOpenCloseLock = Semaphore(1)
     private lateinit var deviceId: String
     private lateinit var sharedPreferences: SharedPreferences
+    private val universalResolutionWidth = 1080
+    private val universalResolutionHeight = 1920
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,14 +152,20 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to capture an image
     private fun captureImage() {
+        val rotation = when (windowManager.defaultDisplay.rotation) {
+            Surface.ROTATION_0 -> 90
+            Surface.ROTATION_90 -> 0
+            Surface.ROTATION_180 -> 270
+            Surface.ROTATION_270 -> 180
+            else -> 90
+        }
+
         capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
             addTarget(imageReader.surface)
-            //autofocus mode control
+            // autofocus mode control
             set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-            set(
-                CaptureRequest.CONTROL_AF_MODE,
-                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-            )
+            set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            set(CaptureRequest.JPEG_ORIENTATION, rotation)
         }
         cameraCaptureSession.capture(capReq.build(), null, null)
     }
@@ -171,9 +180,7 @@ class CaptureImageActivity : AppCompatActivity() {
             buffer.get(capturedImageBytes)
             image.close()
 
-            val orientation = getOrientation(capturedImageBytes)
-            val rotatedImageBytes = rotateImageIfNeeded(capturedImageBytes, orientation)
-            val imageFile = saveImageToTempFile(rotatedImageBytes)
+            val imageFile = saveImageToTempFile(capturedImageBytes)
 
             // Reset flash mode to off after capturing the image
             isFlashOn = false
@@ -233,21 +240,19 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    // Function to open camera
+    // Modify openCamera function to calculate appropriate preview size with aspect ratio
     private fun openCamera() {
         try {
             val cameraId = getCameraId(cameraFacing)
-            if (cameraId == null) {
-                // Handle no camera available scenario
+                ?: // Handle no camera available scenario
                 return
-            }
 
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
             val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+
             val previewSize = chooseOptimalSize(
                 map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray(),
-                textureView.width,
-                textureView.height
+                universalResolutionWidth, universalResolutionHeight
             )
 
             textureView.surfaceTexture?.setDefaultBufferSize(previewSize.width, previewSize.height)
@@ -266,6 +271,23 @@ class CaptureImageActivity : AppCompatActivity() {
         } catch (e: IllegalStateException) {
             handleIllegalStateException(e)
         }
+    }
+
+    // Function to choose optimal size with given aspect ratio
+    private fun chooseOptimalSize(choices: Array<Size>, width: Int, height: Int): Size {
+        val desiredRatio = height.toDouble() / width.toDouble()
+        var minDiff = Double.MAX_VALUE
+        var optimalSize = choices[0]
+
+        for (size in choices) {
+            val ratio = size.width.toDouble() / size.height.toDouble()
+            if (abs(ratio - desiredRatio) < minDiff) {
+                minDiff = abs(ratio - desiredRatio)
+                optimalSize = size
+            }
+        }
+
+        return optimalSize
     }
 
     // Function for camera state callback
@@ -339,40 +361,6 @@ class CaptureImageActivity : AppCompatActivity() {
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
     }
 
-    // Function to get image orientation
-    private fun getOrientation(imageBytes: ByteArray): Int {
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
-
-        return when {
-            options.outWidth > options.outHeight -> ExifInterface.ORIENTATION_NORMAL
-            else -> ExifInterface.ORIENTATION_ROTATE_90
-        }
-    }
-
-    // Function to rotate image if needed based on orientation
-    private fun rotateImageIfNeeded(imageBytes: ByteArray, orientation: Int): ByteArray {
-        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        val matrix = Matrix()
-
-        if (cameraFacing == CameraCharacteristics.LENS_FACING_FRONT) {
-            matrix.setScale(-1f, 1f)
-        }
-
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            matrix.postRotate(90f)
-        }
-
-        val rotatedBitmap = Bitmap.createBitmap(
-            bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
-        )
-
-        val outputStream = ByteArrayOutputStream()
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        return outputStream.toByteArray()
-    }
-
     // Function to save image to raw file
     private fun saveImageToTempFile(data: ByteArray): File {
         val imageFile = File.createTempFile("capturedImage", ".jpg")
@@ -391,25 +379,6 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }
         return cameraIds.firstOrNull()
-    }
-
-    // Function to choose optimal preview size
-    private fun chooseOptimalSize(choices: Array<Size>, width: Int, height: Int): Size {
-        val targetRatio = height.toDouble() / width
-        var optimalSize = choices[0]
-        var maxPixels = 0
-
-        for (size in choices) {
-            val ratio = size.width.toDouble() / size.height
-            val pixels = size.width * size.height
-
-            if (pixels > maxPixels && Math.abs(ratio - targetRatio) < 0.3) {
-                optimalSize = size
-                maxPixels = pixels
-            }
-        }
-
-        return optimalSize
     }
 
     // Function to open background thread for camera operations

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -15,10 +14,10 @@ import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +36,6 @@ import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlin.math.max
 
 
 data class ColorInfo(
@@ -68,6 +66,7 @@ class ColorPickerActivity : AppCompatActivity() {
     private lateinit var confirmImageView: ImageView
     private lateinit var imageFilePath: String
     private lateinit var phoneId: String
+    private lateinit var sizeSeekBar: SeekBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +87,24 @@ class ColorPickerActivity : AppCompatActivity() {
         // Set onTouchListener to move CrosshairImageView
         setCrosshairTouchListener()
 
+        sizeSeekBar = findViewById(R.id.sizeSeekBar)
+
+        // Set up seek bar listener
+        sizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Adjust the size of the crosshair based on seek bar progress
+                val newSize = 50 + progress  // Range: 50 to 200 dp
+                val layoutParams = crossHairImageView.layoutParams
+                layoutParams.width = newSize
+                layoutParams.height = newSize
+                crossHairImageView.layoutParams = layoutParams
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
         confirmCheckImageButton.setOnClickListener {
             // Get the hex color under the cursor
             val hexColor = getHexColorUnderCrosshair()
@@ -99,12 +116,12 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    // Function to display captured image
+    // Function to load captured image into CapturedImageView
     private fun displayCapturedImage() {
         if (imageFilePath.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
             capturedImageView.setImageBitmap(bitmap)
-            capturedImageView.scaleType = ImageView.ScaleType.FIT_XY
+            capturedImageView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
     }
 
@@ -358,7 +375,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set meat status
         meatStatusTextView.text = meatStatus
-        meatStatusTextView.setTextColor(Color.parseColor(hexColor))
 
         // Set background color of the ImageView based on meat status
         if (meatStatus == "Fresh") {
@@ -377,14 +393,14 @@ class ColorPickerActivity : AppCompatActivity() {
         // Declare a variable to store the colorName
         var colorName: String? = null
 
-       /* // Set the hsv code to textview
-        val hsvValues = getHSVFromHexColor(color)
-        val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
-        hsvCodeTextView.text = formattedHSV
+        /* // Set the hsv code to textview
+         val hsvValues = getHSVFromHexColor(color)
+         val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
+         hsvCodeTextView.text = formattedHSV
 
-        // Set the xyz values to the textview with two decimal places
-        val xyzValuesText = "(${"%.2f".format(xyzValues[0])}, ${"%.4f".format(xyzValues[1])}, ${"%.4f".format(xyzValues[2])})"
-        xyzValuesTextView.text = xyzValuesText*/
+         // Set the xyz values to the textview with two decimal places
+         val xyzValuesText = "(${"%.2f".format(xyzValues[0])}, ${"%.4f".format(xyzValues[1])}, ${"%.4f".format(xyzValues[2])})"
+         xyzValuesTextView.text = xyzValuesText*/
 
         // Set the lab values to the textview with two decimal places
         val labValuesText = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
