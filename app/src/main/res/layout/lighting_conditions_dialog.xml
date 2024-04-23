@@ -200,6 +200,32 @@
             android:gravity="center">
 
             <CheckBox
+                android:id="@+id/doNotShowAgainCheckBox"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:buttonTint="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/doNotShowAgainTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/metrophobic_regular"
+                android:text="Don't show this again"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <CheckBox
                 android:id="@+id/understandCheckBox"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -217,9 +243,6 @@
                 android:justificationMode="inter_word"
                 android:lineSpacingExtra="2dp"/>
         </LinearLayout>
-
-
-
     </LinearLayout>
 
 </RelativeLayout>

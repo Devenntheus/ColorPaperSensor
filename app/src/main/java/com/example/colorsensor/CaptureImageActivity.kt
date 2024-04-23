@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
@@ -43,6 +44,7 @@ class CaptureImageActivity : AppCompatActivity() {
     private var isFlashOn: Boolean = false
     private var cameraOpenCloseLock = Semaphore(1)
     private lateinit var deviceId: String
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +56,15 @@ class CaptureImageActivity : AppCompatActivity() {
 
         openBackgroundThread()
         setupCamera()
-        showLightingConditionDialog {}
+
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+
+        // Show lighting condition dialog based on SharedPreferences
+        val showDialog = sharedPreferences.getBoolean("showLightingCondition", true)
+        if (showDialog) {
+            showLightingConditionDialog {}
+        }
     }
 
     override fun onResume() {
@@ -445,8 +455,14 @@ class CaptureImageActivity : AppCompatActivity() {
         val alertDialog = alertDialogBuilder.create()
 
         val understandCheckBox = dialogView.findViewById<CheckBox>(R.id.understandCheckBox)
+        val doNotShowAgainCheckBox = dialogView.findViewById<CheckBox>(R.id.doNotShowAgainCheckBox)
 
         // Set a listener for the checkbox
+        doNotShowAgainCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            // Update SharedPreferences when checkbox state changes
+            sharedPreferences.edit().putBoolean("showLightingCondition", !isChecked).apply()
+        }
+
         understandCheckBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // If the checkbox is checked, dismiss the dialog
