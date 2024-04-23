@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -35,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import retrofit2.http.Query
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 
 data class ColorInfo(
@@ -96,12 +99,12 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    // Function to load captured image into CapturedImageView
+    // Function to display captured image
     private fun displayCapturedImage() {
         if (imageFilePath.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
             capturedImageView.setImageBitmap(bitmap)
-            capturedImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+            capturedImageView.scaleType = ImageView.ScaleType.FIT_XY
         }
     }
 

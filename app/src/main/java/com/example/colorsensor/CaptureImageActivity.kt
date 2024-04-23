@@ -1,12 +1,14 @@
 package com.example.colorsensor
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
+import android.hardware.camera2.params.MeteringRectangle
 import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.*
@@ -25,6 +27,7 @@ import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
 import android.provider.Settings
 import android.util.Log
+import android.view.MotionEvent
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -55,6 +58,9 @@ class CaptureImageActivity : AppCompatActivity() {
         openBackgroundThread()
         setupCamera()
         showLightingConditionDialog {}
+
+        // Call setupTouchFocus to enable manual focus
+        setupTouchFocus()
     }
 
     override fun onResume() {
@@ -124,11 +130,10 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to setup camera manager
     private fun setupCameraManager() {
-
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
-    // Function to setup camera preview
+    // This function will setup the camera preview
     private fun setupCameraPreview() {
         textureView = findViewById(R.id.CameraTextureView)
         textureView.surfaceTextureListener = surfaceTextureListener
@@ -138,23 +143,109 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupTouchFocus() {
+        textureView.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                // Get the touch coordinates
+                val touchX = event.x
+                val touchY = event.y
+                // Call function to handle manual focus
+                handleManualFocus(touchX, touchY)
+            }
+            true
+        }
+    }
+
+    private fun handleManualFocus(touchX: Float, touchY: Float) {
+        try {
+            val characteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
+            val sensorArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+            val focusAreaSize = 100 // Adjust the focus area size as needed
+
+            val xRatio = sensorArraySize!!.width() / textureView.width.toFloat()
+            val yRatio = sensorArraySize.height() / textureView.height.toFloat()
+
+            val focusX = (touchX * xRatio).toInt()
+            val focusY = (touchY * yRatio).toInt()
+
+            val halfFocusAreaSize = focusAreaSize / 2
+            val focusRect = Rect(
+                clamp(focusX - halfFocusAreaSize, 0, sensorArraySize.width() - 1),
+                clamp(focusY - halfFocusAreaSize, 0, sensorArraySize.height() - 1),
+                clamp(focusX + halfFocusAreaSize, 0, sensorArraySize.width() - 1),
+                clamp(focusY + halfFocusAreaSize, 0, sensorArraySize.height() - 1)
+            )
+
+            val surface = Surface(textureView.surfaceTexture)
+
+            val captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            captureBuilder.addTarget(surface)
+            captureBuilder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_AUTO
+            )
+            captureBuilder.set(
+                CaptureRequest.CONTROL_AF_REGIONS,
+                arrayOf(MeteringRectangle(focusRect, MeteringRectangle.METERING_WEIGHT_MAX))
+            )
+            captureBuilder.set(
+                CaptureRequest.CONTROL_AE_REGIONS,
+                arrayOf(MeteringRectangle(focusRect, MeteringRectangle.METERING_WEIGHT_MAX))
+            )
+            captureBuilder.set(
+                CaptureRequest.CONTROL_MODE,
+                CameraMetadata.CONTROL_AF_MODE_AUTO
+            )
+            cameraCaptureSession.setRepeatingRequest(captureBuilder.build(), null, backgroundHandler)
+        } catch (e: CameraAccessException) {
+            Log.e("ManualFocus", "Error in manual focus: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    // Function to clamp a value between a minimum and maximum
+    private fun clamp(value: Int, min: Int, max: Int): Int {
+        return if (value < min) min else if (value > max) max else value
+    }
+
     // Function to capture an image
     private fun captureImage() {
+        val rotation = when (windowManager.defaultDisplay.rotation) {
+            Surface.ROTATION_0 -> 90
+            Surface.ROTATION_90 -> 0
+            Surface.ROTATION_180 -> 270
+            Surface.ROTATION_270 -> 180
+            else -> 90
+        }
+
         capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
             addTarget(imageReader.surface)
-            //autofocus mode control
+            // autofocus mode control
             set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-            set(
-                CaptureRequest.CONTROL_AF_MODE,
-                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-            )
+            set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            set(CaptureRequest.JPEG_ORIENTATION, rotation)
         }
         cameraCaptureSession.capture(capReq.build(), null, null)
     }
 
+
     // Function to setup image capture
     private fun setupCaptureImage() {
-        imageReader = ImageReader.newInstance(720, 1280, ImageFormat.JPEG, 1)
+        // Get the dimensions of the preview surface
+        val previewSize = textureView.surfaceTexture?.let { surfaceTexture ->
+            val width = textureView.width
+            val height = textureView.height
+            Size(width, height)
+        } ?: Size(1080, 1920) // Use default dimensions if unable to retrieve from textureView
+
+        imageReader = ImageReader.newInstance(
+            previewSize.width,
+            previewSize.height,
+            ImageFormat.JPEG,
+            1
+        )
+
         imageReader.setOnImageAvailableListener({ reader ->
             val image = reader?.acquireLatestImage()
             val buffer = image!!.planes[0].buffer
@@ -162,9 +253,7 @@ class CaptureImageActivity : AppCompatActivity() {
             buffer.get(capturedImageBytes)
             image.close()
 
-            val orientation = getOrientation(capturedImageBytes)
-            val rotatedImageBytes = rotateImageIfNeeded(capturedImageBytes, orientation)
-            val imageFile = saveImageToTempFile(rotatedImageBytes)
+            val imageFile = saveImageToTempFile(capturedImageBytes)
 
             // Reset flash mode to off after capturing the image
             isFlashOn = false
@@ -176,7 +265,6 @@ class CaptureImageActivity : AppCompatActivity() {
             startActivity(intent)
         }, backgroundHandler)
     }
-
 
     // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {
@@ -207,14 +295,6 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    // Function to setup history button
-    private fun setupHistoryButton() {
-        findViewById<ImageView>(R.id.HistoryImageView).setOnClickListener {
-            val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
-            startActivity(intent)
-        }
-    }
-
     // Function open camera preview
     private fun openCameraPreview() {
         if (textureView.isAvailable) {
@@ -235,11 +315,12 @@ class CaptureImageActivity : AppCompatActivity() {
 
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
             val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-            val previewSize = chooseOptimalSize(
-                map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray(),
-                textureView.width,
-                textureView.height
-            )
+
+            // Default width and height
+            val defaultWidth = 720
+            val defaultHeight = 1280
+
+            val previewSize = Size(defaultWidth, defaultHeight)
 
             textureView.surfaceTexture?.setDefaultBufferSize(previewSize.width, previewSize.height)
 
@@ -305,18 +386,6 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    // Function to set auto exposure parameters
-    private fun setAutoExposureParameters(requestBuilder: CaptureRequest.Builder) {
-        requestBuilder.set(
-            CaptureRequest.CONTROL_MODE,
-            CameraMetadata.CONTROL_MODE_AUTO
-        )
-        requestBuilder.set(
-            CaptureRequest.CONTROL_AE_MODE,
-            CameraMetadata.CONTROL_AE_MODE_ON
-        )
-    }
-
     // Texture view surface texture listener
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -330,38 +399,16 @@ class CaptureImageActivity : AppCompatActivity() {
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
     }
 
-    // Function to get image orientation
-    private fun getOrientation(imageBytes: ByteArray): Int {
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
-
-        return when {
-            options.outWidth > options.outHeight -> ExifInterface.ORIENTATION_NORMAL
-            else -> ExifInterface.ORIENTATION_ROTATE_90
-        }
-    }
-
-    // Function to rotate image if needed based on orientation
-    private fun rotateImageIfNeeded(imageBytes: ByteArray, orientation: Int): ByteArray {
-        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        val matrix = Matrix()
-
-        if (cameraFacing == CameraCharacteristics.LENS_FACING_FRONT) {
-            matrix.setScale(-1f, 1f)
-        }
-
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            matrix.postRotate(90f)
-        }
-
-        val rotatedBitmap = Bitmap.createBitmap(
-            bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+    // Function to set auto exposure parameters
+    private fun setAutoExposureParameters(requestBuilder: CaptureRequest.Builder) {
+        requestBuilder.set(
+            CaptureRequest.CONTROL_MODE,
+            CameraMetadata.CONTROL_MODE_AUTO
         )
-
-        val outputStream = ByteArrayOutputStream()
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        return outputStream.toByteArray()
+        requestBuilder.set(
+            CaptureRequest.CONTROL_AE_MODE,
+            CameraMetadata.CONTROL_AE_MODE_ON
+        )
     }
 
     // Function to save image to raw file
@@ -382,25 +429,6 @@ class CaptureImageActivity : AppCompatActivity() {
             }
         }
         return cameraIds.firstOrNull()
-    }
-
-    // Function to choose optimal preview size
-    private fun chooseOptimalSize(choices: Array<Size>, width: Int, height: Int): Size {
-        val targetRatio = height.toDouble() / width
-        var optimalSize = choices[0]
-        var maxPixels = 0
-
-        for (size in choices) {
-            val ratio = size.width.toDouble() / size.height
-            val pixels = size.width * size.height
-
-            if (pixels > maxPixels && Math.abs(ratio - targetRatio) < 0.3) {
-                optimalSize = size
-                maxPixels = pixels
-            }
-        }
-
-        return optimalSize
     }
 
     // Function to open background thread for camera operations
@@ -458,5 +486,13 @@ class CaptureImageActivity : AppCompatActivity() {
         }
 
         alertDialog.show()
+    }
+
+    // Function to setup history button
+    private fun setupHistoryButton() {
+        findViewById<ImageView>(R.id.HistoryImageView).setOnClickListener {
+            val intent = Intent(this@CaptureImageActivity, HistoryActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
