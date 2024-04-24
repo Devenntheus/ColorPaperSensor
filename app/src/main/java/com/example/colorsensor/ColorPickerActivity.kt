@@ -55,6 +55,7 @@ interface ColorApiService {
     suspend fun getColorInfo(@Query("hex") hex: String): ColorInfo
 }
 
+private var alertDialog: AlertDialog? = null  // Declare alertDialog as nullable
 
 class ColorPickerActivity : AppCompatActivity() {
 
@@ -90,9 +91,11 @@ class ColorPickerActivity : AppCompatActivity() {
             val hexColor = getHexColorUnderCrosshair()
 
             // Show progress dialog and then display color dialog
-            showProgressDialog {
-                showColorDialog(hexColor, imageFilePath, phoneId)
-            }
+            showProgressDialog {}
+               /* showColorDialog(hexColor, imageFilePath, phoneId)
+                hideProgressDialog();*/
+
+                launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
         }
     }
 
@@ -257,18 +260,19 @@ class ColorPickerActivity : AppCompatActivity() {
         alertDialogBuilder.setView(dialogView)
         alertDialogBuilder.setCancelable(false)
 
-        val alertDialog = alertDialogBuilder.create()
+        alertDialog = alertDialogBuilder.create()
 
-        alertDialog.show()
+        alertDialog?.show()
 
+        //you can customize the message here
         textViewMessage.text = getString(R.string.process)
 
-        // Dismiss the dialog after a certain delay or when the task is completed
+        //dismiss the dialog after a certain delay or when the task is completed
         Handler().postDelayed({
-            alertDialog.dismiss()
+            alertDialog?.dismiss()
             //execute the callback when the first dialog is dismissed
             callback.invoke()
-        }, 1000) //adjust the delay time as needed
+        }, 10000) //adjust the delay time as needed
     }
 
     // Converts a Bitmap image to a Base64-encoded string with resizing and compression.
@@ -301,7 +305,7 @@ class ColorPickerActivity : AppCompatActivity() {
     }
 
     // Function to display meat information in a dialog box
-    private fun showColorDialog(color: String, imageFilePath: String, phoneId: String) {
+    /*private fun showColorDialog(color: String, imageFilePath: String, phoneId: String) {
         val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
         val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
         val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
@@ -454,7 +458,86 @@ class ColorPickerActivity : AppCompatActivity() {
 
         alertDialog.show()
 
+    }*/
+
+    private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
+        val intent = Intent(this, MeatDescriptionActivity::class.java)
+
+        // Set meat type
+        val meatType = GlobalData.meatType.toString()  // Convert meatType to String immediately
+
+        // Launch the coroutine to get meat status and color name
+        lifecycleScope.launch {
+            // Convert hex color to RGB
+            val rgbValues = withContext(Dispatchers.Default) { hexToRgb(color) }
+
+            // Get meat status based on meat type and RGB values
+            val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
+
+            // Set meat status
+            intent.putExtra("meatStatus", meatStatus)
+
+            // Get color name asynchronously
+            val colorName = withContext(Dispatchers.IO) { getColorName(color) }
+
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            val capturedImageString = ImageUtils.convertImageToString(bitmap)
+
+            // Set other meat information
+            intent.putExtra("meatImage", capturedImageString)
+            intent.putExtra("meatType", meatType)
+            intent.putExtra("colorName", colorName)
+            intent.putExtra("hexCode", color)
+            intent.putExtra("labValues", "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})")
+
+            // Start MeatDescriptionActivity with intent
+            startActivity(intent)
+
+            // Now that the activity is started, save meat information in the background
+            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath)
+            hideProgressDialog()
+        }
     }
+
+    // Function to hide progress dialog
+    private fun hideProgressDialog() {
+
+        alertDialog?.dismiss()
+    }
+
+    // Function to save meat information asynchronously
+    private suspend fun saveMeatInformationAsync(
+        meatStatus: String,
+        meatType: String,
+        colorName: String,
+        hexCode: String,
+        phoneId: String,
+        imagePath: String
+    ) {
+        withContext(Dispatchers.IO) {
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            val capturedImageString = ImageUtils.convertImageToString(bitmap)
+
+            val id = MeatInformationManager.generateId()
+            val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
+            val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
+
+            val meatInformation = MeatInformation(
+                id = id,
+                meatStatus = meatStatus,
+                meatType = meatType,
+                color = colorName,
+                hexCode = hexCode,
+                date = currentDate,
+                time = currentTime,
+                meatImage = capturedImageString,
+                phoneId = phoneId
+            )
+
+            saveMeatInformation(meatInformation)
+        }
+    }
+
 
     private fun String.MeatInformation(
         id: String,
