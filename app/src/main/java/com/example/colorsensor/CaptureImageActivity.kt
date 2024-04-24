@@ -1,6 +1,7 @@
 package com.example.colorsensor
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
+import android.hardware.camera2.params.MeteringRectangle
 import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.*
@@ -26,6 +28,7 @@ import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
 import android.provider.Settings
 import android.util.Log
+import android.view.MotionEvent
 import kotlin.math.abs
 
 class CaptureImageActivity : AppCompatActivity() {
@@ -140,13 +143,60 @@ class CaptureImageActivity : AppCompatActivity() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
-    // Function to setup camera preview
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupCameraPreview() {
         textureView = findViewById(R.id.CameraTextureView)
         textureView.surfaceTextureListener = surfaceTextureListener
 
+        // Add touch listener to the TextureView
+        textureView.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                // Calculate focus area from touch event coordinates
+                val focusArea = calculateFocusArea(event.x, event.y)
+                // Update autofocus request to focus on the specified area
+                Log.d("TouchPosition", "Touched at: (${event.x}, ${event.y})")
+                updateFocusArea(focusArea)
+            }
+            true
+        }
+
         findViewById<ImageView>(R.id.CaptureImageView).setOnClickListener {
             captureImage()
+        }
+    }
+
+    // Function to calculate focus area from touch event coordinates
+    private fun calculateFocusArea(x: Float, y: Float): Rect {
+        val focusSize = 100 // Adjust this size as needed
+        val halfSize = focusSize / 2
+        val previewRect = Rect(0, 0, textureView.width, textureView.height)
+        val focusX = clamp(x.toInt() - halfSize, previewRect.left, previewRect.right - focusSize)
+        val focusY = clamp(y.toInt() - halfSize, previewRect.top, previewRect.bottom - focusSize)
+        val focusArea = Rect(focusX, focusY, focusX + focusSize, focusY + focusSize)
+        Log.d("TouchPosition", "Focus area: $focusArea")
+        return focusArea
+    }
+
+    // Function to clamp a value within a range
+    private fun clamp(value: Int, min: Int, max: Int): Int {
+        return when {
+            value < min -> min
+            value > max -> max
+            else -> value
+        }
+    }
+
+    // Function to update autofocus request to focus on the specified area
+    private fun updateFocusArea(focusArea: Rect) {
+        try {
+            capReq.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(MeteringRectangle(focusArea, MeteringRectangle.METERING_WEIGHT_MAX)))
+            capReq.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(MeteringRectangle(focusArea, MeteringRectangle.METERING_WEIGHT_MAX)))
+            capReq.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_AUTO)
+            capReq.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START)
+            cameraCaptureSession.capture(capReq.build(), null, backgroundHandler)
+            Log.d("TouchPosition", "Focus updated to: $focusArea")
+        } catch (e: CameraAccessException) {
+            handleCameraAccessException(e)
         }
     }
 
@@ -192,8 +242,7 @@ class CaptureImageActivity : AppCompatActivity() {
             startActivity(intent)
         }, backgroundHandler)
     }
-
-
+    
     // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {
         val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
