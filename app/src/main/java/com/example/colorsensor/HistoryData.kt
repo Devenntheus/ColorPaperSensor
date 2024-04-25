@@ -9,5 +9,6 @@ val meatStatus: String? = null,
 val image: String? = null,
 val date: String? = null,
 val time: String? = null,
-val phoneId: String? = null
+val phoneId: String? = null,
+val labValue: String? = null
 )

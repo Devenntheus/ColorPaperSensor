@@ -503,6 +503,8 @@ class ColorPickerActivity : AppCompatActivity() {
             val bitmap = BitmapFactory.decodeFile(imagePath)
             val capturedImageString = ImageUtils.convertImageToString(bitmap)
 
+            val labValue = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
+
             // Set other meat information
             intent.putExtra("meatImage", capturedImageString)
             intent.putExtra("meatType", meatType)
@@ -514,7 +516,7 @@ class ColorPickerActivity : AppCompatActivity() {
             startActivity(intent)
 
             // Now that the activity is started, save meat information in the background
-            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath)
+            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue)
             hideProgressDialog()
         }
     }
@@ -532,7 +534,8 @@ class ColorPickerActivity : AppCompatActivity() {
         colorName: String,
         hexCode: String,
         phoneId: String,
-        imagePath: String
+        imagePath: String,
+        labValue: String
     ) {
         withContext(Dispatchers.IO) {
             val bitmap = BitmapFactory.decodeFile(imagePath)
@@ -551,7 +554,8 @@ class ColorPickerActivity : AppCompatActivity() {
                 date = currentDate,
                 time = currentTime,
                 meatImage = capturedImageString,
-                phoneId = phoneId
+                phoneId = phoneId,
+                labValue = labValue
             )
 
             saveMeatInformation(meatInformation)
@@ -567,7 +571,8 @@ class ColorPickerActivity : AppCompatActivity() {
         date: String,
         time: String,
         meatImage: String,
-        phoneId: String
+        phoneId: String,
+        labValue: String
     ) {
 
     }
@@ -637,7 +642,8 @@ class ColorPickerActivity : AppCompatActivity() {
         val date: String,
         val time: String,
         val meatImage: String,
-        val phoneId: String
+        val phoneId: String,
+        val labValue: String
     )
 
     class MeatInformationManager {

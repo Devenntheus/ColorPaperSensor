@@ -3,6 +3,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +20,14 @@ class SampleAdapter(private val context: Context, private val historyList: Array
 
     // Define the ViewHolder class for holding references to views within each item of the RecyclerView
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val idTextView: TextView = itemView.findViewById(R.id.idTextView)
+        val statusTextView: TextView = itemView.findViewById(R.id.statusTextView)
         val typeTextView: TextView = itemView.findViewById(R.id.typeTextView)
         val colorTextView: TextView = itemView.findViewById(R.id.colorTextView)
         val hexCodeTextView: TextView = itemView.findViewById(R.id.hexCodeTextView)
-        val statusTextView: TextView = itemView.findViewById(R.id.statusTextView)
         val dateTextView: TextView = itemView.findViewById(R.id.dateTextView)
+        val labValueTextView: TextView = itemView.findViewById(R.id.labValueTextView)
         val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
-        val idTextView: TextView = itemView.findViewById(R.id.idTextView)
         val imageView: ImageView = itemView.findViewById(R.id.colorImageView)
         val phoneIdTextView: TextView = itemView.findViewById(R.id.phoneIdTextView)
     }
@@ -44,12 +46,13 @@ class SampleAdapter(private val context: Context, private val historyList: Array
 
         // Set values for TextViews
         holder.idTextView.visibility = View.INVISIBLE
+        holder.statusTextView.text = currentHolder.meatStatus
         holder.typeTextView.text = currentHolder.meatType
         holder.colorTextView.text = currentHolder.color
         holder.hexCodeTextView.text = currentHolder.hexCode
+        holder.labValueTextView.visibility = View.INVISIBLE
         holder.dateTextView.text = currentHolder.date
         holder.timeTextView.text = currentHolder.time
-        holder.statusTextView.text = currentHolder.meatStatus
         holder.phoneIdTextView.visibility = View.INVISIBLE
 
         // Set text color of statusTextView based on hex code
@@ -58,17 +61,16 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         // Set color of imageView based on hex code
         currentHolder.hexCode?.let { setColorBasedOnHexCode(holder.imageView, it) }
 
-        // Set OnClickListener for RecyclerView item
+
         holder.itemView.setOnClickListener {
+            Log.d("SampleAdapter", "Item clicked at position $position")
             // Create an Intent to start HistoryDetailsActivity
             val intent = Intent(context, HistoryDetailsActivity::class.java)
-
-            // Pass extra data (history ID) to the intent
             intent.putExtra("id", currentHolder.id)
-
             // Start the activity
             context.startActivity(intent)
         }
+
     }
 
     // Set text color of a TextView based on hex code

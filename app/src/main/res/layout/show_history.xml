@@ -280,6 +280,16 @@
                                             android:textColor="#ff9f9f"
                                             android:textSize="15sp"
                                             android:textStyle="bold" />
+                                        <TextView
+                                            android:id="@+id/labValueTextView"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="center"
+                                            android:fontFamily="@font/metrophobic_regular"
+                                            android:text=""
+                                            android:textColor="#ff9f9f"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
                                     </LinearLayout>
                                 </LinearLayout>
                             </RelativeLayout>

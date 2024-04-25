@@ -9,6 +9,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Base64
+import android.util.Log
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -21,10 +22,12 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_history_details)
+        setContentView(R.layout.activity_v2_history_details)
+
 
         // Receive the ID of the selected item from the intent
         val itemId = intent.getStringExtra("id")
+        Log.d("HistoryDetailsActivity", "Received itemId: $itemId")
 
         // Use the ID to fetch additional details from Firebase or display as needed
         fetchDataFromFirebase(itemId)
@@ -34,9 +37,17 @@ class HistoryDetailsActivity : AppCompatActivity() {
             val intent = Intent(this, HistoryActivity::class.java)
             startActivity(intent)
         }
+
+        // Set click listener for homeImageView
+        val homeImageView = findViewById<ImageView>(R.id.homeImageView)
+        homeImageView.setOnClickListener {
+            // Redirect to MainMenuActivity
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+            finish() // Optional: finish the current activity
+        }
     }
 
-    // Function to fetch data from Firebase based on item ID
     private fun fetchDataFromFirebase(itemId: String?) {
         if (itemId == null) {
             // Handle the case where the item ID is null
@@ -47,53 +58,87 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         val documentReference = db.collection("History").document(itemId)
 
+        Log.d("HistoryDetailsActivity", "Fetched itemId: $itemId")
+
         documentReference.get()
             .addOnSuccessListener { documentSnapshot ->
-                hideProgressDialog() // Dismiss the loading dialog
                 if (documentSnapshot.exists()) {
-                    // Retrieve data from the documentSnapshot
-                    val meatType = documentSnapshot.getString("meatType")
-                    val color = documentSnapshot.getString("color")
-                    val hexCode = documentSnapshot.getString("hexCode")
-                    val meatStatus = documentSnapshot.getString("meatStatus")
-                    val meatImageString = documentSnapshot.getString("meatImage")
+                    try {
+                        Log.d("HistoryDetailsActivity", "Retrieving Meat Description")
+                        // Retrieve data from the documentSnapshot
+                        val meatType = documentSnapshot.getString("meatType")
+                        val meatStatus = documentSnapshot.getString("meatStatus")
+                        val color = documentSnapshot.getString("color")
+                        val hexCode = documentSnapshot.getString("hexCode")
+                        val labValue = documentSnapshot.getString("labValue")
+                        val meatImageString = documentSnapshot.getString("meatImage")
 
-                    // Now you can use these variables to update your UI in HistoryDetailsActivity
-                    val meatTypeTextView = findViewById<TextView>(R.id.typeTextView)
-                    val colorTextView = findViewById<TextView>(R.id.colorTextView)
-                    val hexCodeTextView = findViewById<TextView>(R.id.hexCodeTextView)
-                    val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
-                    val colorImageView = findViewById<ImageView>(R.id.colorImageView)
-                    val meatImageView = findViewById<ImageView>(R.id.meatImageView)
+                        // Example of displaying data in TextViews (replace with your UI elements)
+                        val meatImageTextView = findViewById<ImageView>(R.id.meatImageView)
+                        val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
+                        val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
+                        val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
+                        val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+                        val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
+                        val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
+                        val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
 
-                    meatTypeTextView.text = meatType
-                    colorTextView.text = color
-                    hexCodeTextView.text = hexCode
-                    meatStatusTextView.text = meatStatus
+                        Log.d("HistoryDetailsActivity", "Displaying Meat Description (Status:  $meatStatus, Type: $meatType, Color: $color, Hex Code: $hexCode, LAB Value: $labValue, Image String: $meatImageString")
 
-                    // Set the background color of colorImageView based on the hex code
-                    setBackgroundColorBasedOnHexCode(colorImageView, hexCode)
+                        meatStatusTextView.text = "$meatStatus"
+                        meatTypeTextView.text = "$meatType"
+                        colorNameTextView.text = "$color"
+                        hexCodeTextView.text = "$hexCode"
+                        labValuesTextView.text = "$labValue"
 
-                    // Set text color of meatStatusTextView based on the hex code
-                    setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
+                        Log.d("HistoryDetailsActivity", "Retrieving Meat Description")
 
-                    // Decode and display the image
-                    meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
-                    hideProgressDialog()
+                        // Set text color of meatStatusTextView based on the hex code
+                        setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
+                        Log.d("HistoryDetailsActivity", "Setting Text Color")
+                        meatImageTextView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
+
+
+
+                        setCapturedColor(capturedImageView, hexCode)
+                        setReferenceColor(referenceImageView, meatType)
+
+                        hideProgressDialog();
+
+
+                        Log.d("HistoryDetailsActivity", "SUCCESSFUL RETRIEVAL")
+
+
+                    } catch (e: NoSuchFileException) {
+
+                        Log.d("HistoryDetailsActivity", "ERROR CATCH RETRIEVAL")
+                        // Handle the NoSuchFileException
+                        // This could involve logging the error, displaying a message to the user, or taking other appropriate action
+                        e.printStackTrace() // Log the exception for debugging
+                    } finally {
+                        Log.d("HistoryDetailsActivity", "ERROR FINALLY RETRIEVAL")
+                        hideProgressDialog() // Ensure the loading dialog is dismissed
+                    }
                 }
             }
     }
 
-    // Function to set the drawable color based on hex code
-    private fun setBackgroundColorBasedOnHexCode(imageView: ImageView, hexCode: String?) {
-        if (hexCode != null) {
-            // Create a GradientDrawable and set its color based on the hex code
-            val gradientDrawable = GradientDrawable()
-            gradientDrawable.setColor(Color.parseColor(hexCode))
-            gradientDrawable.shape = GradientDrawable.OVAL
 
-            // Apply the drawable to the ImageView
-            imageView.setImageDrawable(gradientDrawable)
+    private fun setCapturedColor(capturedImageView: ImageView, hexCode: String?) {
+        if (hexCode != null) {
+            // Set background color of the capturedImageView
+            capturedImageView.setBackgroundColor(Color.parseColor(hexCode))
+        }
+    }
+
+    private fun setReferenceColor(referenceImageView: ImageView, meatType: String?) {
+        // Set background color of the ImageView based on meat status
+        if (meatType == "Fresh") {
+            referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
+        } else if (meatType == "Moderately Fresh") {
+            referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
+        } else if (meatType == "Borderline Spoilage") {
+            referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
         }
     }
 

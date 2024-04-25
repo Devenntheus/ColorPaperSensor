@@ -80,13 +80,8 @@ class MeatDescriptionActivity : AppCompatActivity() {
             setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
 
             meatImageTextView.setImageBitmap(
-                decodeBase64ToBitmap(
-                    meatImageString,
-                    cornerRadiusDp = 5f
-                )
+                decodeBase64ToBitmap(meatImageString)
             )
-
-
             setCapturedColor(capturedImageView, hexCode)
             setReferenceColor(referenceImageView, meatType)
 
@@ -95,63 +90,16 @@ class MeatDescriptionActivity : AppCompatActivity() {
     }
 
     // Function to decode base64 string to Bitmap
-    private fun decodeBase64ToBitmap(meatImageString: String?, cornerRadiusDp: Float = 5f): Bitmap? {
-        if (meatImageString == null) {
+    private fun decodeBase64ToBitmap(base64String: String?): Bitmap? {
+        if (base64String == null) {
             return null
         }
 
         // Decode base64 string to byte array
-        val imageBytes = Base64.decode(meatImageString, Base64.DEFAULT)
+        val imageBytes = Base64.decode(base64String, Base64.DEFAULT)
 
         // Decode byte array to Bitmap
-        val decodedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-
-        // Apply border radius
-        return addRoundedBorderToBitmap(decodedBitmap, cornerRadiusDp)
-    }
-
-    private fun addRoundedBorderToBitmap(bitmap: Bitmap, cornerRadiusDp: Float): Bitmap {
-        // Calculate corner radius in pixels
-        val cornerRadiusPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            cornerRadiusDp,
-            Resources.getSystem().displayMetrics
-        )
-
-        // Create a new bitmap with added border
-        val roundedBitmap = Bitmap.createBitmap(
-            bitmap.width,
-            bitmap.height,
-            bitmap.config
-        )
-
-        // Create a canvas with the new bitmap
-        val canvas = Canvas(roundedBitmap)
-
-        // Draw the original bitmap on the canvas
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
-
-        // Create a paint for drawing the border
-        val paint = Paint()
-        paint.isAntiAlias = true
-        paint.color = Color.BLACK // You can change the border color here
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            5f, // Border width in dp
-            Resources.getSystem().displayMetrics
-        )
-
-        // Create a rect with rounded corners for the border
-        val rect = RectF(
-            paint.strokeWidth / 2,
-            paint.strokeWidth / 2,
-            (bitmap.width - paint.strokeWidth / 2),
-            (bitmap.height - paint.strokeWidth / 2)
-        )
-        canvas.drawRoundRect(rect, cornerRadiusPx, cornerRadiusPx, paint)
-
-        return roundedBitmap
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 
     // Function to set text color based on hex code
