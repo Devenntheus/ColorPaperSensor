@@ -242,7 +242,7 @@ class CaptureImageActivity : AppCompatActivity() {
             startActivity(intent)
         }, backgroundHandler)
     }
-    
+
     // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {
         val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)
