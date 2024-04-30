@@ -32,7 +32,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/metrophobic_regular"
-            android:text="Meat Description"
+            android:text="History Description"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             android:textStyle="bold" />

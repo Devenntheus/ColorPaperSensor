@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -15,10 +14,12 @@ import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -26,18 +27,18 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlinx.coroutines.Dispatchers
-import retrofit2.http.Query
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 
 data class ColorInfo(
@@ -65,11 +66,15 @@ class ColorPickerActivity : AppCompatActivity() {
     // Declaring image views and file path for the captured image
     private lateinit var crossHairImageView: ImageView
     private lateinit var capturedImageView: ImageView
-    private lateinit var confirmCheckImageButton: ImageView
-    private lateinit var confirmImageView: ImageView
     private lateinit var imageFilePath: String
     private lateinit var phoneId: String
     private lateinit var sizeSeekBar: SeekBar
+
+    private lateinit var checkButtonLinearLayout: LinearLayout
+    private lateinit var bottomFunctionsLinearLayout: LinearLayout
+    private lateinit var confirmImageView: ImageView
+    private lateinit var confirmCheckImageButton: ImageButton
+    private lateinit var topFunctionsRelativeLayout:RelativeLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +82,12 @@ class ColorPickerActivity : AppCompatActivity() {
 
         crossHairImageView = findViewById(R.id.CrosshairImageView)
         capturedImageView = findViewById(R.id.CapturedImageView)
-        confirmCheckImageButton = findViewById(R.id.ConfirmCheckImageButton)
-        confirmImageView = findViewById(R.id.ConfirmImageView)
+
+        checkButtonLinearLayout = findViewById(R.id.CheckButtonLinearLayout);
+        bottomFunctionsLinearLayout = findViewById(R.id.BottomFunctionsLinearLayout);
+        confirmImageView = findViewById(R.id.ConfirmImageView);
+        confirmCheckImageButton = findViewById(R.id.ConfirmCheckImageButton);
+        topFunctionsRelativeLayout = findViewById(R.id.TopFunctionsRelativeLayout);
 
         // Get the image path from the intent
         imageFilePath = intent.getStringExtra("capturedImagePath") ?: ""
@@ -89,6 +98,25 @@ class ColorPickerActivity : AppCompatActivity() {
 
         // Set onTouchListener to move CrosshairImageView
         setCrosshairTouchListener()
+
+        val cameraImageView = findViewById<ImageView>(R.id.cameraImageView)
+        val homeImageView = findViewById<ImageView>(R.id.homeImageView)
+
+        // Set click listener for cameraImageView
+        cameraImageView.setOnClickListener {
+            // Launch the Camera Activity with intent
+            val intent = Intent(this, CaptureImageActivity::class.java)
+            intent.putExtra("meatType", GlobalData.meatType.toString()) // Pass meat type to CameraActivity if needed
+            startActivity(intent)
+        }
+
+        // Set click listener for homeImageView
+        homeImageView.setOnClickListener {
+            // Redirect to MainMenuActivity
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+            finish() // Optional: finish the current activity
+        }
 
         sizeSeekBar = findViewById(R.id.sizeSeekBar)
 
@@ -114,10 +142,14 @@ class ColorPickerActivity : AppCompatActivity() {
 
             // Show progress dialog and then display color dialog
             showProgressDialog {}
-               /* showColorDialog(hexColor, imageFilePath, phoneId)
-                hideProgressDialog();*/
 
-                launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
+            launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
+
+            // Disable movement of crossHairImageView by intercepting touch events
+            findViewById<FrameLayout>(R.id.ImageFrameLayout).setOnTouchListener { _, _ ->
+                // Return true to indicate that the touch event was consumed
+                true
+            }
         }
     }
 
@@ -507,6 +539,114 @@ class ColorPickerActivity : AppCompatActivity() {
     }*/
 
     private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
+
+
+
+        // Set meat type
+        val meatType = GlobalData.meatType.toString()  // Convert meatType to String immediately
+
+        // Launch the coroutine to get meat status and color name
+        lifecycleScope.launch {
+            // Convert hex color to RGB
+            val rgbValues = withContext(Dispatchers.Default) { hexToRgb(color) }
+
+            // Get meat status based on meat type and RGB values
+            val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
+
+            /*Get meat status based on meat type and RGB values
+            val (meatStatus, labValues, _) = when (meatType) {
+                "Poultry" -> PoultryMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Beef" -> BeefMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Pork" -> PorkMeatStatus.getMeatStatus(meatType, rgbValues)
+                else -> {
+                    // Navigate back to main menu activity if meat type is not recognized
+                    startActivity(Intent(this@ColorPickerActivity, MainMenuActivity::class.java))
+                    return@launch
+                }
+            }*/
+
+
+            // Get color name asynchronously
+            val colorName = withContext(Dispatchers.IO) { getColorName(color) }
+
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            val capturedImageString = ImageUtils.convertImageToString(bitmap)
+
+            val labValue = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
+
+
+            // Example of displaying data in TextViews (replace with your UI elements)
+            val meatImageTextView = findViewById<ImageView>(R.id.meatImageView)
+            val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
+            val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
+            val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
+            val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+            val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
+            val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
+            val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
+
+
+
+
+            // Decode and display the image
+            meatStatusTextView.text = "$meatStatus"
+            meatTypeTextView.text = "$meatType"
+            colorNameTextView.text = "$colorName"
+            hexCodeTextView.text = "$color"
+            labValuesTextView.text = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
+
+            /*// Set other meat information
+            intent.putExtra("meatType", meatType)
+            intent.putExtra("colorName", colorName)
+            intent.putExtra("hexCode", color)
+            intent.putExtra("labValues", "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})")*/
+
+            // Set text color of meatStatusTextView based on the hex code
+            setTextColorBasedOnHexCode(meatStatusTextView, color)
+            setCapturedColor(capturedImageView, color)
+            setReferenceColor(referenceImageView, meatStatus)
+
+            // Hide CheckButtonFrameLayout and show BottomFunctionsLinearLayout
+            checkButtonLinearLayout.setVisibility(View.GONE);
+            bottomFunctionsLinearLayout.setVisibility(View.VISIBLE);
+            topFunctionsRelativeLayout.setVisibility(View.VISIBLE);
+
+
+            hideProgressDialog();
+
+            // Now that the activity is started, save meat information in the background
+            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue)
+            hideProgressDialog()
+        }
+    }
+
+    // Function to set text color based on hex code
+    private fun setTextColorBasedOnHexCode(textView: TextView, hexCode: String?) {
+        if (hexCode != null) {
+            // Set the text color of the TextView based on the hex code
+            textView.setTextColor(Color.parseColor(hexCode))
+        }
+    }
+
+    private fun setCapturedColor(capturedImageView: ImageView, hexCode: String?) {
+        if (hexCode != null) {
+            // Set background color of the capturedImageView
+            capturedImageView.setBackgroundColor(Color.parseColor(hexCode))
+        }
+    }
+
+    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?) {
+        // Set background color of the ImageView based on meat status
+        if (meatStatus == "Fresh") {
+            referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
+        } else if (meatStatus == "Moderately Fresh") {
+            referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
+        } else if (meatStatus == "Borderline Spoilage") {
+            referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
+        }
+    }
+
+    /*/private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
         val intent = Intent(this, MeatDescriptionActivity::class.java)
 
         // Set meat type
@@ -557,9 +697,9 @@ class ColorPickerActivity : AppCompatActivity() {
             saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue)
             hideProgressDialog()
         }
-    }
+    }*/
 
-    // Function to hide progress dialog
+    //Function to hide progress dialog
     private fun hideProgressDialog() {
 
         alertDialog?.dismiss()

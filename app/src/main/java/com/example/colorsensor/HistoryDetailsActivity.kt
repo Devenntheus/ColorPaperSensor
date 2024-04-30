@@ -101,7 +101,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
 
                         setCapturedColor(capturedImageView, hexCode)
-                        setReferenceColor(referenceImageView, meatType)
+                        setReferenceColor(referenceImageView, meatStatus)
 
                         hideProgressDialog();
 
@@ -131,13 +131,13 @@ class HistoryDetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun setReferenceColor(referenceImageView: ImageView, meatType: String?) {
+    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?) {
         // Set background color of the ImageView based on meat status
-        if (meatType == "Fresh") {
+        if (meatStatus == "Fresh") {
             referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
-        } else if (meatType == "Moderately Fresh") {
+        } else if (meatStatus == "Moderately Fresh") {
             referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
-        } else if (meatType == "Borderline Spoilage") {
+        } else if (meatStatus == "Borderline Spoilage") {
             referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
         }
     }
