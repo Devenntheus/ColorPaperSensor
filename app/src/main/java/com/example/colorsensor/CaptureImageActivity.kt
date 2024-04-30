@@ -8,30 +8,39 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.hardware.camera2.*
 import android.hardware.camera2.params.MeteringRectangle
-import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.*
+import android.provider.Settings
+import android.util.Log
 import android.util.Size
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.widget.CheckBox
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
-import android.provider.Settings
-import android.util.Log
-import android.view.MotionEvent
 import kotlin.math.abs
 
-class CaptureImageActivity : AppCompatActivity() {
+class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
+
+    private lateinit var sensorManager: SensorManager
+    private lateinit var lightSensor: Sensor
+    private lateinit var chatHeadFrameLayout: FrameLayout // Initialize properly
 
     // Camera variables
     private lateinit var cameraManager: CameraManager
@@ -56,17 +65,23 @@ class CaptureImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
 
-        // Check for camera permission here if needed for other functionalities
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Handle the case where camera permission is not granted
-            // This activity should ideally be unreachable without camera permission
-            Toast.makeText(this, "Camera permission not granted.", Toast.LENGTH_SHORT).show()
-            finish() // Finish this activity if permission is not granted
+        // Initialize sensor manager
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+
+        // Get light sensor
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) ?: run {
+            // Handle case where light sensor is not available
+            Log.e("CaptureImageActivity", "Light sensor is not available")
+            // You can provide a default behavior or throw an exception
+            // For example, you might want to finish the activity if the sensor is not available
+            finish()
+            return
         }
+
+
+        // Initialize chatHeadFrameLayout
+        chatHeadFrameLayout = findViewById(R.id.chatHeadFrameLayout)
+
 
         // Get the device ID or token during activity creation
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -85,17 +100,19 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
-    // Function to resume the camera session
     override fun onResume() {
         super.onResume()
+        // Register light sensor listener
+        sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL)
         openBackgroundThread()
         updateFlashBehavior()
         openCameraPreview()
     }
 
-    // Function to pause the camera session
     override fun onPause() {
         super.onPause()
+        // Unregister light sensor listener
+        sensorManager.unregisterListener(this)
         closeCamera()
         closeBackgroundThread()
     }
@@ -115,11 +132,41 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to setup camera components if permissions are granted
     private fun setupCamera() {
-        setupCameraManager()
-        setupCameraPreview()
-        setupCaptureImage()
-        setupFlashToggle()
-        setupHistoryButton()
+        if (allPermissionsGranted()) {
+            setupCameraManager()
+            setupCameraPreview()
+            setupCaptureImage()
+            setupFlashToggle()
+            setupHistoryButton()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    // Function to check if all necessary permissions are granted
+    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
+        applicationContext,
+        Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setupCamera()
+            } else {
+                // Handle denied permissions
+                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Function to setup camera manager
@@ -196,7 +243,7 @@ class CaptureImageActivity : AppCompatActivity() {
 
         capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
             addTarget(imageReader.surface)
-            // Autofocus mode control
+            // autofocus mode control
             set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
             set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
             set(CaptureRequest.JPEG_ORIENTATION, rotation)
@@ -209,8 +256,9 @@ class CaptureImageActivity : AppCompatActivity() {
         imageReader.setOnImageAvailableListener({ reader ->
             val image = reader?.acquireLatestImage()
             image?.let { img ->
-                val width = img.width
-                val height = img.height
+                val width = img.width // Get width of the image
+                val height = img.height // Get height of the image
+
                 Log.d("ImageDimensions", "Displayed image dimension: $width x $height")
 
                 val buffer = img.planes[0].buffer
@@ -447,6 +495,10 @@ class CaptureImageActivity : AppCompatActivity() {
         // Handle illegal state exception
     }
 
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 101
+    }
+
     // Function to show lighting condition dialog
     private fun showLightingConditionDialog(callback: () -> Unit) {
         val dialogView = layoutInflater.inflate(R.layout.lighting_conditions_dialog, null)
@@ -476,5 +528,39 @@ class CaptureImageActivity : AppCompatActivity() {
         }
 
         alertDialog.show()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
+            // Get the light level in lux
+            val lightLevel = event.values[0]
+            Log.d("LightSensor", "Light level: $lightLevel")
+
+            // You can define a threshold for darkness
+            val darkThreshold = 300.0f // Adjust as needed
+
+            // Check if the light level is below the threshold
+            if (lightLevel <= darkThreshold) {
+                // Initialize views
+                val chatHeadFrameLayout = findViewById<FrameLayout>(R.id.chatHeadFrameLayout)
+                val bottomFunctionsLinearLayout = findViewById<LinearLayout>(R.id.BottomFunctionsLinearLayout)
+
+                // Bring chatHeadFrameLayout to front
+                chatHeadFrameLayout.bringToFront()
+
+                // Update the layout to reflect the change
+                bottomFunctionsLinearLayout.requestLayout()
+
+                // Light is dark, make chatHeadFrameLayout visible
+                chatHeadFrameLayout.visibility = View.VISIBLE
+            } else {
+                // Light is not dark, hide chatHeadFrameLayout
+                chatHeadFrameLayout.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Handle accuracy changes if needed
     }
 }
