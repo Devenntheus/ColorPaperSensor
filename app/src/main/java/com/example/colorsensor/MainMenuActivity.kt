@@ -106,7 +106,6 @@ class MainMenuActivity : AppCompatActivity() {
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Camera permission granted, proceed with app functionality
-                startCaptureImageActivity()
             } else {
                 // Camera permission denied, show a message or handle accordingly
                 Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
