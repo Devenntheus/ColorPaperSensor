@@ -65,6 +65,18 @@ class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
 
+        // Check for camera permission here if needed for other functionalities
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Handle the case where camera permission is not granted
+            // This activity should ideally be unreachable without camera permission
+            Toast.makeText(this, "Camera permission not granted.", Toast.LENGTH_SHORT).show()
+            finish() // Finish this activity if permission is not granted
+        }
+
         // Initialize sensor manager
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
@@ -132,41 +144,11 @@ class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
 
     // Function to setup camera components if permissions are granted
     private fun setupCamera() {
-        if (allPermissionsGranted()) {
-            setupCameraManager()
-            setupCameraPreview()
-            setupCaptureImage()
-            setupFlashToggle()
-            setupHistoryButton()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                PERMISSION_REQUEST_CODE
-            )
-        }
-    }
-
-    // Function to check if all necessary permissions are granted
-    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
-        applicationContext,
-        Manifest.permission.CAMERA
-    ) == PackageManager.PERMISSION_GRANTED
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setupCamera()
-            } else {
-                // Handle denied permissions
-                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
-            }
-        }
+        setupCameraManager()
+        setupCameraPreview()
+        setupCaptureImage()
+        setupFlashToggle()
+        setupHistoryButton()
     }
 
     // Function to setup camera manager
