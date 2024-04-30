@@ -224,29 +224,35 @@ class CaptureImageActivity : AppCompatActivity() {
         cameraCaptureSession.capture(capReq.build(), null, null)
     }
 
-    // Function to setup image capture
     private fun setupCaptureImage() {
-        imageReader = ImageReader.newInstance(1080, 1920, ImageFormat.JPEG, 1)
+        imageReader = ImageReader.newInstance(1920, 1080, ImageFormat.JPEG, 1)
         imageReader.setOnImageAvailableListener({ reader ->
             val image = reader?.acquireLatestImage()
-            val buffer = image!!.planes[0].buffer
-            capturedImageBytes = ByteArray(buffer.remaining())
-            buffer.get(capturedImageBytes)
-            image.close()
+            image?.let { img ->
+                val width = img.width // Get width of the image
+                val height = img.height // Get height of the image
 
-            val imageFile = saveImageToTempFile(capturedImageBytes)
+                Log.d("ImageDimensions", "Displayed image dimension: $width x $height")
 
-            // Reset flash mode to off after capturing the image
-            isFlashOn = false
-            updateFlashMode()
+                val buffer = img.planes[0].buffer
+                capturedImageBytes = ByteArray(buffer.remaining())
+                buffer.get(capturedImageBytes)
+                img.close()
 
-            val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
-            intent.putExtra("capturedImagePath", imageFile.absolutePath)
-            intent.putExtra("phoneId", deviceId)  // Pass the deviceId here
-            startActivity(intent)
+                val imageFile = saveImageToTempFile(capturedImageBytes)
+
+                // Reset flash mode to off after capturing the image
+                isFlashOn = false
+                updateFlashMode()
+
+                val intent = Intent(this@CaptureImageActivity, ColorPickerActivity::class.java)
+                intent.putExtra("capturedImagePath", imageFile.absolutePath)
+                intent.putExtra("phoneId", deviceId)  // Pass the deviceId here
+                startActivity(intent)
+            }
         }, backgroundHandler)
     }
-    
+
     // Function to update flash behavior based on current state
     private fun updateFlashBehavior() {
         val flashImageView = findViewById<ImageView>(R.id.CameraFlashImageView)

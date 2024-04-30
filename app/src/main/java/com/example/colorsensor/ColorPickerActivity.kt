@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -124,9 +126,33 @@ class ColorPickerActivity : AppCompatActivity() {
         if (imageFilePath.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
             capturedImageView.setImageBitmap(bitmap)
-            capturedImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+
+            // Log the dimension of the displayed captured image
+            val width = bitmap.width
+            val height = bitmap.height
+            Log.d("ImageDimension", "Displayed image dimension: $width x $height")
         }
     }
+
+    // Function to calculate the sample size for bitmap decoding
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
+    }
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     // Function to set onTouchListener for moving CrosshairImageView
