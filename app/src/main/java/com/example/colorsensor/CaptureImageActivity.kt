@@ -10,10 +10,12 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
 import android.hardware.camera2.params.MeteringRectangle
-import android.media.ExifInterface
 import android.media.ImageReader
 import android.os.*
+import android.provider.Settings
+import android.util.Log
 import android.util.Size
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.TextureView
 import android.widget.CheckBox
@@ -22,14 +24,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
-import android.provider.Settings
-import android.util.Log
-import android.view.MotionEvent
 import kotlin.math.abs
+
 
 class CaptureImageActivity : AppCompatActivity() {
 
@@ -55,6 +54,11 @@ class CaptureImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
+
+        val chatheadImageView = findViewById<ImageView>(R.id.ChatheadImageView)
+        chatheadImageView.bringToFront()
+        chatheadImageView.invalidate() // Ensure the view is redrawn
+
 
         // Get the device ID or token during activity creation
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
