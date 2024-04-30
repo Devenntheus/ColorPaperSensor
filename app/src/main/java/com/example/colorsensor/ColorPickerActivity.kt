@@ -520,6 +520,18 @@ class ColorPickerActivity : AppCompatActivity() {
             // Get meat status based on meat type and RGB values
             val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
 
+            /*// Get meat status based on meat type and RGB values
+            val (meatStatus, labValues, _) = when (meatType) {
+                "Poultry" -> PoultryMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Beef" -> BeefMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Pork" -> PorkMeatStatus.getMeatStatus(meatType, rgbValues)
+                else -> {
+                    // Navigate back to main menu activity if meat type is not recognized
+                    startActivity(Intent(this@ColorPickerActivity, MainMenuActivity::class.java))
+                    return@launch
+                }
+            }*/
+
             // Set meat status
             intent.putExtra("meatStatus", meatStatus)
 

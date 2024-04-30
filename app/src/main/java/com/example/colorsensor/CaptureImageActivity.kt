@@ -56,6 +56,18 @@ class CaptureImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture_image)
 
+        // Check for camera permission here if needed for other functionalities
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Handle the case where camera permission is not granted
+            // This activity should ideally be unreachable without camera permission
+            Toast.makeText(this, "Camera permission not granted.", Toast.LENGTH_SHORT).show()
+            finish() // Finish this activity if permission is not granted
+        }
+
         // Get the device ID or token during activity creation
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         Log.d("PhoneID", "Phone ID: $deviceId")
@@ -73,6 +85,7 @@ class CaptureImageActivity : AppCompatActivity() {
         }
     }
 
+    // Function to resume the camera session
     override fun onResume() {
         super.onResume()
         openBackgroundThread()
@@ -80,6 +93,7 @@ class CaptureImageActivity : AppCompatActivity() {
         openCameraPreview()
     }
 
+    // Function to pause the camera session
     override fun onPause() {
         super.onPause()
         closeCamera()
@@ -101,41 +115,11 @@ class CaptureImageActivity : AppCompatActivity() {
 
     // Function to setup camera components if permissions are granted
     private fun setupCamera() {
-        if (allPermissionsGranted()) {
-            setupCameraManager()
-            setupCameraPreview()
-            setupCaptureImage()
-            setupFlashToggle()
-            setupHistoryButton()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                PERMISSION_REQUEST_CODE
-            )
-        }
-    }
-
-    // Function to check if all necessary permissions are granted
-    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
-        applicationContext,
-        Manifest.permission.CAMERA
-    ) == PackageManager.PERMISSION_GRANTED
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setupCamera()
-            } else {
-                // Handle denied permissions
-                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
-            }
-        }
+        setupCameraManager()
+        setupCameraPreview()
+        setupCaptureImage()
+        setupFlashToggle()
+        setupHistoryButton()
     }
 
     // Function to setup camera manager
@@ -212,7 +196,7 @@ class CaptureImageActivity : AppCompatActivity() {
 
         capReq = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
             addTarget(imageReader.surface)
-            // autofocus mode control
+            // Autofocus mode control
             set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
             set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
             set(CaptureRequest.JPEG_ORIENTATION, rotation)
@@ -225,9 +209,8 @@ class CaptureImageActivity : AppCompatActivity() {
         imageReader.setOnImageAvailableListener({ reader ->
             val image = reader?.acquireLatestImage()
             image?.let { img ->
-                val width = img.width // Get width of the image
-                val height = img.height // Get height of the image
-
+                val width = img.width
+                val height = img.height
                 Log.d("ImageDimensions", "Displayed image dimension: $width x $height")
 
                 val buffer = img.planes[0].buffer
@@ -462,10 +445,6 @@ class CaptureImageActivity : AppCompatActivity() {
     private fun handleIllegalStateException(e: IllegalStateException) {
         e.printStackTrace()
         // Handle illegal state exception
-    }
-
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 101
     }
 
     // Function to show lighting condition dialog

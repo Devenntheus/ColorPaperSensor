@@ -1,10 +1,12 @@
 package com.example.colorsensor
 
+import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,7 +16,10 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 object GlobalData {
     var meatType: String? = null
@@ -22,9 +27,25 @@ object GlobalData {
 
 class MainMenuActivity : AppCompatActivity() {
 
+    private val CAMERA_PERMISSION_REQUEST_CODE = 101
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_menu)
+
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request camera permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST_CODE
+            )
+        }
 
         val textView = findViewById<TextView>(R.id.AppTitleTextView)
 
@@ -60,19 +81,36 @@ class MainMenuActivity : AppCompatActivity() {
         porkCardView.setOnClickListener {
             // Set the meat type in the global data
             GlobalData.meatType = "Pork"
-            showUnderMaintenanceDialog(){}
+            startCaptureImageActivity()
         }
 
         val beefCardView = findViewById<CardView>(R.id.BeefCardView)
         beefCardView.setOnClickListener {
             GlobalData.meatType = "Beef"
-            showUnderMaintenanceDialog(){}
+            startCaptureImageActivity()
         }
 
         val poultryCardView = findViewById<CardView>(R.id.PoultryCardView)
         poultryCardView.setOnClickListener {
             GlobalData.meatType = "Poultry"
             startCaptureImageActivity()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission granted, proceed with app functionality
+                startCaptureImageActivity()
+            } else {
+                // Camera permission denied, show a message or handle accordingly
+                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
