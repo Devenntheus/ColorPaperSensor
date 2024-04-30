@@ -5,15 +5,14 @@ import android.util.Log
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PlanHPoultryMeatStatus {
-
+class BeefMeatStatus {
     data class LabValue(val L: Float, val a: Float, val b: Float)
 
     companion object {
         // Average Class LAB values
-        private val CLASS_A = LabValue(71.12f, 6.59f, -1.26f)
-        private val CLASS_B = LabValue(68.01f, 1.41f, -4.25f)
-        private val CLASS_C = LabValue(67.23f, 1.58f, -4.22f)
+        private val CLASS_A = LabValue(72.91f, 7.08f, 1.33f)
+        private val CLASS_B = LabValue(71.13f, 5.22f, -1.66f)
+        private val CLASS_C = LabValue(70.65f, 2.30f, -3.14f)
 
         // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {

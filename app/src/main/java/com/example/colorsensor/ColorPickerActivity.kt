@@ -71,10 +71,15 @@ class ColorPickerActivity : AppCompatActivity() {
     private lateinit var sizeSeekBar: SeekBar
 
     private lateinit var checkButtonLinearLayout: LinearLayout
-    private lateinit var bottomFunctionsLinearLayout: LinearLayout
+    private lateinit var bottomFunctionsFrameLayout: FrameLayout
     private lateinit var confirmImageView: ImageView
     private lateinit var confirmCheckImageButton: ImageButton
     private lateinit var topFunctionsRelativeLayout:RelativeLayout
+    private lateinit var imageFrameLayout:FrameLayout
+    private lateinit var cameraImageView:ImageView
+    private lateinit var detailsTextView:TextView
+    private lateinit var homeImageView:ImageView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,10 +89,14 @@ class ColorPickerActivity : AppCompatActivity() {
         capturedImageView = findViewById(R.id.CapturedImageView)
 
         checkButtonLinearLayout = findViewById(R.id.CheckButtonLinearLayout);
-        bottomFunctionsLinearLayout = findViewById(R.id.BottomFunctionsLinearLayout);
+        bottomFunctionsFrameLayout = findViewById(R.id.BottomFunctionsFrameLayout);
         confirmImageView = findViewById(R.id.ConfirmImageView);
         confirmCheckImageButton = findViewById(R.id.ConfirmCheckImageButton);
         topFunctionsRelativeLayout = findViewById(R.id.TopFunctionsRelativeLayout);
+        imageFrameLayout = findViewById(R.id.ImageFrameLayout)
+        cameraImageView = findViewById(R.id.cameraImageView)
+        detailsTextView = findViewById(R.id.detailsTextView)
+        homeImageView = findViewById(R.id.homeImageView)
 
         // Get the image path from the intent
         imageFilePath = intent.getStringExtra("capturedImagePath") ?: ""
@@ -137,20 +146,26 @@ class ColorPickerActivity : AppCompatActivity() {
         })
 
         confirmCheckImageButton.setOnClickListener {
+
+
             // Get the hex color under the cursor
             val hexColor = getHexColorUnderCrosshair()
 
             // Show progress dialog and then display color dialog
             showProgressDialog {}
 
-            launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
+
 
             // Disable movement of crossHairImageView by intercepting touch events
-            findViewById<FrameLayout>(R.id.ImageFrameLayout).setOnTouchListener { _, _ ->
+            imageFrameLayout.setOnTouchListener { _, _ ->
                 // Return true to indicate that the touch event was consumed
                 true
             }
+
+
+            launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
         }
+
     }
 
     // Function to load captured image into CapturedImageView
@@ -540,8 +555,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
     private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
 
-
-
         // Set meat type
         val meatType = GlobalData.meatType.toString()  // Convert meatType to String immediately
 
@@ -550,10 +563,10 @@ class ColorPickerActivity : AppCompatActivity() {
             // Convert hex color to RGB
             val rgbValues = withContext(Dispatchers.Default) { hexToRgb(color) }
 
-            // Get meat status based on meat type and RGB values
+            /*// Get meat status based on meat type and RGB values
             val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
-
-            /*Get meat status based on meat type and RGB values
+*/
+            //Get meat status based on meat type and RGB values
             val (meatStatus, labValues, _) = when (meatType) {
                 "Poultry" -> PoultryMeatStatus.getMeatStatus(meatType, rgbValues)
                 "Beef" -> BeefMeatStatus.getMeatStatus(meatType, rgbValues)
@@ -563,7 +576,7 @@ class ColorPickerActivity : AppCompatActivity() {
                     startActivity(Intent(this@ColorPickerActivity, MainMenuActivity::class.java))
                     return@launch
                 }
-            }*/
+            }
 
 
             // Get color name asynchronously
@@ -576,7 +589,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
 
             // Example of displaying data in TextViews (replace with your UI elements)
-            val meatImageTextView = findViewById<ImageView>(R.id.meatImageView)
             val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
             val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
             val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
@@ -584,7 +596,6 @@ class ColorPickerActivity : AppCompatActivity() {
             val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
             val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
             val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
-
 
 
 
@@ -606,11 +617,29 @@ class ColorPickerActivity : AppCompatActivity() {
             setCapturedColor(capturedImageView, color)
             setReferenceColor(referenceImageView, meatStatus)
 
-            // Hide CheckButtonFrameLayout and show BottomFunctionsLinearLayout
-            checkButtonLinearLayout.setVisibility(View.GONE);
-            bottomFunctionsLinearLayout.setVisibility(View.VISIBLE);
-            topFunctionsRelativeLayout.setVisibility(View.VISIBLE);
+            // Disable resizing of imageFrameLayout after layout changes
+            imageFrameLayout.post {
+                val layoutParams = imageFrameLayout.layoutParams
+                layoutParams.width = imageFrameLayout.width  // Set width to current width
+                layoutParams.height = imageFrameLayout.height  // Set height to current height
+                imageFrameLayout.layoutParams = layoutParams
+            }
 
+            // Hide CheckButtonFrameLayout and show BottomFunctionsLinearLayout
+            crossHairImageView.setVisibility(View.GONE)
+            checkButtonLinearLayout.setVisibility(View.GONE)
+            bottomFunctionsFrameLayout.setVisibility(View.VISIBLE)
+            cameraImageView.setVisibility(View.VISIBLE)
+            detailsTextView.setVisibility(View.VISIBLE)
+            homeImageView.setVisibility(View.VISIBLE)
+
+            // Bring BottomFunctionsFrameLayout to the front
+            bottomFunctionsFrameLayout.bringToFront()
+
+
+            // Request layout to reflect changes
+            imageFrameLayout.requestLayout();
+            checkButtonLinearLayout.requestLayout();
 
             hideProgressDialog();
 
