@@ -48,6 +48,10 @@ class BeefMeatStatus {
             val a = 500f * (finalX - finalY)
             val b = 200f * (finalY - finalZ)
 
+            /*val L = 43.09f
+            val a = 18.10f
+            val b = 1.06f*/
+
             return floatArrayOf(L, a, b)
         }
 

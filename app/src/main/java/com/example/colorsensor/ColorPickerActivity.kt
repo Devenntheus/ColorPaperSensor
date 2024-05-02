@@ -615,7 +615,7 @@ class ColorPickerActivity : AppCompatActivity() {
             // Set text color of meatStatusTextView based on the hex code
             setTextColorBasedOnHexCode(meatStatusTextView, color)
             setCapturedColor(capturedImageView, color)
-            setReferenceColor(referenceImageView, meatStatus)
+            setReferenceColor(referenceImageView, meatStatus, meatType)
 
             // Disable resizing of imageFrameLayout after layout changes
             imageFrameLayout.post {
@@ -664,14 +664,35 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?) {
+    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?, meatType: String?) {
         // Set background color of the ImageView based on meat status
-        if (meatStatus == "Fresh") {
-            referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
-        } else if (meatStatus == "Moderately Fresh") {
-            referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
-        } else if (meatStatus == "Borderline Spoilage") {
-            referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
+        if (meatType == "Poultry"){
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
+            }
+        }
+        else if (meatType == "Pork"){
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(135, 80, 94))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(136, 93, 105))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(Color.rgb(121, 87, 100))
+            }
+        }
+
+        else if (meatType == "Beef"){
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(193, 175, 177))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(183, 171, 177))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(Color.rgb(175, 172, 179))
+            }
         }
     }
 
