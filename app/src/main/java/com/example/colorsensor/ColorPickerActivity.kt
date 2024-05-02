@@ -397,162 +397,6 @@ class ColorPickerActivity : AppCompatActivity() {
         }
     }
 
-    // Function to display meat information in a dialog box
-    /*private fun showColorDialog(color: String, imageFilePath: String, phoneId: String) {
-        val dialogView = layoutInflater.inflate(R.layout.meat_description_dialog, null)
-        val closeButtonImageView = dialogView.findViewById<ImageView>(R.id.CloseImageButton)
-        val meatStatusTextView = dialogView.findViewById<TextView>(R.id.statusTextView)
-        val meatTypeTextView = dialogView.findViewById<TextView>(R.id.MeatTypeTextView)
-        val colorNameTextView = dialogView.findViewById<TextView>(R.id.ColorNameTextView)
-        val hexCodeTextView = dialogView.findViewById<TextView>(R.id.HexCodeTextView)
-        /*val rgbTextView = dialogView.findViewById<TextView>(R.id.RGBTextView)
-        val hsvCodeTextView = dialogView.findViewById<TextView>(R.id.HsvCodeTextView)
-        val xyzValuesTextView = dialogView.findViewById<TextView>(R.id.XYZValuesTextView)*/
-        val labValuesTextView = dialogView.findViewById<TextView>(R.id.LabValuesTextView)
-        val colorShapeView = dialogView.findViewById<ImageView>(R.id.ShowColorImage)
-        val colorShapeReferenceView = dialogView.findViewById<ImageView>(R.id.ShowReferenceColorImage)
-
-        // Convert hex color string to color value
-        val colorValue = Color.parseColor(color)
-
-        // Set background color of the colorShapeView
-        colorShapeView.setBackgroundColor(colorValue)
-
-        // Set meat type
-        val meatType = GlobalData.meatType
-        meatTypeTextView.text = meatType.toString()
-
-        // Convert hex color to RGB
-        val rgbValues = hexToRgb(color)
-
-        /*// Set the RGB values to the TextView
-        if (rgbValues != null) {
-            val (red, green, blue) = rgbValues
-            val rgbValuesText = "($red, $green, $blue)"
-            rgbTextView.text = rgbValuesText
-        } else {
-            rgbTextView.text = "N/A"
-        }*/
-
-        // Get the hex color under the cursor
-        val hexColor = getHexColorUnderCrosshair();
-
-        // Log message before saving meat information
-        Log.d(TAG, "Hex Code Value: $hexColor")
-
-        // Get meat status based on meat type and RGB values
-        val (meatStatus, labValues, xyzValues) = PlanHPoultryMeatStatus.getMeatStatus(meatType.toString(), rgbValues)
-
-        /*// Check if the meat status is unknown
-        if (meatStatus == "Unknown") {
-            // Show the recapture dialog for unknown meat status
-            showRecaptureDialog()
-            return // Exit the function after showing the recapture dialog=[
-        }*/
-
-        // Set meat status
-        meatStatusTextView.text = meatStatus
-
-        // Set background color of the ImageView based on meat status
-        if (meatStatus == "Fresh") {
-            colorShapeReferenceView.setBackgroundColor(Color.rgb(185, 170, 177))
-        } else if (meatStatus == "Moderately Fresh") {
-            colorShapeReferenceView.setBackgroundColor(Color.rgb(165, 165, 173))
-        } else if (meatStatus == "Borderline Spoilage") {
-            colorShapeReferenceView.setBackgroundColor(Color.rgb(163, 163, 171))
-        }
-
-        // Convert meatTypeTextView.text to String
-        val meatTypeString: String = meatTypeTextView.text.toString()
-
-        closeButtonImageView.isEnabled = false
-
-        // Declare a variable to store the colorName
-        var colorName: String? = null
-
-        /* // Set the hsv code to textview
-         val hsvValues = getHSVFromHexColor(color)
-         val formattedHSV = "(${String.format("%.2f", hsvValues[0])}, ${String.format("%.4f", hsvValues[1])}, ${String.format("%.4f", hsvValues[2])})"
-         hsvCodeTextView.text = formattedHSV
-
-         // Set the xyz values to the textview with two decimal places
-         val xyzValuesText = "(${"%.2f".format(xyzValues[0])}, ${"%.4f".format(xyzValues[1])}, ${"%.4f".format(xyzValues[2])})"
-         xyzValuesTextView.text = xyzValuesText*/
-
-        // Set the lab values to the textview with two decimal places
-        val labValuesText = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
-        labValuesTextView.text = labValuesText
-
-        // Launch the coroutine to get the colorName
-        val job = lifecycleScope.launch {
-            colorName = getColorName(color)
-
-            // Set color name to TextView
-            colorNameTextView.text = colorName
-
-            // Enable the close button now that the colorName is retrieved
-            closeButtonImageView.isEnabled = true
-
-            // Convert the captured image to Base64 using the utility class
-            val bitmap = BitmapFactory.decodeFile(imageFilePath)
-            val capturedImageString = ImageUtils.convertImageToString(bitmap)
-
-            // Generate the ID using the MeatInformationManager
-            val id = MeatInformationManager.generateId()
-
-            // Get the current date and time in separate formats
-            val currentDate = SimpleDateFormat("MM-dd-yyyy").format(Date())
-            val currentTime = SimpleDateFormat("HH:mm:ss").format(Date())
-
-            // Create an instance of MeatInformation with the generated ID
-            val meatInformation = MeatInformation(
-                id = id,
-                meatStatus = meatStatus,  // Replace "YourMeatStatus" with the actual meat status
-                meatType = meatTypeString,
-                color = colorName ?: "", // Use the colorName if not null, or an empty string if null
-                hexCode = color,
-                date = currentDate,
-                time = currentTime,
-                meatImage = capturedImageString,
-                phoneId = phoneId
-            )
-
-            // Log message before saving meat information
-            Log.d(TAG, "Saving meat information: $meatInformation")
-
-            // Save the meat information
-            saveMeatInformation(meatInformation)
-
-            // Log message after saving meat information
-            Log.d(TAG, "Meat information saved successfully.")
-
-        }
-
-        // Set the hex code
-        hexCodeTextView.text = color
-
-        val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setView(dialogView)
-        alertDialogBuilder.setCancelable(false)
-
-        val alertDialog = alertDialogBuilder.create()
-
-        // Set close button click listener
-        closeButtonImageView.setOnClickListener {
-            // Cancel the coroutine when the dialog is dismissed
-            job.cancel()
-            alertDialog.dismiss()
-
-            // Start MainMenuActivity or use an intent to navigate back
-            val intent = Intent(this, MainMenuActivity::class.java)
-            startActivity(intent)
-        }
-
-
-        alertDialog.show()
-
-    }*/
-
     private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
 
         // Set meat type
@@ -597,20 +441,12 @@ class ColorPickerActivity : AppCompatActivity() {
             val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
             val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
 
-
-
             // Decode and display the image
             meatStatusTextView.text = "$meatStatus"
             meatTypeTextView.text = "$meatType"
             colorNameTextView.text = "$colorName"
             hexCodeTextView.text = "$color"
             labValuesTextView.text = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
-
-            /*// Set other meat information
-            intent.putExtra("meatType", meatType)
-            intent.putExtra("colorName", colorName)
-            intent.putExtra("hexCode", color)
-            intent.putExtra("labValues", "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})")*/
 
             // Set text color of meatStatusTextView based on the hex code
             setTextColorBasedOnHexCode(meatStatusTextView, color)
@@ -635,7 +471,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
             // Bring BottomFunctionsFrameLayout to the front
             bottomFunctionsFrameLayout.bringToFront()
-
 
             // Request layout to reflect changes
             imageFrameLayout.requestLayout();
@@ -695,59 +530,6 @@ class ColorPickerActivity : AppCompatActivity() {
             }
         }
     }
-
-    /*/private fun launchMeatDescriptionActivity(color: String, imagePath: String, phoneId: String) {
-        val intent = Intent(this, MeatDescriptionActivity::class.java)
-
-        // Set meat type
-        val meatType = GlobalData.meatType.toString()  // Convert meatType to String immediately
-
-        // Launch the coroutine to get meat status and color name
-        lifecycleScope.launch {
-            // Convert hex color to RGB
-            val rgbValues = withContext(Dispatchers.Default) { hexToRgb(color) }
-
-            // Get meat status based on meat type and RGB values
-            val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
-
-            /*// Get meat status based on meat type and RGB values
-            val (meatStatus, labValues, _) = when (meatType) {
-                "Poultry" -> PoultryMeatStatus.getMeatStatus(meatType, rgbValues)
-                "Beef" -> BeefMeatStatus.getMeatStatus(meatType, rgbValues)
-                "Pork" -> PorkMeatStatus.getMeatStatus(meatType, rgbValues)
-                else -> {
-                    // Navigate back to main menu activity if meat type is not recognized
-                    startActivity(Intent(this@ColorPickerActivity, MainMenuActivity::class.java))
-                    return@launch
-                }
-            }*/
-
-            // Set meat status
-            intent.putExtra("meatStatus", meatStatus)
-
-            // Get color name asynchronously
-            val colorName = withContext(Dispatchers.IO) { getColorName(color) }
-
-            val bitmap = BitmapFactory.decodeFile(imagePath)
-            val capturedImageString = ImageUtils.convertImageToString(bitmap)
-
-            val labValue = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
-
-            // Set other meat information
-            intent.putExtra("meatImage", capturedImageString)
-            intent.putExtra("meatType", meatType)
-            intent.putExtra("colorName", colorName)
-            intent.putExtra("hexCode", color)
-            intent.putExtra("labValues", "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})")
-
-            // Start MeatDescriptionActivity with intent
-            startActivity(intent)
-
-            // Now that the activity is started, save meat information in the background
-            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue)
-            hideProgressDialog()
-        }
-    }*/
 
     //Function to hide progress dialog
     private fun hideProgressDialog() {

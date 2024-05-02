@@ -32,9 +32,7 @@ class HistoryActivity : AppCompatActivity() {
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         Log.d("PhoneID", "Phone ID: $deviceId")
 
-        showProgressDialog {
-            // This block will be executed after the progress dialog is shown
-        }
+        showProgressDialog {}
 
         val db = FirebaseFirestore.getInstance()
         val historyList = arrayListOf<HistoryData>()

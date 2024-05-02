@@ -98,19 +98,13 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         Log.d("HistoryDetailsActivity", "Setting Text Color")
                         meatImageTextView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
 
-
-
                         setCapturedColor(capturedImageView, hexCode)
                         setReferenceColor(referenceImageView, meatStatus)
 
                         hideProgressDialog();
 
-
                         Log.d("HistoryDetailsActivity", "SUCCESSFUL RETRIEVAL")
-
-
                     } catch (e: NoSuchFileException) {
-
                         Log.d("HistoryDetailsActivity", "ERROR CATCH RETRIEVAL")
                         // Handle the NoSuchFileException
                         // This could involve logging the error, displaying a message to the user, or taking other appropriate action
