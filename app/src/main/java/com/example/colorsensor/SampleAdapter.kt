@@ -25,6 +25,7 @@ class SampleAdapter(private val context: Context, private val historyList: Array
         val typeTextView: TextView = itemView.findViewById(R.id.typeTextView)
         val colorTextView: TextView = itemView.findViewById(R.id.colorTextView)
         val hexCodeTextView: TextView = itemView.findViewById(R.id.hexCodeTextView)
+        
         val dateTextView: TextView = itemView.findViewById(R.id.dateTextView)
         val labValueTextView: TextView = itemView.findViewById(R.id.labValueTextView)
         val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)

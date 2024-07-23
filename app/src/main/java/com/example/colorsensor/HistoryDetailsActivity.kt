@@ -70,6 +70,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         val meatStatus = documentSnapshot.getString("meatStatus")
                         val color = documentSnapshot.getString("color")
                         val hexCode = documentSnapshot.getString("hexCode")
+                        val redValue = documentSnapshot.getString("redValue")
                         val labValue = documentSnapshot.getString("labValue")
                         val meatImageString = documentSnapshot.getString("meatImage")
 
@@ -79,17 +80,19 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
                         val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
                         val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+                        val redTextView = findViewById<TextView>(R.id.RedTextView)
                         val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
                         val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
                         val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
 
-                        Log.d("HistoryDetailsActivity", "Displaying Meat Description (Status:  $meatStatus, Type: $meatType, Color: $color, Hex Code: $hexCode, LAB Value: $labValue, Image String: $meatImageString")
+                        Log.d("HistoryDetailsActivity", "Displaying Meat Description (Status:  $meatStatus, Type: $meatType, Color: $color, Hex Code: $hexCode, LAB Value: $labValue, RED Value: $redValue, Image String: $meatImageString")
 
                         meatStatusTextView.text = "$meatStatus"
                         meatTypeTextView.text = "$meatType"
                         colorNameTextView.text = "$color"
                         hexCodeTextView.text = "$hexCode"
                         labValuesTextView.text = "$labValue"
+                        redTextView.text = "$redValue"
 
                         Log.d("HistoryDetailsActivity", "Retrieving Meat Description")
 
