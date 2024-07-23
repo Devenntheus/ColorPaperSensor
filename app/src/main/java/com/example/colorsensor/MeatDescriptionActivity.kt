@@ -37,6 +37,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
             val meatType = intent.getStringExtra("meatType")
             val colorName = intent.getStringExtra("colorName")
             val hexCode = intent.getStringExtra("hexCode")
+            val redValue = intent.getStringExtra("redValue")
             val labValues = intent.getStringExtra("labValues")
 
             // Example of displaying data in TextViews (replace with your UI elements)
@@ -45,6 +46,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
             val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
             val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
             val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+            val redValueTextView = findViewById<TextView>(R.id.RedTextView)
             val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
             val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
             val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
@@ -74,6 +76,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
             meatTypeTextView.text = "$meatType"
             colorNameTextView.text = "$colorName"
             hexCodeTextView.text = "$hexCode"
+            redValueTextView.text = "$redValue"
             labValuesTextView.text = "$labValues"
 
             // Set text color of meatStatusTextView based on the hex code

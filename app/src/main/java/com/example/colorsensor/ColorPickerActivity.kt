@@ -330,6 +330,16 @@ class ColorPickerActivity : AppCompatActivity() {
         return hsv
     }
 
+    // Function to convert hex color to Red value
+    private fun hexToRed(hexColor: String): Int? {
+        return try {
+            val colorInt = Color.parseColor(hexColor)
+            Color.red(colorInt)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
     // Function to convert hex color to RGB
     private fun hexToRgb(hexColor: String): Triple<Int, Int, Int>? {
         return try {
@@ -432,10 +442,22 @@ class ColorPickerActivity : AppCompatActivity() {
             /*// Get meat status based on meat type and RGB values
             val (meatStatus, labValues, _) = PlanHPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
 */
-            //Get meat status based on meat type and RGB values
+            /*//Get meat status based on meat type and RGB values
             val (meatStatus, labValues, _) = when (meatType) {
                 "Poultry" -> PoultryMeatStatus.getMeatStatus(meatType, rgbValues)
                 "Beef" -> BeefMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Pork" -> PorkMeatStatus.getMeatStatus(meatType, rgbValues)
+                else -> {
+                    // Navigate back to main menu activity if meat type is not recognized
+                    startActivity(Intent(this@ColorPickerActivity, MainMenuActivity::class.java))
+                    return@launch
+                }
+            }*/
+
+            //Get meat status based on meat type and RGB values
+            val (meatStatus, labValues, redValues) = when (meatType) {
+                "Poultry" -> RedPoultryMeatStatus.getMeatStatus(meatType, rgbValues)
+                "Beef" -> RedBeefMeatStatus.getMeatStatus(meatType, rgbValues)
                 "Pork" -> PorkMeatStatus.getMeatStatus(meatType, rgbValues)
                 else -> {
                     // Navigate back to main menu activity if meat type is not recognized
@@ -452,13 +474,15 @@ class ColorPickerActivity : AppCompatActivity() {
             val capturedImageString = ImageUtils.convertImageToString(bitmap)
 
             val labValue = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
-
+            /*val redValue = "0";*/
+            val redValue = "${"%.0f".format(redValues)}"
 
             // Example of displaying data in TextViews (replace with your UI elements)
             val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
             val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
             val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
             val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+            val redTextView = findViewById<TextView>(R.id.RedTextView)
             val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
             val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
             val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
@@ -468,6 +492,7 @@ class ColorPickerActivity : AppCompatActivity() {
             meatTypeTextView.text = "$meatType"
             colorNameTextView.text = "$colorName"
             hexCodeTextView.text = "$color"
+            redTextView.text = "$redValues"
             labValuesTextView.text = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
 
             // Set text color of meatStatusTextView based on the hex code
@@ -501,7 +526,7 @@ class ColorPickerActivity : AppCompatActivity() {
             hideProgressDialog();
 
             // Now that the activity is started, save meat information in the background
-            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue)
+            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue, redValue)
             hideProgressDialog()
         }
     }
@@ -567,7 +592,8 @@ class ColorPickerActivity : AppCompatActivity() {
         hexCode: String,
         phoneId: String,
         imagePath: String,
-        labValue: String
+        labValue: String,
+        redValue: String
     ) {
         withContext(Dispatchers.IO) {
             val bitmap = BitmapFactory.decodeFile(imagePath)
@@ -587,7 +613,8 @@ class ColorPickerActivity : AppCompatActivity() {
                 time = currentTime,
                 meatImage = capturedImageString,
                 phoneId = phoneId,
-                labValue = labValue
+                labValue = labValue,
+                redValue = redValue
             )
 
             saveMeatInformation(meatInformation)
@@ -604,7 +631,8 @@ class ColorPickerActivity : AppCompatActivity() {
         time: String,
         meatImage: String,
         phoneId: String,
-        labValue: String
+        labValue: String,
+        redValue: String
     ) {
 
     }
@@ -675,7 +703,8 @@ class ColorPickerActivity : AppCompatActivity() {
         val time: String,
         val meatImage: String,
         val phoneId: String,
-        val labValue: String
+        val labValue: String,
+        val redValue: String
     )
 
     class MeatInformationManager {
