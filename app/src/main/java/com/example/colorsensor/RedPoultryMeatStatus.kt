@@ -3,18 +3,10 @@ package com.example.colorsensor
 import android.content.ContentValues
 import android.util.Log
 import kotlin.math.pow
-import kotlin.math.sqrt
-
-class PorkMeatStatus {
-
+class RedPoultryMeatStatus {
     data class LabValue(val L: Float, val a: Float, val b: Float)
 
     companion object {
-        // Average Class LAB values
-        private val CLASS_A = LabValue(40.80f, 25.01f, 1.57f)
-        private val CLASS_B = LabValue(44.25f, 19.48f, 0.39f)
-        private val CLASS_C = LabValue(40.91f, 15.08f, -1.92f)
-
         // Convert RGB to XYZ color space.
         private fun rgbToXyz(r: Float, g: Float, b: Float): FloatArray {
             // Normalize RGB values
@@ -52,6 +44,7 @@ class PorkMeatStatus {
             return floatArrayOf(L, a, b)
         }
 
+
         // Convert XYZ to Red value in RGB color space.
         private fun xyzToRed(x: Float, y: Float, z: Float): Float {
             // Normalize XYZ values
@@ -72,39 +65,23 @@ class PorkMeatStatus {
             return red
         }
 
-        // Calculate euclidean distance between two LAB color values
-        private fun deltaE(lab1: LabValue, lab2: LabValue): Float {
-            val dL = lab1.L - lab2.L
-            val da = lab1.a - lab2.a
-            val db = lab1.b - lab2.b
-            return sqrt((dL * dL) + (da * da) + (db * db))
-        }
+        // Get meat status from the red color value
+        private fun getMeatStatusFromRed(redValue: Float): String {
+            // Define the ranges for each class
+            val classAUpperBound = 204f
+            val classALowerBound = 191f
 
-        // Get meat status from the compared distance
-        private fun getMeatStatusFromLAB(labValues: LabValue): String {
-            val classADistance = deltaE(labValues, CLASS_A)
-            val classBDistance = deltaE(labValues, CLASS_B)
-            val classCDistance = deltaE(labValues, CLASS_C)
+            val classBUpperBound = 190f
+            val classBLowerBound = 182f
 
-            // Log message to display the class A through C distance
-            Log.d(ContentValues.TAG, "Class A Distance: $classADistance")
-            Log.d(ContentValues.TAG, "Class B Distance: $classBDistance")
-            Log.d(ContentValues.TAG, "Class C Distance: $classCDistance")
+            val classCUpperBound = 181f
+            val classCLowerBound = 173f
 
-            val minDistance = minOf(classADistance, classBDistance, classCDistance)
-
-            // Threshold
-            val threshold = 6.5f // Adjust as needed
-
+            // Determine the meat status based on the red value
             return when {
-                minDistance <= threshold -> {
-                    when {
-                        minDistance == classADistance -> "Fresh"
-                        minDistance == classBDistance -> "Moderately Fresh"
-                        minDistance == classCDistance -> "Borderline Spoilage"
-                        else -> "Unknown"
-                    }
-                }
+                redValue in classALowerBound..classAUpperBound -> "Fresh"
+                redValue in classBLowerBound..classBUpperBound -> "Moderately Fresh"
+                redValue in classCLowerBound..classCUpperBound -> "Borderline Spoilage"
                 else -> "Unknown"
             }
         }
@@ -124,18 +101,14 @@ class PorkMeatStatus {
             // Create a LabValue instance
             val labValue = LabValue(labValues[0], labValues[1], labValues[2])
 
-
             // Convert XYZ to Red value in RGB color space
             val redValue = xyzToRed(xyzValues[0], xyzValues[1], xyzValues[2]).toFloat()
 
             Log.d(ContentValues.TAG, "Red Value: $redValue")
             Log.d(ContentValues.TAG, "LAB Value: $labValue")
 
-            /*// Create a LabValue instance
-            val labValue = LabValue(68.19f, 1.04f, -4.34f)*/
-
-            // Get meat status from LAB values
-            val meatStatus = getMeatStatusFromLAB(labValue)
+            // Determine meat status based on the red value
+            val meatStatus = getMeatStatusFromRed(redValue)
 
             return Triple(meatStatus, labValues, redValue)
         }
