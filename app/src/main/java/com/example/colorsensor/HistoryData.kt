@@ -10,5 +10,6 @@ val image: String? = null,
 val date: String? = null,
 val time: String? = null,
 val phoneId: String? = null,
-val labValue: String? = null
+val labValue: String? = null,
+val redValue: String? = null
 )
