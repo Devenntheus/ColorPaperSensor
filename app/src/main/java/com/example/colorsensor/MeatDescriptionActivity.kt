@@ -30,7 +30,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_meat_description)
 
-        showProgressDialog {}
+        showProgressDialog {
             // Retrieve data from intent extras
             val meatImageString = intent.getStringExtra("meatImage")
             val meatStatus = intent.getStringExtra("meatStatus")
@@ -40,7 +40,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
             val labValues = intent.getStringExtra("labValues")
 
             // Example of displaying data in TextViews (replace with your UI elements)
-            val meatImageTextView = findViewById<ImageView>(R.id.meatImageView)
+            val meatImageView = findViewById<ImageView>(R.id.meatImageView)
             val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
             val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
             val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
@@ -69,7 +69,7 @@ class MeatDescriptionActivity : AppCompatActivity() {
             }
 
             // Decode and display the image
-            meatImageTextView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
+            meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
             meatStatusTextView.text = "$meatStatus"
             meatTypeTextView.text = "$meatType"
             colorNameTextView.text = "$colorName"
@@ -78,14 +78,9 @@ class MeatDescriptionActivity : AppCompatActivity() {
 
             // Set text color of meatStatusTextView based on the hex code
             setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
-
-            meatImageTextView.setImageBitmap(
-                decodeBase64ToBitmap(meatImageString)
-            )
             setCapturedColor(capturedImageView, hexCode)
             setReferenceColor(referenceImageView, meatStatus)
-
-
+        }
         hideProgressDialog();
     }
 

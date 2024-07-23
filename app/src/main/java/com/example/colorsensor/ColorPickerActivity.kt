@@ -39,7 +39,8 @@ import retrofit2.http.Query
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
-
+import android.media.ExifInterface
+import android.graphics.Matrix
 
 data class ColorInfo(
     val hex: Hex,
@@ -146,39 +147,62 @@ class ColorPickerActivity : AppCompatActivity() {
         })
 
         confirmCheckImageButton.setOnClickListener {
-
-
             // Get the hex color under the cursor
             val hexColor = getHexColorUnderCrosshair()
 
             // Show progress dialog and then display color dialog
             showProgressDialog {}
 
-
-
             // Disable movement of crossHairImageView by intercepting touch events
             imageFrameLayout.setOnTouchListener { _, _ ->
                 // Return true to indicate that the touch event was consumed
                 true
             }
-
-
             launchMeatDescriptionActivity(hexColor, imageFilePath, phoneId)
         }
-
     }
 
     // Function to load captured image into CapturedImageView
     private fun displayCapturedImage() {
         if (imageFilePath.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeFile(imageFilePath)
-            capturedImageView.setImageBitmap(bitmap)
+
+            // Read EXIF data
+            val exif = ExifInterface(imageFilePath)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+            // Rotate the bitmap if necessary
+            val rotatedBitmap = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> flipBitmap(bitmap, true, false)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> flipBitmap(bitmap, false, true)
+                else -> bitmap
+            }
+
+            capturedImageView.setImageBitmap(rotatedBitmap)
 
             // Log the dimension of the displayed captured image
-            val width = bitmap.width
-            val height = bitmap.height
+            val width = rotatedBitmap.width
+            val height = rotatedBitmap.height
             Log.d("ImageDimension", "Displayed image dimension: $width x $height")
         }
+    }
+
+    // Function to rotate bitmap
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    // Function to flip bitmap
+    private fun flipBitmap(bitmap: Bitmap, horizontal: Boolean, vertical: Boolean): Bitmap {
+        val matrix = Matrix().apply {
+            if (horizontal) preScale(-1f, 1f)
+            if (vertical) preScale(1f, -1f)
+        }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     // Function to calculate the sample size for bitmap decoding
@@ -198,8 +222,6 @@ class ColorPickerActivity : AppCompatActivity() {
 
         return inSampleSize
     }
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     // Function to set onTouchListener for moving CrosshairImageView
