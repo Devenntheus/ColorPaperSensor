@@ -59,17 +59,15 @@
                 android:id="@+id/meatImageLayout"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
-                android:layout_weight="1"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/meatImageView"
                     android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginRight="50dp"
-                    android:scaleType="centerCrop"
-                    />
+                    android:layout_width="300dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"/>
 
             </LinearLayout>
 
