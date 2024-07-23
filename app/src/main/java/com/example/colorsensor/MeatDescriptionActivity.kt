@@ -30,60 +30,60 @@ class MeatDescriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_meat_description)
 
-        showProgressDialog {
-            // Retrieve data from intent extras
-            val meatImageString = intent.getStringExtra("meatImage")
-            val meatStatus = intent.getStringExtra("meatStatus")
-            val meatType = intent.getStringExtra("meatType")
-            val colorName = intent.getStringExtra("colorName")
-            val hexCode = intent.getStringExtra("hexCode")
-            val redValue = intent.getStringExtra("redValue")
-            val labValues = intent.getStringExtra("labValues")
+        showProgressDialog {}
 
-            // Example of displaying data in TextViews (replace with your UI elements)
-            val meatImageView = findViewById<ImageView>(R.id.meatImageView)
-            val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
-            val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
-            val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
-            val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
-            val redValueTextView = findViewById<TextView>(R.id.RedTextView)
-            val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
-            val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
-            val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
-            val cameraImageView = findViewById<ImageView>(R.id.cameraImageView)
-            val homeImageView = findViewById<ImageView>(R.id.homeImageView)
+        // Retrieve data from intent extras
+        val captureImageString = intent.getStringExtra("meatImage")
+        val meatStatus = intent.getStringExtra("meatStatus")
+        val meatType = intent.getStringExtra("meatType")
+        val colorName = intent.getStringExtra("colorName")
+        val hexCode = intent.getStringExtra("hexCode")
+        val redValue = intent.getStringExtra("redValue")
+        val labValues = intent.getStringExtra("labValues")
+
+        // Example of displaying data in TextViews (replace with your UI elements)
+        val captureImageView = findViewById<ImageView>(R.id.captureImageView)
+        val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
+        val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
+        val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
+        val hexCodeTextView = findViewById<TextView>(R.id.HexCodeTextView)
+        val redValueTextView = findViewById<TextView>(R.id.RedTextView)
+        val labValuesTextView = findViewById<TextView>(R.id.LabValuesTextView)
+        val capturedImageView = findViewById<ImageView>(R.id.ShowColorImage)
+        val referenceImageView = findViewById<ImageView>(R.id.ShowReferenceColorImage)
+        val cameraImageView = findViewById<ImageView>(R.id.cameraImageView)
+        val homeImageView = findViewById<ImageView>(R.id.homeImageView)
 
 
-            // Set click listener for cameraImageView
-            cameraImageView.setOnClickListener {
-                // Launch the Camera Activity with intent
-                val intent = Intent(this, CaptureImageActivity::class.java)
-                intent.putExtra("meatType", GlobalData.meatType.toString()) // Pass meat type to CameraActivity if needed
-                startActivity(intent)
-            }
-
-            // Set click listener for homeImageView
-            homeImageView.setOnClickListener {
-                // Redirect to MainMenuActivity
-                val intent = Intent(this, MainMenuActivity::class.java)
-                startActivity(intent)
-                finish() // Optional: finish the current activity
-            }
-
-            // Decode and display the image
-            meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
-            meatStatusTextView.text = "$meatStatus"
-            meatTypeTextView.text = "$meatType"
-            colorNameTextView.text = "$colorName"
-            hexCodeTextView.text = "$hexCode"
-            redValueTextView.text = "$redValue"
-            labValuesTextView.text = "$labValues"
-
-            // Set text color of meatStatusTextView based on the hex code
-            setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
-            setCapturedColor(capturedImageView, hexCode)
-            setReferenceColor(referenceImageView, meatStatus)
+        // Set click listener for cameraImageView
+        cameraImageView.setOnClickListener {
+            // Launch the Camera Activity with intent
+            val intent = Intent(this, CaptureImageActivity::class.java)
+            intent.putExtra("meatType", GlobalData.meatType.toString()) // Pass meat type to CameraActivity if needed
+            startActivity(intent)
         }
+
+        // Set click listener for homeImageView
+        homeImageView.setOnClickListener {
+            // Redirect to MainMenuActivity
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+            finish() // Optional: finish the current activity
+        }
+
+        // Decode and display the image
+        captureImageView.setImageBitmap(decodeBase64ToBitmap(captureImageString))
+        meatStatusTextView.text = "$meatStatus"
+        meatTypeTextView.text = "$meatType"
+        colorNameTextView.text = "$colorName"
+        hexCodeTextView.text = "$hexCode"
+        redValueTextView.text = "$redValue"
+        labValuesTextView.text = "$labValues"
+
+        // Set text color of meatStatusTextView based on the hex code
+        setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
+        setCapturedColor(capturedImageView, hexCode)
+        setReferenceColor(referenceImageView, meatStatus)
         hideProgressDialog();
     }
 
@@ -157,4 +157,3 @@ class MeatDescriptionActivity : AppCompatActivity() {
         alertDialog?.dismiss()
     }
 }
-

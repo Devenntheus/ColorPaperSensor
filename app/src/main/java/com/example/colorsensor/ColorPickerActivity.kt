@@ -474,10 +474,26 @@ class ColorPickerActivity : AppCompatActivity() {
             val capturedImageString = ImageUtils.convertImageToString(bitmap)
 
             val labValue = "(${"%.2f".format(labValues[0])}, ${"%.4f".format(labValues[1])}, ${"%.4f".format(labValues[2])})"
-            /*val redValue = "0";*/
             val redValue = "${"%.0f".format(redValues)}"
 
-            // Example of displaying data in TextViews (replace with your UI elements)
+            // Create an Intent to launch MeatDescriptionActivity
+            val intent = Intent(this@ColorPickerActivity, MeatDescriptionActivity::class.java).apply {
+                putExtra("meatImage", capturedImageString)
+                putExtra("meatStatus", meatStatus)
+                putExtra("meatType", meatType)
+                putExtra("colorName", colorName)
+                putExtra("hexCode", color)
+                putExtra("redValue", redValue)
+                putExtra("labValues", labValue)
+            }
+
+            // Start the activity
+            startActivity(intent)
+
+            // Save meat information asynchronously
+            saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue, redValue)
+
+            /*// Example of displaying data in TextViews (replace with your UI elements)
             val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
             val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
             val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
@@ -527,11 +543,11 @@ class ColorPickerActivity : AppCompatActivity() {
 
             // Now that the activity is started, save meat information in the background
             saveMeatInformationAsync(meatStatus, meatType, colorName ?: "", color, phoneId, imagePath, labValue, redValue)
-            hideProgressDialog()
+            hideProgressDialog()*/
         }
     }
 
-    // Function to set text color based on hex code
+    /*// Function to set text color based on hex code
     private fun setTextColorBasedOnHexCode(textView: TextView, hexCode: String?) {
         if (hexCode != null) {
             // Set the text color of the TextView based on the hex code
@@ -582,7 +598,7 @@ class ColorPickerActivity : AppCompatActivity() {
     private fun hideProgressDialog() {
 
         alertDialog?.dismiss()
-    }
+    }*/
 
     // Function to save meat information asynchronously
     private suspend fun saveMeatInformationAsync(
