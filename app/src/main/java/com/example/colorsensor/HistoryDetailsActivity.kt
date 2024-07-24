@@ -75,7 +75,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         val meatImageString = documentSnapshot.getString("meatImage")
 
                         // Example of displaying data in TextViews (replace with your UI elements)
-                        val meatImageTextView = findViewById<ImageView>(R.id.meatImageView)
+                        val meatImageView = findViewById<ImageView>(R.id.meatImageView)
                         val meatStatusTextView = findViewById<TextView>(R.id.statusTextView)
                         val meatTypeTextView = findViewById<TextView>(R.id.MeatTypeTextView)
                         val colorNameTextView = findViewById<TextView>(R.id.ColorNameTextView)
@@ -99,10 +99,10 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         // Set text color of meatStatusTextView based on the hex code
                         setTextColorBasedOnHexCode(meatStatusTextView, hexCode)
                         Log.d("HistoryDetailsActivity", "Setting Text Color")
-                        meatImageTextView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
+                        meatImageView.setImageBitmap(decodeBase64ToBitmap(meatImageString))
 
                         setCapturedColor(capturedImageView, hexCode)
-                        setReferenceColor(referenceImageView, meatStatus)
+                        setReferenceColor(referenceImageView, meatStatus, meatType)
 
                         hideProgressDialog();
 
@@ -128,14 +128,36 @@ class HistoryDetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?) {
-        // Set background color of the ImageView based on meat status
-        if (meatStatus == "Fresh") {
-            referenceImageView.setBackgroundColor(Color.rgb(185, 170, 177))
-        } else if (meatStatus == "Moderately Fresh") {
-            referenceImageView.setBackgroundColor(Color.rgb(165, 165, 173))
-        } else if (meatStatus == "Borderline Spoilage") {
-            referenceImageView.setBackgroundColor(Color.rgb(163, 163, 171))
+    private fun setReferenceColor(referenceImageView: ImageView, meatStatus: String?, meatType: String?) {
+        if (meatType == "Poultry"){
+            // Set background color of the ImageView based on meat status
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(Color.rgb(191, 174, 176))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(Color.rgb(182, 173, 176))
+            } else if (meatStatus == "Spoiled") {
+                referenceImageView.setBackgroundColor(Color.rgb(175, 173, 177))
+            }
+        } else if (meatType == "Pork"){
+            // Set background color of the ImageView based on meat status
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(135, 80, 94))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(136, 93, 105))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(119, 88, 100))
+            }
+        } else if (meatType == "Beef"){
+            // Set background color of the ImageView based on meat status
+            if (meatStatus == "Fresh") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(193, 180, 182))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(189, 177, 180))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(184, 179, 183))
+            } else if (meatStatus == "Spoiled") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(176, 176, 180))
+            }
         }
     }
 

@@ -137,16 +137,15 @@ class MeatDescriptionActivity : AppCompatActivity() {
         } else if (meatType == "Beef"){
         // Set background color of the ImageView based on meat status
         if (meatStatus == "Fresh") {
-            referenceImageView.setBackgroundColor(android.graphics.Color.rgb(193, 180, 182))
-        } else if (meatStatus == "Moderately Fresh") {
-            referenceImageView.setBackgroundColor(android.graphics.Color.rgb(189, 177, 180))
-        } else if (meatStatus == "Borderline Spoilage") {
-            referenceImageView.setBackgroundColor(android.graphics.Color.rgb(184, 179, 183))
-        } else if (meatStatus == "Spoiled") {
-            referenceImageView.setBackgroundColor(android.graphics.Color.rgb(176, 176, 180))
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(193, 180, 182))
+            } else if (meatStatus == "Moderately Fresh") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(189, 177, 180))
+            } else if (meatStatus == "Borderline Spoilage") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(184, 179, 183))
+            } else if (meatStatus == "Spoiled") {
+                referenceImageView.setBackgroundColor(android.graphics.Color.rgb(176, 176, 180))
+            }
         }
-    }
-
     }
 
     // Function to show progress dialog
