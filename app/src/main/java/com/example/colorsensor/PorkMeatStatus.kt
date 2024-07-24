@@ -45,6 +45,10 @@ class PorkMeatStatus {
             val finalY = if (varY > 0.008856f) varY.pow(1 / 3f) else (7.787f * varY) + (16 / 116f)
             val finalZ = if (varZ > 0.008856f) varZ.pow(1 / 3f) else (7.787f * varZ) + (16 / 116f)
 
+            /*val L = 45.78f
+            val a = 22f
+            val b = 1.59f*/
+
             val L = (116f * finalY) - 16
             val a = 500f * (finalX - finalY)
             val b = 200f * (finalY - finalZ)
@@ -65,11 +69,11 @@ class PorkMeatStatus {
             // Apply gamma correction
             val finalR = if (linearR > 0.0031308f) 1.055f * linearR.pow(1 / 2.4f) - 0.055f else 12.92f * linearR
 
-            // Clamp the value to the [0, 255] range
-            //return (finalR * 255).coerceIn(0f, 255f)
+            /*val red=180f;
+            return red*/
 
-            val red=180f;
-            return red
+            // Clamp the value to the [0, 255] range
+            return (finalR * 255).coerceIn(0f, 255f)
         }
 
         // Calculate euclidean distance between two LAB color values

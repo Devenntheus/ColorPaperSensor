@@ -58,11 +58,11 @@ class RedPoultryMeatStatus {
             // Apply gamma correction
             val finalR = if (linearR > 0.0031308f) 1.055f * linearR.pow(1 / 2.4f) - 0.055f else 12.92f * linearR
 
-            // Clamp the value to the [0, 255] range
-            //return (finalR * 255).coerceIn(0f, 255f)
+            /*val red=180f;
+            return red*/
 
-            val red=180f;
-            return red
+            // Clamp the value to the [0, 255] range
+            return (finalR * 255).coerceIn(0f, 255f)
         }
 
         // Get meat status from the red color value
@@ -80,8 +80,8 @@ class RedPoultryMeatStatus {
             // Determine the meat status based on the red value
             return when {
                 redValue in classALowerBound..classAUpperBound -> "Fresh"
-                redValue in classBLowerBound..classBUpperBound -> "Moderately Fresh"
-                redValue in classCLowerBound..classCUpperBound -> "Borderline Spoilage"
+                redValue in classBLowerBound..classBUpperBound -> "Borderline Spoilage"
+                redValue in classCLowerBound..classCUpperBound -> "Spoiled"
                 else -> "Unknown"
             }
         }

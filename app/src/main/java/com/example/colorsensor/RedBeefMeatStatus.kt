@@ -59,11 +59,11 @@ class RedBeefMeatStatus {
             // Apply gamma correction
             val finalR = if (linearR > 0.0031308f) 1.055f * linearR.pow(1 / 2.4f) - 0.055f else 12.92f * linearR
 
-            // Clamp the value to the [0, 255] range
-            //return (finalR * 255).coerceIn(0f, 255f)
+           /* val red=178f;
+            return red */
 
-            val red=180f;
-            return red
+            // Clamp the value to the [0, 255] range
+            return (finalR * 255).coerceIn(0f, 255f)
         }
 
         // Get meat status from the red color value
@@ -73,10 +73,13 @@ class RedBeefMeatStatus {
             val classALowerBound = 196f
 
             val classBUpperBound = 192f
-            val classBLowerBound = 185f
+            val classBLowerBound = 191f
 
-            val classCUpperBound = 184f
-            val classCLowerBound = 177f
+            val classCUpperBound = 190f
+            val classCLowerBound = 185f
+
+            val classDUpperBound = 184f
+            val classDLowerBound = 177f
 
 
             // Determine the meat status based on the red value
@@ -84,6 +87,7 @@ class RedBeefMeatStatus {
                 redValue in classALowerBound..classAUpperBound -> "Fresh"
                 redValue in classBLowerBound..classBUpperBound -> "Moderately Fresh"
                 redValue in classCLowerBound..classCUpperBound -> "Borderline Spoilage"
+                redValue in classDLowerBound..classDUpperBound -> "Spoiled"
                 else -> "Unknown"
             }
         }
