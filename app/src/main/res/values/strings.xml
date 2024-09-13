@@ -23,4 +23,5 @@
     <string name="development_desc">The page you\'re looking for is currently under development and will be back soon.</string>
     <string name="unknown">Unknown - Invalid Meat Data</string>
     <string name="unknown_desc">Oops! It seems there was an issue with the captured image. The meat color either does not exist in our database or the color information is invalid. Please recapture again.</string>
+    <string name="distance">0.0</string>
 </resources>

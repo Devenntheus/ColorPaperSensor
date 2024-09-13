@@ -30,6 +30,15 @@
             android:id="@+id/CameraTextureView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/DistanceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:text="@string/distance"/>
     </FrameLayout>
 
     <!-- FrameLayout for ChatHead -->

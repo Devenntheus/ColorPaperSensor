@@ -27,10 +27,16 @@ import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import org.opencv.android.OpenCVLoader
+import org.opencv.android.Utils
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint
+import org.opencv.imgproc.Imgproc
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Semaphore
@@ -90,10 +96,15 @@ class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
             return
         }
 
-
         // Initialize chatHeadFrameLayout
         chatHeadFrameLayout = findViewById(R.id.chatHeadFrameLayout)
 
+        // Initialize OpenCV
+        if (!OpenCVLoader.initDebug()) {
+            Log.e("OpenCV", "OpenCV initialization failed")
+        } else {
+            Log.d("OpenCV", "OpenCV initialized successfully")
+        }
 
         // Get the device ID or token during activity creation
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -393,6 +404,36 @@ class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
                 override fun onConfigured(session: CameraCaptureSession) {
                     cameraCaptureSession = session
                     cameraCaptureSession.setRepeatingRequest(capReq.build(), null, backgroundHandler)
+
+                    // Process each frame using OpenCV
+                    textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+                            openCamera()
+                        }
+
+                        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+
+                        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean = true
+
+                        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                            val bitmap = textureView.bitmap
+                            if (bitmap != null) {
+                                val mat = Mat()
+                                Utils.bitmapToMat(bitmap, mat)
+
+                                // Calculate distance using OpenCV
+                                val distance = calculateDistance(mat)
+
+                                // Update DistanceTextView
+                                runOnUiThread {
+                                    findViewById<TextView>(R.id.DistanceTextView).text = String.format("Distance: %.2f cm", distance)
+                                }
+
+                                // Release Mat to avoid memory leaks
+                                mat.release()
+                            }
+                        }
+                    }
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
@@ -402,6 +443,53 @@ class CaptureImageActivity : AppCompatActivity() , SensorEventListener {
         } catch (e: CameraAccessException) {
             handleCameraAccessException(e)
         }
+    }
+
+    private fun calculateDistance(mat: Mat): Double {
+        if (mat.empty()) return 0.0
+
+        // Convert the image to grayscale
+        val grayMat = Mat()
+        Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_BGR2GRAY)
+
+        // Apply Gaussian blur to reduce noise
+        val blurredMat = Mat()
+        Imgproc.GaussianBlur(grayMat, blurredMat, org.opencv.core.Size(5.0, 5.0), 0.0)
+
+        // Detect edges using Canny
+        val edges = Mat()
+        Imgproc.Canny(blurredMat, edges, 50.0, 150.0)
+
+        // Find contours
+        val contours = mutableListOf<MatOfPoint>()
+        Imgproc.findContours(edges, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
+
+        // Release Mats to avoid memory leaks
+        grayMat.release()
+        blurredMat.release()
+        edges.release()
+
+        // Find the largest contour
+        var maxArea = 0.0
+        var maxContour: MatOfPoint? = null
+        val minContourArea = 100.0 // Example value, adjust as needed
+        for (contour in contours) {
+            val area = Imgproc.contourArea(contour)
+            if (area > minContourArea && area > maxArea) {
+                maxArea = area
+                maxContour = contour
+            }
+        }
+
+        if (maxContour == null) return 0.0
+
+        // Calculate distance based on the known size of the reference object
+        val referenceWidth = 10.0 // Reference object width in cm
+        val focalLength = 700.0 // Focal length in pixels (example value, adjust as necessary)
+        val objectWidthInPixels = Imgproc.boundingRect(maxContour).width.toDouble()
+
+        // Distance calculation using similar triangles
+        return if (objectWidthInPixels > 0) (referenceWidth * focalLength) / objectWidthInPixels else 0.0
     }
 
     // Function to set auto exposure parameters

@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Color Sensor"
 include(":app")
- 
+include(":openCV")
